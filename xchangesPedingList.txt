@@ -1,0 +1,23 @@
+Binance Usdm
+Binance US
+FTX
+FTX US
+OKX
+Phemex
+Huobi
+Huobip
+KuCoin Futures
+Kraken
+Bitfinex
+AAX
+Digifinex
+Bitget
+Gate.io
+Coinbase
+Gemini
+Bitstamp
+Bitso
+
+
+// Contrats //
+

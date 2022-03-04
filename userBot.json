@@ -1,0 +1,27 @@
+{
+    "pair": "pair",
+    
+    "owner": "owner",
+    
+    "exchange": "exchange",
+        
+    "exchangeConnection":
+        {
+        "apiKey": "apiKey",
+        "apiSecret": "apiSecret"
+        },
+                            
+    "tradeType": "future",
+    "tradeAmount": 0.001,
+                            
+    "quantityLeverage": 50,
+                    
+    "setStopLoss": false,
+    "quantityStopLoss": 0,
+        
+    "setTrailingStopLoss": false,
+    "quantityTrailingStopLoss": 0,	
+                            
+    "setTakeProfit": false,
+    "quantityTakeProfit": 0
+    }    
