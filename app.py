@@ -1,5 +1,6 @@
 from flask import Flask, request
 from Mongo.extensions import mongo
+from afterResponse import AfterResponse
 
 # --- Importar Rutas de Prueba ---
 
@@ -21,7 +22,8 @@ def create_app(config_object='Mongo.settings'):
 	app = Flask(__name__)
 
 	# -- Configura aplicacion --
-	app.config.from_object(config_object)
+	app.config['MONGO_URI'] = 'mongodb+srv://vert:V3rtcontra$ena@mtstrategy.3zpyn.mongodb.net/MTStrategy?retryWrites=true&w=majority'
+	AfterResponse(app)
 
 	# -- Inicia Base de Datos --
 	mongo.init_app(app)

@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app as app
 from bson.objectid import ObjectId
 import time
 import ccxt
@@ -13,6 +13,7 @@ apiSecret = ""
 userJson = ""
 inOperation = ""
 side = ""
+stopLoss = 0
 
 # --- Actualiza Hull en la Base de Datos ---
 @ETH.route('/Hull-ETH', methods=['POST'])
@@ -20,7 +21,7 @@ def Hull():
 	hull = mongo.db.Status
 	
 	if request.json['Hull-ETH'] == True:
-		id = "621b1a7717d2224fc51f5274"
+		id = ""
 		hull.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -39,7 +40,7 @@ def Sar():
 	time.sleep(0.1)
 	
 	if request.json['Sar-ETH'] == True:
-		id = "621b1a7e17d2224fc51f5275"
+		id = ""
 		sar.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -48,14 +49,75 @@ def Sar():
 	else:
 		print("Error en Sar")
 
-	if inOperation == True:
-		getUsers_cancel()
-	else:
-		pass
+	@app.after_response
+	def afterSar():
+		if inOperation == True:
+
+			sartpFilter = {"SarTP-ETH": True}	
+			status = mongo.db.Status
+			SarTP = status.find_one(sartpFilter)
+
+			if side == "BUY":
+			
+				if SarTP == "BUY":
+					pass
+				elif SarTP == "SELL":
+					getUsers_cancel()
+				else:
+					print("Error SarTP no declarado")
+
+			elif side == "SELL":
+				
+				if SarTP == "SELL":
+					pass
+				elif SarTP == "BUY":
+					getUsers_cancel()
+				else:
+					print("Error SarTP no declarado")
+
+			else:
+				print("Error Side no declarado")
+
+		else:
+			pass
 
 	return 'Sar Actualizado'
 
-# --- Actualiza Sniper en la Base de Datos ---
+# --- Actualiza SarTP en la Base de Datos ---
+@ETH.route('/SarTP-ETH', methods=['POST'])
+def SarTP():
+	
+	sartp = mongo.db.Status
+	
+	if request.json['SarTP-ETH'] == True:
+		id = ""
+		sartp.find_one_and_update(
+			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
+			)
+		status = request.json['status']
+		print("\n --- SarTP -> " + str(status) + " --- \n")
+	else:
+		print("Error en SarTP")
+
+	@app.after_response
+	def afterSarTP():
+		if inOperation == True:
+			getUsers_cancel()
+		else:
+			pass
+
+	return 'SarTP Actualizado'
+
+# --- Recoge SniperSL (open ticker) como Stop Loss en las operaciones ---
+@ETH.route('/SniperSL-ETH', methods=['POST'])
+def SniperSL():
+
+	global stopLoss	
+	stopLoss = request.json['sl'] - 15
+
+	return 'SniperSL Actualizado'
+
+# --- Actualiza Sniper en la Base de Datos para confirmar operaciones---
 @ETH.route('/Sniper-ETH', methods=['POST'])
 def Sniper():
 	
@@ -63,7 +125,7 @@ def Sniper():
 	time.sleep(0.2)
 	
 	if request.json['Sniper-ETH'] == True:
-		id = "621b1a9917d2224fc51f5276"
+		id = ""
 		sniper.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -72,9 +134,17 @@ def Sniper():
 	else:
 		print("Error en Sniper")
 
-	execute()
+	@app.after_response
+	def afterSniper():
+		if inOperation == False:
+			execute()
+		else:
+			pass
 
 	return 'Sniper Actualizado'
+
+
+
 
 
 
@@ -109,6 +179,11 @@ def execute():
 				side = "BUY"
 				getUsers_create()
 
+				id = "id"
+				status.find_one_and_update(
+				{'_id': ObjectId(id)}, {'$inc': {}, '$set': (sniperNull)}
+				)
+
 			else:
 				pass
 		else:
@@ -126,6 +201,11 @@ def execute():
 				side = "SELL"
 				getUsers_create()
 
+				id = "id"
+				status.find_one_and_update(
+				{'_id': ObjectId(id)}, {'$inc': {}, '$set': (sniperNull)}
+				)
+
 			else:
 				pass   
 		else:
@@ -135,13 +215,40 @@ def execute():
 
 	#----------------------------------------------------------------------------------
 
-	id = "6210545703d15dd5a0b47432"
-	status.find_one_and_update(
-		{'_id': ObjectId(id)}, {'$inc': {}, '$set': (sniperNull)}
-		)
+	if Hull['status'] == "BUY":
+		if Sniper['status'] == "BUY":
+			if Sar['status'] == "SELL":
+				print("Waiting for SAR")
+				time.sleep(901)
+				execute()
+			else:
+				pass
+		else:
+			pass
+	else:
+		pass
+	
+	#----------------------------------------------------------------------------------
+
+	if Hull['status'] == "SELL":
+		if Sniper['status'] == "SELL":
+			if Sar['status'] == "BUY":
+				print("Waiting for SAR")
+				time.sleep(901)
+				execute()
+			else:
+				pass
+		else:
+			pass
+	else:
+		pass
 
 
 #----------------------------------------------------------------------------------
+
+
+
+
 
 
 def getUsers_create():
@@ -163,6 +270,29 @@ def getUsers_create():
 
 	global inOperation
 	inOperation = True
+
+	binance = ccxt.binance({
+		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
+		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
+		'options': {
+			'defaultType': 'future',
+		},
+	})
+	while inOperation == True:
+		price = binance.fetch_ticker('ETH/USDT')
+		if side == "BUY":
+			if price <= stopLoss:
+				getUsers_cancel()
+			else:
+				pass
+		elif side == "SELL":
+			if price >= stopLoss:
+				getUsers_cancel()
+			else:
+				pass
+		else:
+			pass
+
 
 def createOrders():
 	#-------------------- BINANCE -------------------- 

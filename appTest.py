@@ -1,7 +1,4 @@
 from flask import Blueprint, request
-from bson.objectid import ObjectId
-import time
-import ccxt
 from Mongo.extensions import mongo
 
 
