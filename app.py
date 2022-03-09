@@ -37,5 +37,4 @@ def create_app(config_object='Mongo.settings'):
 
 	# -- Inicia aplicacion --
 	return app
-
  

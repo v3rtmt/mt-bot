@@ -28,3 +28,4 @@ def addStatus():
     status.insert_one(request.json)
 
     return 'Status added'
+    

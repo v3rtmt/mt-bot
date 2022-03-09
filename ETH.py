@@ -399,3 +399,4 @@ def cancelOrders():
 			print("NO HAY POSICIONES ABIERTAS PARA ESTE USUARIO")
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
+		
