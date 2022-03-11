@@ -2,6 +2,7 @@ from flask import Blueprint, request, current_app as app
 from bson.objectid import ObjectId
 import time
 import ccxt
+import datetime
 from Mongo.extensions import mongo
 
 
@@ -255,6 +256,8 @@ def getUsers_create():
 
 	global apiKey, apiSecret, userJson, tradeAmount
 
+	# --- Busca todos los Bots correspondientes al par para ejecutar las operaciones ---
+
 	bots = mongo.db.Bots
 	pairFormat = {
 		"pair": "BTCUSDT",
@@ -271,6 +274,25 @@ def getUsers_create():
 	global inOperation
 	inOperation = True
 
+	
+	# --- Inserta la operacion dentro de la coleccion Log ---
+
+	datetime_object = datetime.datetime.now()
+
+	logOrder = {
+		"open": "open",
+		"datetime": datetime_object,
+		"side": side
+	}
+	
+	log = mongo.db.Log
+	log.insert_one(logOrder)
+	
+	print("\n-------------------- BUY -------------------- ")
+
+	# --- Verifica que el precio no alcance el Stop Loss ---
+	# --- Si esta precio lo alcanza cancela todas las operaciones ---
+
 	binance = ccxt.binance({
 		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
 		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
@@ -278,15 +300,18 @@ def getUsers_create():
 			'defaultType': 'future',
 		},
 	})
+
+	stopLossOp = stopLoss
+
 	while inOperation == True:
 		price = binance.fetch_ticker('BTC/USDT')
 		if side == "BUY":
-			if price <= stopLoss:
+			if price <= stopLossOp:
 				getUsers_cancel()
 			else:
 				pass
 		elif side == "SELL":
-			if price >= stopLoss:
+			if price >= stopLossOp:
 				getUsers_cancel()
 			else:
 				pass
@@ -306,9 +331,9 @@ def createOrders():
 		})
 		try:
 			if side == "BUY":
-				binance.create_market_buy_order('BTC/USDT', tradeAmount)
+				pass#testbinance.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif side == "SELL":
-				binance.create_market_sell_order('BTC/USDT', tradeAmount)
+				pass#testbinance.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -325,9 +350,9 @@ def createOrders():
 		})
 		try:
 			if side == "BUY":
-				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
+				pass#testbybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif side == "SELL":
-				bybit.create_market_sell_order('BTC/USDT', tradeAmount)
+				pass#testbybit.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -359,6 +384,21 @@ def getUsers_cancel():
 	global inOperation
 	inOperation = False
 
+	# --- Inserta la cancelacion dentro de la coleccion Log ---
+
+	datetime_object = datetime.datetime.now()
+
+	logOrder = {
+		"close": "close",
+		"datetime": datetime_object,
+		"side": side
+	}
+	
+	log = mongo.db.Log
+	log.insert_one(logOrder)
+
+	print("\n-------------------- SELL -------------------- ")
+
 def cancelOrders():
 	#-------------------- BINANCE -------------------- 
 	if userJson['exchange'] == "Binance":
@@ -371,9 +411,9 @@ def cancelOrders():
 		})
 		try:
 			if side == "BUY":
-				binance.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				pass#testbinance.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			elif side == "SELL":
-				binance.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				pass#testbinance.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -390,9 +430,9 @@ def cancelOrders():
 		})
 		try:
 			if side == "BUY":
-				bybit.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				pass#testbybit.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			elif side == "SELL":
-				bybit.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				pass#testbybit.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:

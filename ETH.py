@@ -270,6 +270,7 @@ def getUsers_create():
 
 	global inOperation
 	inOperation = True
+	stopLossOp = stopLoss
 
 	binance = ccxt.binance({
 		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
@@ -281,12 +282,12 @@ def getUsers_create():
 	while inOperation == True:
 		price = binance.fetch_ticker('ETH/USDT')
 		if side == "BUY":
-			if price <= stopLoss:
+			if price <= stopLossOp:
 				getUsers_cancel()
 			else:
 				pass
 		elif side == "SELL":
-			if price >= stopLoss:
+			if price >= stopLossOp:
 				getUsers_cancel()
 			else:
 				pass
