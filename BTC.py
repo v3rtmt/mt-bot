@@ -13,6 +13,7 @@ apiKey = ""
 apiSecret = ""
 userJson = ""
 inOperation = ""
+sarTPcondition = ""
 side = ""
 stopLoss = 0
 
@@ -33,10 +34,28 @@ def Hull():
 
 	return 'Hull Actualizado'
 
+# --- Actualiza HullTrend en la Base de Datos ---
+@BTC.route('/HullTrend-BTC', methods=['POST'])
+def HullTrend():
+	hullTrend = mongo.db.Status
+	
+	if request.json['HullTrend-BTC'] == True:
+		id = ""
+		hullTrend.find_one_and_update(
+			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
+			)
+		status = request.json['status']
+		print("\n --- HullTrend -> " + str(status) + " --- \n")
+	else:
+		print("Error en HullTrend")
+
+	return 'HullTrend Actualizado'
+
 # --- Actualiza Sar en la Base de Datos ---
 @BTC.route('/Sar-BTC', methods=['POST'])
 def Sar():
-	
+	global sarTPcondition
+
 	sar = mongo.db.Status
 	time.sleep(0.1)
 	
@@ -58,23 +77,41 @@ def Sar():
 			status = mongo.db.Status
 			SarTP = status.find_one(sartpFilter)
 
+			hullTrendFilter = {"HullTrend-BTC": True}	
+			status = mongo.db.Status
+			HullTrend = status.find_one(hullTrendFilter)
+
 			if side == "BUY":
 			
-				if SarTP == "BUY":
-					pass
-				elif SarTP == "SELL":
+				if HullTrend == "BUY":
+
+					if SarTP == "BUY":
+						sarTPcondition = True
+
+					elif SarTP == "SELL":
+						getUsers_cancel()
+
+				elif HullTrend == "SELL":
 					getUsers_cancel()
+
 				else:
-					print("Error SarTP no declarado")
+					print("Error HullTrend no declarado")
 
 			elif side == "SELL":
 				
-				if SarTP == "SELL":
-					pass
-				elif SarTP == "BUY":
+				if HullTrend == "SELL":
+
+					if SarTP == "SELL":
+						sarTPcondition = True
+
+					elif SarTP == "BUY":
+						getUsers_cancel()
+
+				elif HullTrend == "BUY":
 					getUsers_cancel()
+
 				else:
-					print("Error SarTP no declarado")
+					print("Error HullTrend no declarado")
 
 			else:
 				print("Error Side no declarado")
@@ -103,20 +140,14 @@ def SarTP():
 	@app.after_response
 	def afterSarTP():
 		if inOperation == True:
-			getUsers_cancel()
+			if sarTPcondition == True:
+				getUsers_cancel()
+			else:
+				pass
 		else:
 			pass
 
 	return 'SarTP Actualizado'
-
-# --- Recoge SniperSL (open ticker) como Stop Loss en las operaciones ---
-@BTC.route('/SniperSL-BTC', methods=['POST'])
-def SniperSL():
-
-	global stopLoss	
-	stopLoss = request.json['sl'] - 15
-
-	return 'SniperSL Actualizado'
 
 # --- Actualiza Sniper en la Base de Datos para confirmar operaciones---
 @BTC.route('/Sniper-BTC', methods=['POST'])
@@ -134,6 +165,9 @@ def Sniper():
 		print("\n --- Sniper -> " + str(status) + " --- \n")
 	else:
 		print("Error en Sniper")
+
+	global stopLoss	
+	stopLoss = request.json['sl'] - 15
 
 	@app.after_response
 	def afterSniper():
