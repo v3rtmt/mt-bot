@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from flask import Blueprint, request, render_template
 from Mongo.extensions import mongo
 
