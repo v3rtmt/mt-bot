@@ -369,9 +369,9 @@ def createOrders():
 		})
 		try:
 			if side == "BUY":
-				pass#testbinance.create_market_buy_order('BTC/USDT', tradeAmount)
+				binance.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif side == "SELL":
-				pass#testbinance.create_market_sell_order('BTC/USDT', tradeAmount)
+				binance.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -388,9 +388,9 @@ def createOrders():
 		})
 		try:
 			if side == "BUY":
-				pass#testbybit.create_market_buy_order('BTC/USDT', tradeAmount)
+				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif side == "SELL":
-				pass#testbybit.create_market_sell_order('BTC/USDT', tradeAmount)
+				bybit.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -449,9 +449,9 @@ def cancelOrders():
 		})
 		try:
 			if side == "BUY":
-				pass#testbinance.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				binance.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			elif side == "SELL":
-				pass#testbinance.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				binance.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
@@ -468,9 +468,9 @@ def cancelOrders():
 		})
 		try:
 			if side == "BUY":
-				pass#testbybit.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				bybit.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			elif side == "SELL":
-				pass#testbybit.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
+				bybit.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 		except:
