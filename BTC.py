@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app as app
+from flask import Blueprint, render_template, request, current_app as app
 from bson.objectid import ObjectId
 import time
 import ccxt
@@ -23,7 +23,7 @@ def Hull():
 	hull = mongo.db.Status
 	
 	if request.json['Hull-BTC'] == True:
-		id = ""
+		id = "622c004c15200e0bd4b90502"
 		hull.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -40,7 +40,7 @@ def HullTrend():
 	hullTrend = mongo.db.Status
 	
 	if request.json['HullTrend-BTC'] == True:
-		id = ""
+		id = "622c005c15200e0bd4b90503"
 		hullTrend.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -60,7 +60,7 @@ def Sar():
 	time.sleep(0.1)
 	
 	if request.json['Sar-BTC'] == True:
-		id = ""
+		id = "622c006d15200e0bd4b90504"
 		sar.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -128,7 +128,7 @@ def SarTP():
 	sartp = mongo.db.Status
 	
 	if request.json['SarTP-BTC'] == True:
-		id = ""
+		id = "622c007615200e0bd4b90505"
 		sartp.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -157,7 +157,7 @@ def Sniper():
 	time.sleep(0.2)
 	
 	if request.json['Sniper-BTC'] == True:
-		id = ""
+		id = "622c007e15200e0bd4b90506"
 		sniper.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -474,3 +474,65 @@ def cancelOrders():
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
 		
+@BTC.route('/BTC', methods=['GET'])
+def btc():
+	status = mongo.db.Status
+
+	hullFilter = {"Hull-BTC": True}
+	hullTrendFilter = {"HullTrend-BTC": True}
+	sarFilter = {"Sar-BTC": True}
+	sartpFilter = {"SarTP-BTC": True}
+	sniperFilter = {"Sniper-BTC": True}
+
+	HullS = status.find_one(hullFilter)
+	HullTrendS = status.find_one(hullTrendFilter)
+	SarS = status.find_one(sarFilter)
+	SarTPS = status.find_one(sartpFilter)
+	SniperS = status.find_one(sniperFilter)
+
+	Hull = HullS['status']
+	HullTrend = HullTrendS['status']
+	Sar = SarS['status']
+	SarTP = SarTPS['status']
+	Sniper = SniperS['status']
+	
+	if Hull == "BUY":
+		HullColor = "success"
+	else:
+		HullColor = "danger"
+	if HullTrend == "BUY":
+		HullTrendColor = "success"
+	else:
+		HullTrendColor = "danger"
+	if Sar == "BUY":
+		SarColor = "success"
+	else:
+		SarColor = "danger"
+	if SarTP == "BUY":
+		SarTPColor = "success"
+	else:
+		SarTPColor = "danger"
+	if Sniper == "BUY":
+		SniperColor = "success"
+	else:
+		SniperColor = "danger"
+	if inOperation == True:
+		OperationColor = "primary"
+		Operation = "TRUE"
+	else:
+		OperationColor = "secondary"
+		Operation = "FALSE"
+
+	return render_template('bitcoin.html', 
+	Hull=Hull, 
+	HullTrend=HullTrend, 
+	Sar=Sar, 
+	SarTP=SarTP, 
+	Sniper=Sniper,
+	Operation=Operation,
+	HullColor=HullColor,
+	HullTrendColor=HullTrendColor,
+	SarColor=SarColor,
+	SarTPColor=SarTPColor,
+	SniperColor=SniperColor,
+	OperationColor=OperationColor)

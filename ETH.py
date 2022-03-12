@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app as app
+from flask import Blueprint, render_template, request, current_app as app
 from bson.objectid import ObjectId
 import time
 import ccxt
@@ -401,3 +401,6 @@ def cancelOrders():
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
 		
+@ETH.route('/ETH', methods=['GET'])
+def eth():
+	return render_template('question.html')
