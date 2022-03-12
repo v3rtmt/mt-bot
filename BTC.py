@@ -12,7 +12,7 @@ BTC = Blueprint('BTC', __name__)
 apiKey = ""
 apiSecret = ""
 userJson = ""
-inOperation = ""
+inOperation = False
 sarTPcondition = ""
 side = ""
 stopLoss = 0
@@ -71,6 +71,7 @@ def Sar():
 
 	@app.after_response
 	def afterSar():
+		global sarTPcondition
 		if inOperation == True:
 
 			sartpFilter = {"SarTP-BTC": True}	
@@ -83,15 +84,15 @@ def Sar():
 
 			if side == "BUY":
 			
-				if HullTrend == "BUY":
+				if HullTrend['status'] == "BUY":
 
-					if SarTP == "BUY":
+					if SarTP['status'] == "BUY":
 						sarTPcondition = True
 
-					elif SarTP == "SELL":
+					elif SarTP['status'] == "SELL":
 						getUsers_cancel()
 
-				elif HullTrend == "SELL":
+				elif HullTrend['status'] == "SELL":
 					getUsers_cancel()
 
 				else:
@@ -99,15 +100,15 @@ def Sar():
 
 			elif side == "SELL":
 				
-				if HullTrend == "SELL":
+				if HullTrend['status'] == "SELL":
 
-					if SarTP == "SELL":
+					if SarTP['status'] == "SELL":
 						sarTPcondition = True
 
-					elif SarTP == "BUY":
+					elif SarTP['status'] == "BUY":
 						getUsers_cancel()
 
-				elif HullTrend == "BUY":
+				elif HullTrend['status'] == "BUY":
 					getUsers_cancel()
 
 				else:
@@ -139,8 +140,10 @@ def SarTP():
 
 	@app.after_response
 	def afterSarTP():
+		global sarTPcondition
 		if inOperation == True:
 			if sarTPcondition == True:
+				sarTPcondition = False
 				getUsers_cancel()
 			else:
 				pass
@@ -167,7 +170,7 @@ def Sniper():
 		print("Error en Sniper")
 
 	global stopLoss	
-	stopLoss = request.json['sl'] - 15
+	stopLoss = float(request.json['sl']) - 15
 
 	@app.after_response
 	def afterSniper():
@@ -214,7 +217,7 @@ def execute():
 				side = "BUY"
 				getUsers_create()
 
-				id = "id"
+				id = "622c007e15200e0bd4b90506"
 				status.find_one_and_update(
 				{'_id': ObjectId(id)}, {'$inc': {}, '$set': (sniperNull)}
 				)
@@ -236,7 +239,7 @@ def execute():
 				side = "SELL"
 				getUsers_create()
 
-				id = "id"
+				id = "622c007e15200e0bd4b90506"
 				status.find_one_and_update(
 				{'_id': ObjectId(id)}, {'$inc': {}, '$set': (sniperNull)}
 				)
@@ -254,7 +257,7 @@ def execute():
 		if Sniper['status'] == "BUY":
 			if Sar['status'] == "SELL":
 				print("Waiting for SAR")
-				time.sleep(901)
+				time.sleep(30)
 				execute()
 			else:
 				pass
@@ -269,7 +272,7 @@ def execute():
 		if Sniper['status'] == "SELL":
 			if Sar['status'] == "BUY":
 				print("Waiting for SAR")
-				time.sleep(901)
+				time.sleep(30)
 				execute()
 			else:
 				pass
@@ -322,7 +325,7 @@ def getUsers_create():
 	log = mongo.db.Log
 	log.insert_one(logOrder)
 	
-	print("\n-------------------- BUY -------------------- ")
+	print("\n-------------------- Create -------------------- ")
 
 	# --- Verifica que el precio no alcance el Stop Loss ---
 	# --- Si esta precio lo alcanza cancela todas las operaciones ---
@@ -338,7 +341,8 @@ def getUsers_create():
 	stopLossOp = stopLoss
 
 	while inOperation == True:
-		price = binance.fetch_ticker('BTC/USDT')
+		priceTicker = binance.fetch_ticker('BTC/USDT')
+		price = float(priceTicker['close'])
 		if side == "BUY":
 			if price <= stopLossOp:
 				getUsers_cancel()
@@ -431,7 +435,7 @@ def getUsers_cancel():
 	log = mongo.db.Log
 	log.insert_one(logOrder)
 
-	print("\n-------------------- SELL -------------------- ")
+	print("\n-------------------- CANCEL -------------------- ")
 
 def cancelOrders():
 	#-------------------- BINANCE -------------------- 
@@ -476,25 +480,24 @@ def cancelOrders():
 		
 @BTC.route('/BTC', methods=['GET'])
 def btc():
+	global inOperation
+	Operation = str(inOperation)
 	status = mongo.db.Status
 
 	hullFilter = {"Hull-BTC": True}
 	hullTrendFilter = {"HullTrend-BTC": True}
 	sarFilter = {"Sar-BTC": True}
 	sartpFilter = {"SarTP-BTC": True}
-	sniperFilter = {"Sniper-BTC": True}
 
 	HullS = status.find_one(hullFilter)
 	HullTrendS = status.find_one(hullTrendFilter)
 	SarS = status.find_one(sarFilter)
 	SarTPS = status.find_one(sartpFilter)
-	SniperS = status.find_one(sniperFilter)
 
 	Hull = HullS['status']
 	HullTrend = HullTrendS['status']
 	Sar = SarS['status']
 	SarTP = SarTPS['status']
-	Sniper = SniperS['status']
 	
 	if Hull == "BUY":
 		HullColor = "success"
@@ -512,27 +515,22 @@ def btc():
 		SarTPColor = "success"
 	else:
 		SarTPColor = "danger"
-	if Sniper == "BUY":
-		SniperColor = "success"
-	else:
-		SniperColor = "danger"
-	if inOperation == True:
+	if Operation == "True":
 		OperationColor = "primary"
-		Operation = "TRUE"
+		isInOperation = "TRUE"
 	else:
 		OperationColor = "secondary"
-		Operation = "FALSE"
-
+		isInOperation = "FALSE"
+	print(Operation)
+	print(isInOperation)
 	return render_template('bitcoin.html', 
 	Hull=Hull, 
 	HullTrend=HullTrend, 
 	Sar=Sar, 
 	SarTP=SarTP, 
-	Sniper=Sniper,
-	Operation=Operation,
+	Operation=isInOperation,
 	HullColor=HullColor,
 	HullTrendColor=HullTrendColor,
 	SarColor=SarColor,
 	SarTPColor=SarTPColor,
-	SniperColor=SniperColor,
 	OperationColor=OperationColor)
