@@ -15,7 +15,8 @@ userJson = ""
 inOperation = False
 sarTPcondition = ""
 side = ""
-stopLoss = 0
+stopLoss = 0.00
+close = 0.00
 
 # --- Actualiza Hull en la Base de Datos ---
 @BTC.route('/Hull-BTC', methods=['POST'])
@@ -72,7 +73,12 @@ def Sar():
 	@app.after_response
 	def afterSar():
 		global sarTPcondition
-		if inOperation == True:
+
+		operationFilter = {"Operation-BTC": True}	
+		status = mongo.db.Status
+		inOperation = status.find_one(operationFilter)
+
+		if inOperation['status'] == "TRUE":
 
 			sartpFilter = {"SarTP-BTC": True}	
 			status = mongo.db.Status
@@ -82,7 +88,7 @@ def Sar():
 			status = mongo.db.Status
 			HullTrend = status.find_one(hullTrendFilter)
 
-			if side == "BUY":
+			if inOperation['side'] == "BUY":
 			
 				if HullTrend['status'] == "BUY":
 
@@ -98,7 +104,7 @@ def Sar():
 				else:
 					print("Error HullTrend no declarado")
 
-			elif side == "SELL":
+			elif inOperation['side'] == "SELL":
 				
 				if HullTrend['status'] == "SELL":
 
@@ -115,7 +121,7 @@ def Sar():
 					print("Error HullTrend no declarado")
 
 			else:
-				print("Error Side no declarado")
+				print("\nError Side no declarado (After Sar)")
 
 		else:
 			pass
@@ -141,7 +147,12 @@ def SarTP():
 	@app.after_response
 	def afterSarTP():
 		global sarTPcondition
-		if inOperation == True:
+
+		operationFilter = {"Operation-BTC": True}	
+		status = mongo.db.Status
+		inOperation = status.find_one(operationFilter)
+
+		if inOperation['status'] == "TRUE":
 			if sarTPcondition == True:
 				sarTPcondition = False
 				getUsers_cancel()
@@ -169,17 +180,57 @@ def Sniper():
 	else:
 		print("Error en Sniper")
 
-	global stopLoss	
-	stopLoss = float(request.json['sl']) - 15
+	global close
+
+	close = request.json['close']
+
+	currentPrice = {
+		"Price-BTC": True,
+		"price": close
+	}
+
+	price = mongo.db.Status
+	
+	if request.json['Sniper-BTC'] == True:
+		id = "6233ef062005ad0cf9fd7995"
+		price.find_one_and_update(
+			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (currentPrice)}
+			)
+		print("\n --- Close Price -> " + str(close) + " --- \n")
+	else:
+		print("Error en Price")
 
 	@app.after_response
 	def afterSniper():
-		if inOperation == False:
+
+		operationFilter = {"Operation-BTC": True}	
+		status = mongo.db.Status
+		inOperation = status.find_one(operationFilter)
+
+		if inOperation['status'] == "FALSE":
 			execute()
 		else:
 			pass
 
 	return 'Sniper Actualizado'
+
+@BTC.route('/Price-BTC', methods=['POST'])
+def Price():
+
+	price = mongo.db.Status
+	
+	if request.json['Price-BTC'] == True:
+		id = "6233ef062005ad0cf9fd7995"
+		price.find_one_and_update(
+			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
+			)
+		jsonPrice = request.json['price']  
+		print("\n --- Close Price -> " + str(jsonPrice) + " --- \n")
+	else:
+		print("Error en Price")
+
+	return 'Precio Actualizado'
+
 
 
 
@@ -188,7 +239,7 @@ def Sniper():
 
 def execute():
 
-	global side
+	global side, stopLoss
 
 	status = mongo.db.Status
 
@@ -215,6 +266,7 @@ def execute():
  
 				print("\n---------------BUY---------------\n")
 				side = "BUY"
+				stopLoss = (close - (close * 0.007))
 				getUsers_create()
 
 				id = "622c007e15200e0bd4b90506"
@@ -237,6 +289,7 @@ def execute():
 
 				print("\n---------------SELL---------------\n")
 				side = "SELL"
+				stopLoss = (close + (close * 0.007))
 				getUsers_create()
 
 				id = "622c007e15200e0bd4b90506"
@@ -291,9 +344,9 @@ def execute():
 
 def getUsers_create():
 
-	global apiKey, apiSecret, userJson, tradeAmount
+	global apiKey, apiSecret, userJson, tradeAmount, close, stopLoss
 
-	# --- Busca todos los Bots correspondientes al par para ejecutar las operaciones ---
+	#----------- Busca todos los Bots correspondientes al par para ejecutar las operaciones -----------
 
 	bots = mongo.db.Bots
 	pairFormat = {
@@ -308,11 +361,20 @@ def getUsers_create():
 		tradeAmount = user['tradeAmount'] * user['quantityLeverage']
 		createOrders()
 
-	global inOperation
-	inOperation = True
+	#------------------------- Inserta la operacion dentro de la base de datos -------------------------
 
-	
-	# --- Inserta la operacion dentro de la coleccion Log ---
+	operationdb = {
+		"Operation-BTC": True,
+		"status": "TRUE",
+		"side": side
+	}
+
+	operation = mongo.db.Status
+	id = "622cf1cf640ef23c1cdce00b"
+	operation.find_one_and_update(
+		{'_id': ObjectId(id)}, {'$inc': {}, '$set': (operationdb)}
+		)
+	print("\n --- Operation -> " + operationdb['status'] + " --- \n")
 
 	datetime_object = datetime.datetime.now()
 
@@ -324,35 +386,89 @@ def getUsers_create():
 	
 	log = mongo.db.Log
 	log.insert_one(logOrder)
-	
+
+	#---------------------------------------- Trailing Stop Loss ----------------------------------------
+
+	price = {
+		"SL-BTC": True,
+		"price": stopLoss
+	}
+	operationSL = mongo.db.Status
+	id = "622cf1a5640ef23c1cdce00a"
+	operationSL.find_one_and_update(
+		{'_id': ObjectId(id)}, {'$inc': {}, '$set': (price)}
+		)
+	print("\n --- Stop Loss -> " + str(price['price']) + " --- \n")
+
 	print("\n-------------------- Create -------------------- ")
 
-	# --- Verifica que el precio no alcance el Stop Loss ---
-	# --- Si esta precio lo alcanza cancela todas las operaciones ---
+	operationFilter = {"Operation-BTC": True}	
+	status = mongo.db.Status
+	inOperation = status.find_one(operationFilter)
 
-	binance = ccxt.binance({
-		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
-		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
-		'options': {
-			'defaultType': 'future',
-		},
-	})
+	while inOperation['status'] == "TRUE":
 
-	stopLossOp = stopLoss
+		operationFilter = {"Operation-BTC": True}	
+		status = mongo.db.Status
+		inOperation = status.find_one(operationFilter)
 
-	while inOperation == True:
-		priceTicker = binance.fetch_ticker('BTC/USDT')
-		price = float(priceTicker['close'])
-		if side == "BUY":
-			if price <= stopLossOp:
+		stopLossFilter = {"SL-BTC": True}	
+		status = mongo.db.Status
+		stopLossOp = status.find_one(stopLossFilter)
+
+		priceFilter = {"Price-BTC": True}	
+		status = mongo.db.Status
+		currentPrice = status.find_one(priceFilter)
+
+		if inOperation['side'] == "BUY":
+
+			if currentPrice['price'] <= stopLossOp['price']:
 				getUsers_cancel()
+
 			else:
-				pass
-		elif side == "SELL":
-			if price >= stopLossOp:
+
+				newStopLoss = (currentPrice['price'] - (currentPrice['price'] * 0.007))
+
+				if newStopLoss > stopLossOp['price']:
+
+					price = {
+					"SL-BTC": True,
+					"price": newStopLoss
+					}
+					operationSL = mongo.db.Status
+					id = "622cf1a5640ef23c1cdce00a"
+					operationSL.find_one_and_update(
+						{'_id': ObjectId(id)}, {'$inc': {}, '$set': (price)}
+						)
+					print("\n --- Stop Loss -> " + str(price['price']) + " --- \n")
+
+				else:
+					pass
+				
+
+		elif inOperation['side'] == "SELL":
+
+			if currentPrice['price'] >= stopLossOp['price']:
 				getUsers_cancel()
+
 			else:
-				pass
+				newStopLoss = (currentPrice['price'] + (currentPrice['price'] * 0.007))
+
+				if newStopLoss < stopLossOp['price']:
+
+					price = {
+					"SL-BTC": True,
+					"price": newStopLoss
+					}
+					operationSL = mongo.db.Status
+					id = "622cf1a5640ef23c1cdce00a"
+					operationSL.find_one_and_update(
+						{'_id': ObjectId(id)}, {'$inc': {}, '$set': (price)}
+						)
+					print("\n --- Stop Loss -> " + str(price['price']) + " --- \n")
+
+				else:
+					pass
 		else:
 			pass
 
@@ -406,6 +522,8 @@ def getUsers_cancel():
 
 	global apiKey, apiSecret, userJson, tradeAmount
 
+	#----------- Busca todos los Bots correspondientes al par para ejecutar las operaciones -----------
+
 	bots = mongo.db.Bots
 	pairFormat = {
 		"pair": "BTCUSDT",
@@ -419,8 +537,32 @@ def getUsers_cancel():
 		tradeAmount = user['tradeAmount'] * user['quantityLeverage']
 		cancelOrders()
 
-	global inOperation
-	inOperation = False
+	#------------------------- Inserta la operacion dentro de la base de datos -------------------------
+
+	operationdb = {
+		"Operation-BTC": True,
+		"status": "FALSE",
+		"side": ""
+	}
+
+	operation = mongo.db.Status
+	id = "622cf1cf640ef23c1cdce00b"
+	operation.find_one_and_update(
+		{'_id': ObjectId(id)}, {'$inc': {}, '$set': (operationdb)}
+		)
+	print("\n --- Operation -> " + operationdb['status'] + " --- \n")
+
+	price = {
+		"SL-BTC": True,
+		"price": 0.00
+	}
+	operationSL = mongo.db.Status
+	id = "622cf1a5640ef23c1cdce00a"
+	operationSL.find_one_and_update(
+		{'_id': ObjectId(id)}, {'$inc': {}, '$set': (price)}
+		)
+	print("\n --- Stop Loss -> " + str(price['price']) + " --- \n")
+
 
 	# --- Inserta la cancelacion dentro de la coleccion Log ---
 
@@ -438,6 +580,10 @@ def getUsers_cancel():
 	print("\n-------------------- CANCEL -------------------- ")
 
 def cancelOrders():
+	operationFilter = {"Operation-BTC": True}	
+	status = mongo.db.Status
+	inOperation = status.find_one(operationFilter)
+
 	#-------------------- BINANCE -------------------- 
 	if userJson['exchange'] == "Binance":
 		binance = ccxt.binance({
@@ -448,9 +594,9 @@ def cancelOrders():
 			},
 		})
 		try:
-			if side == "BUY":
+			if inOperation['side'] == "BUY":
 				binance.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
-			elif side == "SELL":
+			elif inOperation['side'] == "SELL":
 				binance.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
@@ -467,9 +613,9 @@ def cancelOrders():
 			},
 		})
 		try:
-			if side == "BUY":
+			if inOperation['side'] == "BUY":
 				bybit.create_market_sell_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
-			elif side == "SELL":
+			elif inOperation['side'] == "SELL":
 				bybit.create_market_buy_order('BTC/USDT', tradeAmount, params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
@@ -480,24 +626,40 @@ def cancelOrders():
 		
 @BTC.route('/BTC', methods=['GET'])
 def btc():
-	global inOperation
-	Operation = str(inOperation)
+	binance = ccxt.binance({
+		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
+		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
+		'options': {
+			'defaultType': 'future',
+		},
+	})
+	ticker = binance.fetch_ticker('BTC/USDT')
+	price = float(ticker['close'])
+
 	status = mongo.db.Status
 
 	hullFilter = {"Hull-BTC": True}
 	hullTrendFilter = {"HullTrend-BTC": True}
 	sarFilter = {"Sar-BTC": True}
 	sartpFilter = {"SarTP-BTC": True}
+	operationFilter = {"Operation-BTC": True}
+	slFilter = {"SL-BTC": True}
 
 	HullS = status.find_one(hullFilter)
 	HullTrendS = status.find_one(hullTrendFilter)
 	SarS = status.find_one(sarFilter)
 	SarTPS = status.find_one(sartpFilter)
+	OperationS = status.find_one(operationFilter)
+	slS = status.find_one(slFilter)
+
 
 	Hull = HullS['status']
 	HullTrend = HullTrendS['status']
 	Sar = SarS['status']
 	SarTP = SarTPS['status']
+	Operation = OperationS['status']
+	Side = OperationS['side']
+	StopL = slS['price']
 	
 	if Hull == "BUY":
 		HullColor = "success"
@@ -515,22 +677,34 @@ def btc():
 		SarTPColor = "success"
 	else:
 		SarTPColor = "danger"
-	if Operation == "True":
+	if Operation == "TRUE":
 		OperationColor = "primary"
-		isInOperation = "TRUE"
 	else:
 		OperationColor = "secondary"
-		isInOperation = "FALSE"
-	print(Operation)
-	print(isInOperation)
+	if StopL == 0.00:
+		slColor = "secondary"
+	else:
+		slColor = "primary"
+	if Side == "BUY":
+		SideColor = "success"
+	elif Side == "SELL":
+		SideColor = "danger"
+	else:
+		SideColor = "secondary"
+	
 	return render_template('bitcoin.html', 
 	Hull=Hull, 
 	HullTrend=HullTrend, 
 	Sar=Sar, 
 	SarTP=SarTP, 
-	Operation=isInOperation,
+	Operation=Operation,
+	StopL=StopL,
 	HullColor=HullColor,
 	HullTrendColor=HullTrendColor,
 	SarColor=SarColor,
 	SarTPColor=SarTPColor,
-	OperationColor=OperationColor)
+	OperationColor=OperationColor,
+	slColor=slColor,
+	Price=price,
+	Side=Side,
+	SideColor=SideColor)

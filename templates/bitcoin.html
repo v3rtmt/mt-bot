@@ -99,7 +99,17 @@
                         <tr>
                             <th></th>
                             <td>In Operation</td>
-                            <td><span class="badge rounded-pill bg-{{ OperationColor }}">{{ Operation }}</td></span></td>
+                            <td><span class="badge rounded-pill bg-{{ OperationColor }}">{{ Operation }}</span>     <span class="badge rounded-pill bg-{{ SideColor }}">{{ Side }}</span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Current Price</td>
+                            <td><span class="badge rounded-pill bg-{{ HullTrendColor }}">${{ Price }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Stop Loss</td>
+                            <td><span class="badge rounded-pill bg-{{ slColor }}">${{ StopL }}</td></span></td>
                         </tr>
                     </tbody>
                 </table>
