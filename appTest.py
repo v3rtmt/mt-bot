@@ -123,3 +123,15 @@ def test():
 	balanceUSDT = balance['USDT']['total']
 	datetime_object = datetime.datetime.now()
 	return str(balanceUSDT) + '    ' + str(datetime_object)
+
+@appTest.route('/test2', methods=['GET', 'POST'])
+def test2():
+
+	test = mongo.db.test
+	test.update_one(
+		{"letra": "M"},
+		{"$set": {"numero": 20}}
+	)
+
+	#test.insert_one(request.json)
+	return 'did'
