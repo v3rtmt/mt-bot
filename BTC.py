@@ -479,11 +479,9 @@ def createOrders():
 			tradeAmount = ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) )
 
 			if Operation['side'] == "BUY":
-				#bybit.create_market_buy_order('BTC/USDT', tradeAmount)
-				pass
+				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
-				#bybit.create_market_sell_order('BTC/USDT', tradeAmount)
-				pass
+				bybit.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
 			issues = "None"
@@ -584,11 +582,9 @@ def cancelOrders():
 		})
 		try:
 			if Operation['side'] == "BUY":
-				#bybit.create_market_sell_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
-				pass
+				bybit.create_market_sell_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
 			elif Operation['side'] == "SELL":
-				#bybit.create_market_buy_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
-				pass
+				bybit.create_market_buy_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 			issues = "None"
