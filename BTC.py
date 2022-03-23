@@ -439,6 +439,7 @@ def createOrders():
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
+	tradeAmount = 0.00	 
 
 	#-------------------- BINANCE -------------------- 
 	if thisBot['exchange'] == "Binance":
@@ -450,9 +451,12 @@ def createOrders():
 			},
 		})
 		try:
+			ticker = binance.fetch_ticker('BTC/USDT')
+			currentPrice = float(ticker['close'])
+
 			balance = binance.fetch_balance()
 			balanceUSDT = balance['USDT']['free']
-			tradeAmount = ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) )
+			tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
 
 			if Operation['side'] == "BUY":
 				binance.create_market_buy_order('BTC/USDT', tradeAmount)
@@ -474,10 +478,13 @@ def createOrders():
 			},
 		})
 		try:
+			ticker = bybit.fetch_ticker('BTC/USDT')
+			currentPrice = float(ticker['close'])
+
 			balance = bybit.fetch_balance()
 			balanceUSDT = balance['USDT']['free']
-			tradeAmount = ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) )
-
+			tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
+		
 			if Operation['side'] == "BUY":
 				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
@@ -494,7 +501,7 @@ def createOrders():
 	bots = mongo.db.Bots	
 	bots.update_one(
 		{"_id": thisBot['_id']},
-		{"$set": {"lastOrderAmount": tradeAmount}}	
+		{"$set": {"lastOrderAmount": tradeAmount}}	#error
 	) 
 	dateTime = datetime.now()
 	date = dateTime.strftime("%d/%m/%y")
@@ -561,9 +568,9 @@ def cancelOrders():
 		})
 		try:
 			if Operation['side'] == "BUY":
-				binance.create_market_sell_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
+				binance.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
 			elif Operation['side'] == "SELL":
-				binance.create_market_buy_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
+				binance.create_market_buy_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 			issues = "None"
@@ -582,9 +589,9 @@ def cancelOrders():
 		})
 		try:
 			if Operation['side'] == "BUY":
-				bybit.create_market_sell_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
+				bybit.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
 			elif Operation['side'] == "SELL":
-				bybit.create_market_buy_order('BTC/USDT', thisBot['exchange'], params={'reduce_only': True})
+				bybit.create_market_buy_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA)")
 			issues = "None"
