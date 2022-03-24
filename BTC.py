@@ -439,7 +439,6 @@ def createOrders():
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
-	tradeAmount = 0.00	 
 
 	#-------------------- BINANCE -------------------- 
 	if thisBot['exchange'] == "Binance":
@@ -450,14 +449,15 @@ def createOrders():
 				'defaultType': 'future',
 			},
 		})
+
+		ticker = binance.fetch_ticker('BTC/USDT')
+		currentPrice = float(ticker['close'])
+
+		balance = binance.fetch_balance()
+		balanceUSDT = balance['USDT']['free']
+		tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
+
 		try:
-			ticker = binance.fetch_ticker('BTC/USDT')
-			currentPrice = float(ticker['close'])
-
-			balance = binance.fetch_balance()
-			balanceUSDT = balance['USDT']['free']
-			tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
-
 			if Operation['side'] == "BUY":
 				binance.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
@@ -477,14 +477,15 @@ def createOrders():
 				'defaultType': 'future',
 			},
 		})
-		try:
-			ticker = bybit.fetch_ticker('BTC/USDT')
-			currentPrice = float(ticker['close'])
 
-			balance = bybit.fetch_balance()
-			balanceUSDT = balance['USDT']['free']
-			tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
+		ticker = bybit.fetch_ticker('BTC/USDT')
+		currentPrice = float(ticker['close'])
+
+		balance = bybit.fetch_balance()
+		balanceUSDT = balance['USDT']['free']
+		tradeAmount = ( ( thisBot['quantityLeverage'] * ( balanceUSDT * ( thisBot['tradeAmount'] / 100 ) ) ) / currentPrice )
 		
+		try:
 			if Operation['side'] == "BUY":
 				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
