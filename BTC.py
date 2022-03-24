@@ -403,7 +403,7 @@ def getUsers_create():
 	Operation = status.find_one(operationFilter)
 
 	while Operation['status'] == True:
-
+		time.sleep(4)
 		binance = ccxt.binance({
 		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
 		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
@@ -450,6 +450,8 @@ def createOrders():
 			},
 		})
 
+		binance.enableRateLimit = True
+
 		ticker = binance.fetch_ticker('BTC/USDT')
 		currentPrice = float(ticker['close'])
 
@@ -477,6 +479,8 @@ def createOrders():
 				'defaultType': 'future',
 			},
 		})
+		
+		bybit.enableRateLimit = True
 
 		ticker = bybit.fetch_ticker('BTC/USDT')
 		currentPrice = float(ticker['close'])
@@ -567,6 +571,7 @@ def cancelOrders():
 				'defaultType': 'future',
 			},
 		})
+		binance.enableRateLimit = True
 		try:
 			if Operation['side'] == "BUY":
 				binance.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
@@ -588,6 +593,7 @@ def cancelOrders():
 				'defaultType': 'future',
 			},
 		})
+		bybit.enableRateLimit = True
 		try:
 			if Operation['side'] == "BUY":
 				bybit.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
@@ -621,6 +627,7 @@ def btc():
 			'defaultType': 'future',
 		},
 	})
+	binance.enableRateLimit = True
 	ticker = binance.fetch_ticker('BTC/USDT')
 	price = float(ticker['close'])
 
