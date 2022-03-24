@@ -338,7 +338,7 @@ def execute():
 				if Sar['status'] == "SELL":
 					print("Waiting for SAR")
 					lockThis = True
-					time.sleep(901)
+					time.sleep(301)
 					execute()
 				else:
 					pass
@@ -354,7 +354,7 @@ def execute():
 				if Sar['status'] == "BUY":
 					print("Waiting for SAR")
 					lockThis = True
-					time.sleep(901)
+					time.sleep(301)
 					execute()
 				else:
 					pass
