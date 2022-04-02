@@ -466,6 +466,9 @@ def execute():
 		status.update_one(
 			{"Operation-BTC": True},
 			{"$set": {"recoil": 2}})
+	status.update_one(
+		{"Sniper-BTC": True},
+			{"$set": {"status": "Null"}})
 
 
 
