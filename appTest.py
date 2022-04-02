@@ -1,4 +1,5 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, render_template, request, current_app as app
+from itsdangerous import json
 from Mongo.extensions import mongo
 from bson.objectid import ObjectId
 
@@ -36,7 +37,7 @@ def updateOP():
 	operation = mongo.db.Status
 	
 	if request.json['Operation-BTC'] == True:
-		id = "622cf1cf640ef23c1cdce00b"
+		id = "6247922bd9e272fc60471100"
 		operation.find_one_and_update(
 			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
 			)
@@ -123,15 +124,3 @@ def test():
 	balanceUSDT = balance['USDT']['total']
 	datetime_object = datetime.datetime.now()
 	return str(balanceUSDT) + '    ' + str(datetime_object)
-
-@appTest.route('/test2', methods=['GET', 'POST'])
-def test2():
-
-	test = mongo.db.test
-	test.update_one(
-		{"letra": "M"},
-		{"$set": {"numero": 20}}
-	)
-
-	#test.insert_one(request.json)
-	return 'did'

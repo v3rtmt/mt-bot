@@ -62,34 +62,34 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row">1</th>
-                            <td>Create</td>
+                            <th></th>
+                            <td>Squeeze Momentum</td>
+                            <td><span class="badge rounded-pill bg-{{ SqueezeColor }}">{{ Squeeze }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>SQZMOM Status</td>
+                            <td><span class="badge rounded-pill bg-{{ SqzmomColor }}">{{ Sqzmom }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Hull</td>
                             <td><span class="badge rounded-pill bg-{{ HullColor }}">{{ Hull }}</td></span></td>
                         </tr>
                         <tr>
-                            <th scope="row">2</th>
-                            <td>Create</td>
+                            <th></th>
+                            <td>Sar</td>
                             <td><span class="badge rounded-pill bg-{{ SarColor }}">{{ Sar }}</td></span></td>
                         </tr>
                         <tr>
-                            <th scope="row">3</th>
-                            <td>Create</td>
-                            <td><span class="badge rounded-pill bg-warning">NULL</td></span></td>
-                        </tr>
-                        <tr>
-                            <th> </th>
-                            <td> </td>
-                            <td> </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Cancel</td>
-                            <td><span class="badge rounded-pill bg-{{ HullTrendColor }}">{{ HullTrend }}</td></span></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Cancel</td>
+                            <th></th>
+                            <td>SarTP</td>
                             <td><span class="badge rounded-pill bg-{{ SarTPColor }}">{{ SarTP }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Sniper</td>
+                            <td><span class="badge rounded-pill bg-warning">NULL</td></span></td>
                         </tr>
                         <tr>
                             <th> </th>
@@ -104,12 +104,22 @@
                         <tr>
                             <th></th>
                             <td>Current Price</td>
-                            <td><span class="badge rounded-pill bg-{{ HullTrendColor }}">${{ Price }}</td></span></td>
+                            <td><span class="badge rounded-pill bg-{{ SarColor }}">${{ Price }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Entry Price</td>
+                            <td><span class="badge rounded-pill bg-{{ epColor }}">${{ EntryP }}</td></span></td>
                         </tr>
                         <tr>
                             <th></th>
                             <td>Stop Loss</td>
                             <td><span class="badge rounded-pill bg-{{ slColor }}">${{ StopL }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Recoil Stage</td>
+                            <td><span class="badge rounded-pill bg-{{ RecoilColor }}">{{ Recoil }}</td></span></td>
                         </tr>
                     </tbody>
                 </table>
