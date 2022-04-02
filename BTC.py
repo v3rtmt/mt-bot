@@ -177,13 +177,6 @@ def Sniper():
 		operationFilter = {"Operation-BTC": True}	
 		status = mongo.db.Status
 		Operation = status.find_one(operationFilter)
-		if Operation['recoil'] == 1:
-			pass
-		else:
-			status.update_one(
-				{"Operation-BTC": True},
-				{"$set": {"entryPrice": close}}
-			)
 		if Operation['status'] == False:
 			execute()
 		else:
@@ -269,7 +262,7 @@ def execute():
 							print("\n---------------BUY---------------\n")
 							status.update_one(
 								{"Operation-BTC": True},
-								{"$set": {"status": True, "side": "BUY"}})
+								{"$set": {"status": True, "side": "BUY", "entryPrice": close}})
 							stopLoss = (close - (close * 0.004))
 							status.update_one(
 								{"Operation-BTC": True},
@@ -298,7 +291,7 @@ def execute():
 							print("\n---------------SELL---------------\n")
 							status.update_one(
 								{"Operation-BTC": True},
-								{"$set": {"status": True, "side": "SELL"}})
+								{"$set": {"status": True, "side": "SELL", "entryPrice": close}})
 							stopLoss = (close + (close * 0.004))
 							status.update_one(
 								{"Operation-BTC": True},
@@ -400,9 +393,6 @@ def execute():
 				pass
 		else:
 			lockThis = False
-			status.update_one(
-				{"Sniper-BTC": True},
-				{"$set": {"status": "Null"}})
 	elif Operation['recoil'] == 2:
 		if Sqzmom['status'] == "BUY IMPULSE":
 			if Hull['status'] == "BUY":
@@ -412,7 +402,7 @@ def execute():
 						print("\n---------------BUY---------------\n")
 						status.update_one(
 							{"Operation-BTC": True},
-							{"$set": {"status": True, "side": "BUY"}})
+							{"$set": {"status": True, "side": "BUY", "entryPrice": close, "recoil": 0}})
 						stopLoss = (close - (close * 0.004))
 						status.update_one(
 							{"Operation-BTC": True},
@@ -421,10 +411,7 @@ def execute():
 						getUsers_create()
 						status.update_one(
 							{"Sniper-BTC": True},
-							{"$set": {"status": "Null"}})
-						status.update_one(
-							{"Operation-BTC": True},
-							{"$set": {"recoil": 0}})				
+							{"$set": {"status": "Null"}})			
 					else:
 						pass
 				else:
@@ -441,7 +428,7 @@ def execute():
 						print("\n---------------SELL---------------\n")
 						status.update_one(
 							{"Operation-BTC": True},
-							{"$set": {"status": True, "side": "SELL"}})
+							{"$set": {"status": True, "side": "SELL", "entryPrice": close, "recoil": 0}})
 						stopLoss = (close + (close * 0.004))
 						status.update_one(
 							{"Operation-BTC": True},
@@ -450,10 +437,7 @@ def execute():
 						getUsers_create()
 						status.update_one(
 							{"Sniper-BTC": True},
-							{"$set": {"status": "Null"}})
-						status.update_one(
-							{"Operation-BTC": True},
-							{"$set": {"recoil": 0}})				
+							{"$set": {"status": "Null"}})		
 					else:
 						pass   
 				else:
