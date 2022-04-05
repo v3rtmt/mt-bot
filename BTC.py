@@ -72,23 +72,25 @@ def Sqzmom():
 		if sqzmomJson['status'] == "BUY IMPULSE":
 			if Operation['status'] == True:
 				status.update_one(
-					{"SQZMOM-BTC": True},
+					{"Operation-BTC": True},
 					{"$set":{"impulseCondition": True}}		# IMPULSE implica que la operacion vaya disminuyendo
 				)											# Stop Loss hasta conseguir la venta del contrato
+				print("\n --- ImpulseC -> True --- \n")		
 			else:											
 				pass
 
 		elif sqzmomJson['status'] == "SELL IMPULSE":
 			if Operation['status'] == True:
 				status.update_one(
-					{"SQZMOM-BTC": True},
+					{"Operation-BTC": True},
 					{"$set":{"impulseCondition": True}}		# IMPULSE implica que la operacion vaya disminuyendo
 				)											# Stop Loss hasta conseguir la venta del contrato
+				print("\n --- ImpulseC -> True --- \n")
 			else:											
 				pass
 
 		else:
-			print("Valor de SQZMOM Erroneo")
+			pass
 
 	return 'SQZMOM Actualizado'
 
@@ -191,58 +193,92 @@ def Price():
 					if Operation['impulseCondition'] == True:
 						if Operation['impulseC%'] == 0.0001:
 							pass
-						else:
-							newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * Operation['impulseC%']))
+						elif Operation['impulseC%'] == 0.0015:
+							sl = 0.0015
+							newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
 							status.update_one(
 								{"Operation-BTC": True},
 								{"$set": {"stopLoss": newStopLoss}}
 							)
 							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
 							impulseC = ( Operation['impulseC%'] - 0.0002)
 							status.update_one(
 								{"Operation-BTC": True},
-								{"$set": {"impulseC%": impulseC}}
+								{"$set": {"impulseC%": round(impulseC, 4)}}
 							)
-
+						else:
+							sl = Operation['impulseC%']
+							newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
+							status.update_one(
+								{"Operation-BTC": True},
+								{"$set": {"stopLoss": newStopLoss}}
+							)
+							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
+							impulseC = ( Operation['impulseC%'] - 0.0002)
+							status.update_one(
+								{"Operation-BTC": True},
+								{"$set": {"impulseC%": round(impulseC, 4)}}
+							)
 					else:
-						newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * 0.0030))
+						sl = 0.0030
+						newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
 						if newStopLoss > Operation['stopLoss']:
 							status.update_one(
 								{"Operation-BTC": True},
 								{"$set": {"stopLoss": newStopLoss}}
 							)
 							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
 						else:
 							pass
 
 			elif Operation['side'] == "SELL":
-				if Operation['lastPrice'] >= Operation['stopLoss']: 
+				if Operation['lastPrice'] >= Operation['stopLoss']:
 					getUsers_cancel()
 				else:
 					if Operation['impulseCondition'] == True:
 						if Operation['impulseC%'] == 0.0001:
 							pass
-						else:
-							newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * Operation['impulseC%']))
+						elif Operation['impulseC%'] == 0.0015:
+							sl = 0.0015
+							newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
 							status.update_one(
 								{"Operation-BTC": True},
 								{"$set": {"stopLoss": newStopLoss}}
 							)
 							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
 							impulseC = ( Operation['impulseC%'] - 0.0002)
 							status.update_one(
 								{"Operation-BTC": True},
-								{"$set": {"impulseC%": impulseC}}
+								{"$set": {"impulseC%": round(impulseC, 4)}}
 							)
-
-					else:
-						newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * 0.0030)) 
-						if newStopLoss > Operation['stopLoss']:
+						else:
+							sl = Operation['impulseC%']
+							newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
 							status.update_one(
 								{"Operation-BTC": True},
 								{"$set": {"stopLoss": newStopLoss}}
 							)
 							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
+							impulseC = ( Operation['impulseC%'] - 0.0002)
+							status.update_one(
+								{"Operation-BTC": True},
+								{"$set": {"impulseC%": round(impulseC, 4)}}
+							)
+					else:
+						sl = 0.0030
+						newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
+						if newStopLoss < Operation['stopLoss']:
+							status.update_one(
+								{"Operation-BTC": True},
+								{"$set": {"stopLoss": newStopLoss}}
+							)
+							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
+							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
 						else:
 							pass
 		else:
@@ -485,8 +521,8 @@ def getUsers_create():
 	while Operation['status'] == True:
 		time.sleep(4)
 		binance = ccxt.binance({
-			'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
-			'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
+			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
 			'options': {'defaultType': 'future',},})
 	
 		ticker = binance.fetch_ticker('BTC/USDT')
@@ -512,6 +548,7 @@ def createOrders():
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
+	tradeAmount = 0.00
 
 	#-------------------- BINANCE -------------------- 
 	if thisBot['exchange'] == "Binance":
@@ -521,12 +558,16 @@ def createOrders():
 			'options': {'defaultType': 'future',},})
 		
 		binance.enableRateLimit = True
+
+		ticker = binance.fetch_ticker('BTC/USDT')
+		currentPrice = float(ticker['close'])
+		tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage']) / currentPrice)
 		
 		try:
 			if Operation['side'] == "BUY":
-				binance.create_market_buy_order('BTC/USDT', thisBot['tradeamount'])
+				binance.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
-				binance.create_market_sell_order('BTC/USDT', thisBot['tradeamount'])
+				binance.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
 			issues = "None"
@@ -542,11 +583,15 @@ def createOrders():
 		
 		bybit.enableRateLimit = True
 
+		ticker = bybit.fetch_ticker('BTC/USDT')
+		currentPrice = float(ticker['close'])
+		tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage']) / currentPrice)
+
 		try:
 			if Operation['side'] == "BUY":
-				bybit.create_market_buy_order('BTC/USDT', thisBot['tradeamount'])
+				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
 			elif Operation['side'] == "SELL":
-				bybit.create_market_sell_order('BTC/USDT', thisBot['tradeamount'])
+				bybit.create_market_sell_order('BTC/USDT', tradeAmount)
 			else:
 				print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
 			issues = "None"
@@ -560,7 +605,7 @@ def createOrders():
 	bots = mongo.db.Bots	
 	bots.update_one(
 		{"_id": thisBot['_id']},
-		{"$set": {"lastOrderAmount": thisBot['tradeamount']}})
+		{"$set": {"lastOrderAmount": tradeAmount}})
 
 	dateTime = datetime.now()
 	date = dateTime.strftime("%d/%m/%y")
@@ -570,7 +615,7 @@ def createOrders():
 		{"$push": 
 			{"log":
 		{
-			"status": "Open", "side": Operation['side'], "dateOpen": date, "timeOpen": time, "dateClose": "-", "timeClose": "-", "amount": thisBot['tradeamount'], "issues": issues
+			"status": "Open", "side": Operation['side'], "dateOpen": date, "timeOpen": time, "dateClose": "-", "timeClose": "-", "amount": tradeAmount, "issues": issues
 		}}})
 
 def getUsers_cancel():
@@ -654,8 +699,8 @@ def cancelOrders():
 @BTC.route('/BTC', methods=['GET'])
 def btc():
 	binance = ccxt.binance({
-		'apiKey': 'WlxQHeOJnGmHeqorhw8kWDNoa5i3GM6aoEFSKWLJTXI8jCUqMsksCdwOYjVgf8Ye',
-		'secret': '1g3Prfet0ui4yLLxjVDCFT0PaRW3Yzq3DXalAcdqN0vhm9uRdnAUqmUWgnSVYA8g',
+		'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+		'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
 		'options': {'defaultType': 'future',},})
 	binance.enableRateLimit = True
 	ticker = binance.fetch_ticker('BTC/USDT')
@@ -681,7 +726,6 @@ def btc():
 	Operation = OperationS['status']
 	Side = OperationS['side']
 	StopL = OperationS['stopLoss']
-	Recoil = OperationS['recoil']
 	EntryP = OperationS['entryPrice']
 	
 	if Squeeze == "ON": SqueezeColor = "primary"
@@ -701,9 +745,6 @@ def btc():
 	if Side == "BUY": SideColor = "success"
 	elif Side == "SELL": SideColor = "danger"
 	else: SideColor = "secondary"
-	if Recoil == 1: RecoilColor = "primary"
-	elif Recoil == 2: RecoilColor = "primary"
-	else: RecoilColor = "secondary"
 	if EntryP == 0: epColor = "secondary"
 	else: epColor = "primary"
 	
@@ -714,7 +755,6 @@ def btc():
 	Sar=Sar, 
 	Operation=Operation,
 	StopL=StopL,
-	Recoil=Recoil,
 	SqueezeColor=SqueezeColor,
 	SqzmomColor=SqzmomColor,
 	HullColor=HullColor,
@@ -724,6 +764,5 @@ def btc():
 	Price=price,
 	Side=Side,
 	SideColor=SideColor,
-	RecoilColor=RecoilColor,
 	EntryP=EntryP,
 	epColor=epColor)
