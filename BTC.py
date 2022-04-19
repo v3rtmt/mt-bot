@@ -8,8 +8,25 @@ from Mongo.extensions import mongo
 
 BTC = Blueprint('BTC', __name__)
 
+clock = [
+	"0447", "0448", "0449", "0450", "0451", "0452", "0453", "0454", "0455", "0456", "0457", "0458", "0459", "0500",
+	"0947", "0948", "0949", "0950", "0951", "0952", "0953", "0954", "0955", "0956", "0957", "0958", "0959", "1000",
+	"1447", "1448", "1449", "1450", "1451", "1452", "1453", "1454", "1455", "1456", "1457", "1458", "1459", "1500",
+	"1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959", "2000",
+	"2447", "2448", "2449", "2450", "2451", "2452", "2453", "2454", "2455", "2456", "2457", "2458", "2459", "2500",
+	"2947", "2948", "2949", "2950", "2951", "2952", "2953", "2954", "2955", "2956", "2957", "2958", "2959", "3000",
+	"3447", "3448", "3449", "3450", "3451", "3452", "3453", "3454", "3455", "3456", "3457", "3458", "3459", "3500",
+	"3947", "3948", "3949", "3950", "3951", "3952", "3953", "3954", "3955", "3956", "3957", "3958", "3959", "4000",
+	"4447", "4448", "4449", "4450", "4451", "4452", "4453", "4454", "4455", "4456", "4457", "4458", "4459", "4500",
+	"4947", "4948", "4949", "4950", "4951", "4952", "4953", "4954", "4955", "4956", "4957", "4958", "4959", "5000",
+	"5447", "5448", "5449", "5450", "5451", "5452", "5453", "5454", "5455", "5456", "5457", "5458", "5459", "5500",
+	"5947", "5948", "5949", "5950", "5951", "5952", "5953", "5954", "5955", "5956", "5957", "5958", "5959", "0000"
+]
+
+orderPrice = 0.00
 lockThis = False
 close = 0.00
+order = ""
 # --- Actualiza Squeeze Momentum en la Base de Datos ---
 @BTC.route('/Squeeze-BTC', methods=['POST'])
 def Squeeze():
@@ -285,7 +302,35 @@ def Price():
 			pass
 	return 'Precio Actualizado'
 
+@BTC.route('/Script-BTC', methods=['POST'])
+def script():
+	status = mongo.db.Status
+	scriptJson = request.json
+	@app.after_response
+	def afterSar():
+		operationFilter = {"Operation-BTC": True}	
+		Operation = status.find_one(operationFilter)
 
+		if scriptJson['side'] == "BUY":
+			if Operation['status'] == True:
+				getUsers_cancel()
+			orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
+			status.update_one(
+				{"Operation-BTC": True},
+				{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss']}})
+			getUsers_create()
+		elif request.json['side'] == "SELL":
+			if Operation['status'] == True:
+				getUsers_cancel()
+			orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
+			status.update_one(
+				{"Operation-BTC": True},
+				{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss']}})
+			getUsers_create()	
+		else:
+			print("Error Request")
+
+	return 'Operacion Realizada'
 
 
 
@@ -525,7 +570,7 @@ def getUsers_create():
 			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
 			'options': {'defaultType': 'future',},})
 	
-		ticker = binance.fetch_ticker('BTC/USDT')
+		ticker = binance.fetch_ticker('BTC/BUSD')
 		currentPrice = float(ticker['close'])
 		operationFilter = {"Operation-BTC": True}	
 		status = mongo.db.Status
@@ -545,6 +590,7 @@ def getUsers_create():
 			pass
 
 def createOrders():
+	import time
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
@@ -559,20 +605,48 @@ def createOrders():
 		
 		binance.enableRateLimit = True
 
-		ticker = binance.fetch_ticker('BTC/USDT')
+		ticker = binance.fetch_ticker('BTC/BUSD')
 		currentPrice = float(ticker['close'])
 		tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage']) / currentPrice)
 		
 		try:
-			if Operation['side'] == "BUY":
-				binance.create_market_buy_order('BTC/USDT', tradeAmount)
-			elif Operation['side'] == "SELL":
-				binance.create_market_sell_order('BTC/USDT', tradeAmount)
-			else:
-				print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+			def createLimitOrderBinance():
+				global order
+
+				orderTime1 = time.localtime()
+				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
+				print(orderTime)
+
+				if orderTime in clock:
+					if Operation['side'] == "BUY":
+						binance.create_market_buy_order('BTC/BUSD', tradeAmount)
+					elif Operation['side'] == "SELL":
+						binance.create_market_sell_order('BTC/BUSD', tradeAmount)
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+
+				else:
+					ticker = binance.fetch_ticker('BTC/BUSD')
+					orderPrice = float(ticker['close'])
+					print(orderPrice)
+
+					if Operation['side'] == "BUY":
+						order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
+					elif Operation['side'] == "SELL":
+						order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					
+			time.sleep(12)
+			print(order['status'])
+			if order['status'] == "open":
+				binance.cancel_all_orders('BTC/BUSD')
+				createLimitOrderBinance()
 			issues = "None"
+
+			createLimitOrderBinance()
 		except:
-			issues = "Insufficient Funds"
+			issues = "Insufficients founds"
 	
 	#-------------------- BYBIT --------------------
 	elif thisBot['exchange'] == "Bybit":
@@ -583,20 +657,48 @@ def createOrders():
 		
 		bybit.enableRateLimit = True
 
-		ticker = bybit.fetch_ticker('BTC/USDT')
+		ticker = bybit.fetch_ticker('BTC/BUSD')
 		currentPrice = float(ticker['close'])
 		tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage']) / currentPrice)
-
+		
 		try:
-			if Operation['side'] == "BUY":
-				bybit.create_market_buy_order('BTC/USDT', tradeAmount)
-			elif Operation['side'] == "SELL":
-				bybit.create_market_sell_order('BTC/USDT', tradeAmount)
-			else:
-				print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+			def createLimitOrderBybit():
+				global order
+
+				orderTime1 = time.localtime()
+				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
+				print(orderTime)
+
+				if orderTime in clock:
+					if Operation['side'] == "BUY":
+						binance.create_market_buy_order('BTC/BUSD', tradeAmount)
+					elif Operation['side'] == "SELL":
+						binance.create_market_sell_order('BTC/BUSD', tradeAmount)
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+
+				else:
+					ticker = binance.fetch_ticker('BTC/BUSD')
+					orderPrice = float(ticker['close'])
+					print(orderPrice)
+
+					if Operation['side'] == "BUY":
+						order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
+					elif Operation['side'] == "SELL":
+						order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					
+			time.sleep(12)
+			print(order['status'])
+			if order['status'] == "open":
+				binance.cancel_all_orders('BTC/BUSD')
+				createLimitOrderBybit()
 			issues = "None"
+
+			createLimitOrderBybit()
 		except:
-			issues = "Insufficient Funds"
+			issues = "Insufficients founds"
 	
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
@@ -618,6 +720,11 @@ def createOrders():
 			"status": "Open", "side": Operation['side'], "dateOpen": date, "timeOpen": time, "dateClose": "-", "timeClose": "-", "amount": tradeAmount, "issues": issues
 		}}})
 
+
+
+
+
+
 def getUsers_cancel():
 	global thisBot
 	bots = mongo.db.Bots
@@ -638,6 +745,7 @@ def getUsers_cancel():
 	print("\n-------------------- CANCEL -------------------- ")
 
 def cancelOrders():
+	import time
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
@@ -652,16 +760,43 @@ def cancelOrders():
 		binance.enableRateLimit = True
 		
 		try:
-			if Operation['side'] == "BUY":
-				binance.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
-			elif Operation['side'] == "SELL":
-				binance.create_market_buy_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
-			else:
-				print("ERROR SIDE (SIDE NO DECLARADA)")
+			def createLimitOrderBybit():
+				global order
+
+				orderTime1 = time.localtime()
+				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
+				print(orderTime)
+
+				if orderTime in clock:
+					if Operation['side'] == "BUY":
+						binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+					elif Operation['side'] == "SELL":
+						binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+
+				else:
+					ticker = binance.fetch_ticker('BTC/BUSD')
+					orderPrice = float(ticker['close'])
+					print(orderPrice)
+
+					if Operation['side'] == "BUY":
+						order = binance.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+					elif Operation['side'] == "SELL":
+						order = binance.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					
+			time.sleep(12)
+			print(order['status'])
+			if order['status'] == "open":
+				binance.cancel_all_orders('BTC/BUSD')
+				createLimitOrderBybit()
 			issues = "None"
+
+			createLimitOrderBybit()
 		except:
-			print("NO HAY POSICIONES ABIERTAS PARA ESTE USUARIO")
-			issues = "No Orders Open"
+			issues = "Insufficients founds"
 	
 	#-------------------- BYBIT --------------------
 	elif thisBot['exchange'] == "Bybit":
@@ -673,16 +808,43 @@ def cancelOrders():
 		bybit.enableRateLimit = True
 		
 		try:
-			if Operation['side'] == "BUY":
-				bybit.create_market_sell_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
-			elif Operation['side'] == "SELL":
-				bybit.create_market_buy_order('BTC/USDT', thisBot['lastOrderAmount'], params={'reduce_only': True})
-			else:
-				print("ERROR SIDE (SIDE NO DECLARADA)")
+			def createLimitOrderBybit():
+				global order
+
+				orderTime1 = time.localtime()
+				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
+				print(orderTime)
+
+				if orderTime in clock:
+					if Operation['side'] == "BUY":
+						bybit.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+					elif Operation['side'] == "SELL":
+						bybit.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+
+				else:
+					ticker = binance.fetch_ticker('BTC/BUSD')
+					orderPrice = float(ticker['close'])
+					print(orderPrice)
+
+					if Operation['side'] == "BUY":
+						order = bybit.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+					elif Operation['side'] == "SELL":
+						order = bybit.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					
+			time.sleep(12)
+			print(order['status'])
+			if order['status'] == "open":
+				binance.cancel_all_orders('BTC/BUSD')
+				createLimitOrderBybit()
 			issues = "None"
+
+			createLimitOrderBybit()
 		except:
-			print("NO HAY POSICIONES ABIERTAS PARA ESTE USUARIO")
-			issues = "No Orders Open"
+			issues = "Error"
 	
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
@@ -703,7 +865,7 @@ def btc():
 		'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
 		'options': {'defaultType': 'future',},})
 	binance.enableRateLimit = True
-	ticker = binance.fetch_ticker('BTC/USDT')
+	ticker = binance.fetch_ticker('BTC/BUSD')
 	price = float(ticker['close'])
 	status = mongo.db.Status
 
