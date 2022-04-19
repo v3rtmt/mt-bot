@@ -313,20 +313,42 @@ def script():
 
 		if scriptJson['side'] == "BUY":
 			if Operation['status'] == True:
-				getUsers_cancel()
-			orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
-			status.update_one(
-				{"Operation-BTC": True},
-				{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss']}})
-			getUsers_create()
+				if Operation['side'] == "BUY":
+					pass
+				else:
+					getUsers_cancel()
+					orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
+					status.update_one(
+						{"Operation-BTC": True},
+						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+					getUsers_create()
+			else:
+				orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
+				status.update_one(
+					{"Operation-BTC": True},
+					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+				getUsers_create()
+
+
 		elif request.json['side'] == "SELL":
 			if Operation['status'] == True:
-				getUsers_cancel()
-			orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
-			status.update_one(
-				{"Operation-BTC": True},
-				{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss']}})
-			getUsers_create()	
+				if Operation['side'] == "SELL":
+					pass
+				else:
+					getUsers_cancel()
+					orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
+					status.update_one(
+						{"Operation-BTC": True},
+						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+					getUsers_create()
+			else:
+				orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
+				status.update_one(
+					{"Operation-BTC": True},
+					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+				getUsers_create()	
+
+
 		else:
 			print("Error Request")
 
@@ -581,8 +603,16 @@ def getUsers_create():
 				getUsers_cancel()
 			else:
 				pass
+			if currentPrice >= Operation['takeProfit']:
+				getUsers_cancel()
+			else:
+				pass
 		elif Operation['side'] == "SELL":
 			if currentPrice >= Operation['stopLoss']:
+				getUsers_cancel()
+			else:
+				pass
+			if currentPrice <= Operation['takeProfit']:
 				getUsers_cancel()
 			else:
 				pass
