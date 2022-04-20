@@ -186,15 +186,8 @@ def Sniper():
 
 @BTC.route('/Price-BTC', methods=['POST'])
 def Price():
-	price = mongo.db.Status
-	if request.json['Price-BTC'] == True:
-		price.update_one(
-			{"Operation-BTC": True},
-			{"$set": {"lastPrice": request.json['price']}}
-		)
-		print("\n --- Close Price -> " + str(request.json['price']) + " --- \n")
-	else:
-		print("Error en Price")
+	
+	priceJson = request.json
 
 	@app.after_response
 	def afterPrice():
@@ -204,100 +197,32 @@ def Price():
 
 		if Operation['status'] == True:
 			if Operation['side'] == "BUY":
-				if Operation['lastPrice'] <= Operation['stopLoss']:
+				if priceJson['price'] <= Operation['stopLoss']:
 					getUsers_cancel()
 				else:
-					if Operation['impulseCondition'] == True:
-						if Operation['impulseC%'] == 0.0001:
-							pass
-						elif Operation['impulseC%'] == 0.0015:
-							sl = 0.0015
-							newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-							impulseC = ( Operation['impulseC%'] - 0.0002)
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"impulseC%": round(impulseC, 4)}}
-							)
-						else:
-							sl = Operation['impulseC%']
-							newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-							impulseC = ( Operation['impulseC%'] - 0.0002)
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"impulseC%": round(impulseC, 4)}}
-							)
+					newStopLoss = (priceJson['price'] - Operation['impulseC%'])
+					if newStopLoss > Operation['stopLoss']:
+						status.update_one(
+							{"Operation-BTC": True},
+							{"$set": {"stopLoss": newStopLoss}}
+						)
+						print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
 					else:
-						sl = 0.0030
-						newStopLoss = (Operation['lastPrice'] - (Operation['lastPrice'] * sl))
-						if newStopLoss > Operation['stopLoss']:
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-						else:
-							pass
+						pass
 
 			elif Operation['side'] == "SELL":
-				if Operation['lastPrice'] >= Operation['stopLoss']:
+				if priceJson['price'] >= Operation['stopLoss']:
 					getUsers_cancel()
 				else:
-					if Operation['impulseCondition'] == True:
-						if Operation['impulseC%'] == 0.0001:
-							pass
-						elif Operation['impulseC%'] == 0.0015:
-							sl = 0.0015
-							newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-							impulseC = ( Operation['impulseC%'] - 0.0002)
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"impulseC%": round(impulseC, 4)}}
-							)
-						else:
-							sl = Operation['impulseC%']
-							newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-							impulseC = ( Operation['impulseC%'] - 0.0002)
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"impulseC%": round(impulseC, 4)}}
-							)
+					newStopLoss = (priceJson['price'] + Operation['impulseC%'])
+					if newStopLoss < Operation['stopLoss']:
+						status.update_one(
+							{"Operation-BTC": True},
+							{"$set": {"stopLoss": newStopLoss}}
+						)
+						print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
 					else:
-						sl = 0.0030
-						newStopLoss = (Operation['lastPrice'] + (Operation['lastPrice'] * sl))
-						if newStopLoss < Operation['stopLoss']:
-							status.update_one(
-								{"Operation-BTC": True},
-								{"$set": {"stopLoss": newStopLoss}}
-							)
-							print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
-							print(" --- SL -> " + str(( sl * 10000 )) + " --- \n")
-						else:
-							pass
+						pass
 		else:
 			pass
 	return 'Precio Actualizado'
@@ -312,41 +237,51 @@ def script():
 		Operation = status.find_one(operationFilter)
 
 		if scriptJson['side'] == "BUY":
+			trail = scriptJson['close'] - scriptJson['lowest']
 			if Operation['status'] == True:
 				if Operation['side'] == "BUY":
 					pass
 				else:
 					getUsers_cancel()
-					orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
+					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit', "impulseC%": trail]}})
 					getUsers_create()
 			else:
-				orderPrice = scriptJson['open'] + ( scriptJson['high'] - scriptJson['open'] )
+				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
 					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
 				getUsers_create()
 
+			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- StopLoss -> " + str(scriptJson['stopLoss']) + " --- ")
+			print("\n --- TakeProfit -> " + str(scriptJson['takeProfit']) + " --- ")
+
 
 		elif request.json['side'] == "SELL":
+			trail = scriptJson['highest'] - scriptJson['close']
 			if Operation['status'] == True:
 				if Operation['side'] == "SELL":
 					pass
 				else:
 					getUsers_cancel()
-					orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
+					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
 						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
 					getUsers_create()
 			else:
-				orderPrice = scriptJson['open'] - ( scriptJson['open'] - scriptJson['low'] )
+				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
 					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
 				getUsers_create()	
+
+			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- StopLoss -> " + str(scriptJson['stopLoss']) + " --- ")
+			print("\n --- TakeProfit -> " + str(scriptJson['takeProfit']) + " --- ")
 
 
 		else:
