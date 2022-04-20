@@ -238,6 +238,7 @@ def script():
 
 		if scriptJson['side'] == "BUY":
 			trail = scriptJson['close'] - scriptJson['lowest']
+			takeProfit = scriptJson['close'] + (trail * 2)
 			if Operation['status'] == True:
 				if Operation['side'] == "BUY":
 					pass
@@ -246,18 +247,18 @@ def script():
 					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit', "impulseC%": trail]}})
+						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['lowest'], "takeProfit": takeProfit, "impulseC%": trail}})
 					getUsers_create()
 			else:
 				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['lowest'], "takeProfit": takeProfit, "impulseC%": trail}})
 				getUsers_create()
 
 			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
-			print("\n --- StopLoss -> " + str(scriptJson['stopLoss']) + " --- ")
-			print("\n --- TakeProfit -> " + str(scriptJson['takeProfit']) + " --- ")
+			print("\n --- StopLoss -> " + str(scriptJson['lowest']) + " --- ")
+			print("\n --- TakeProfit -> " + str(takeProfit) + " --- ")
 
 
 		elif request.json['side'] == "SELL":
@@ -270,18 +271,18 @@ def script():
 					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['highest'], "takeProfit": takeProfit, "impulseC%": trail}})
 					getUsers_create()
 			else:
 				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['stopLoss'], "takeProfit": scriptJson['takeProfit']}})
+					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['highest'], "takeProfit": takeProfit, "impulseC%": trail}})
 				getUsers_create()	
 
 			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
-			print("\n --- StopLoss -> " + str(scriptJson['stopLoss']) + " --- ")
-			print("\n --- TakeProfit -> " + str(scriptJson['takeProfit']) + " --- ")
+			print("\n --- StopLoss -> " + str(scriptJson['highest']) + " --- ")
+			print("\n --- TakeProfit -> " + str(takeProfit) + " --- ")
 
 
 		else:
