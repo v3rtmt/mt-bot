@@ -238,8 +238,14 @@ def script():
 		Operation = status.find_one(operationFilter)
 
 		if scriptJson['side'] == "BUY":
+			stopLoss = scriptJson['lowest']
 			trail = scriptJson['close'] - scriptJson['lowest']
 			takeProfit = scriptJson['close'] + (trail * 2)
+			
+			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- StopLoss -> " + str(stopLoss) + " --- ")
+			print("\n --- TakeProfit -> " + str(takeProfit) + " --- ")
+
 			if Operation['status'] == True:
 				if Operation['side'] == "BUY":
 					pass
@@ -248,22 +254,26 @@ def script():
 					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['lowest'], "takeProfit": takeProfit, "impulseC%": trail}})
+						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": stopLoss, "takeProfit": takeProfit, "impulseC%": trail}})
 					getUsers_create()
 			else:
 				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": scriptJson['lowest'], "takeProfit": takeProfit, "impulseC%": trail}})
+					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice, "stopLoss": stopLoss, "takeProfit": takeProfit, "impulseC%": trail}})
 				getUsers_create()
 
+
+
+		elif scriptJson['side'] == "SELL":
+			stopLoss = scriptJson['highest']
+			trail = scriptJson['highest'] - scriptJson['close']
+			takeProfit = scriptJson['close'] - (trail * 2)
+
 			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
-			print("\n --- StopLoss -> " + str(scriptJson['lowest']) + " --- ")
+			print("\n --- StopLoss -> " + str(stopLoss) + " --- ")
 			print("\n --- TakeProfit -> " + str(takeProfit) + " --- ")
 
-
-		elif request.json['side'] == "SELL":
-			trail = scriptJson['highest'] - scriptJson['close']
 			if Operation['status'] == True:
 				if Operation['side'] == "SELL":
 					pass
@@ -272,13 +282,13 @@ def script():
 					orderPrice = scriptJson['close']
 					status.update_one(
 						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['highest'], "takeProfit": takeProfit, "impulseC%": trail}})
+						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": stopLoss, "takeProfit": takeProfit, "impulseC%": trail}})
 					getUsers_create()
 			else:
 				orderPrice = scriptJson['close']
 				status.update_one(
 					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": scriptJson['highest'], "takeProfit": takeProfit, "impulseC%": trail}})
+					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice, "stopLoss": stopLoss, "takeProfit": takeProfit, "impulseC%": trail}})
 				getUsers_create()	
 
 			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
@@ -580,45 +590,52 @@ def createOrders():
 		currentPrice = float(ticker['close'])
 		tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage']) / currentPrice)
 		
-		try:
-			def createLimitOrderBinance():
-				global order
+		#try:
+		def createLimitOrderBinance():
+			global order, issues
 
-				orderTime1 = time.localtime()
-				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
-				print(orderTime)
+			orderTime1 = time.localtime()
+			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
-				if orderTime in clock:
+			if orderTime in clock:
+				print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Market Order")
+				try:
 					if Operation['side'] == "BUY":
 						binance.create_market_buy_order('BTC/BUSD', tradeAmount)
 					elif Operation['side'] == "SELL":
 						binance.create_market_sell_order('BTC/BUSD', tradeAmount)
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+				except:
+					issues = "Insufficients founds"
 
-				else:
-					ticker = binance.fetch_ticker('BTC/BUSD')
-					orderPrice = float(ticker['close'])
-					print("\n -- Order Price: " + orderPrice + " -- ")
+			else:
+				print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Limit Order")
+				ticker = binance.fetch_ticker('BTC/BUSD')
+				orderPrice = float(ticker['close'])
+				print("\n -- Order Price: " + str(orderPrice) + " -- ")
 
+				try:
 					if Operation['side'] == "BUY":
 						order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
 					elif Operation['side'] == "SELL":
 						order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
-					
-				time.sleep(12)
-				print("\n -- Order Status: " + order['status'] + " -- ")
-				if order['status'] == "open":
-					print("\n -- Creating New Order... -- ")
-					binance.cancel_all_orders('BTC/BUSD')
-					createLimitOrderBinance()
-				issues = "None"
+				except:
+					issues = "Insufficients founds"
+				
+			time.sleep(12)
+			print("\n -- Order Status: " + order['status'] + " -- ")
+			if order['status'] == "open":
+				print("\n -- Creating New Order... -- ")
+				binance.cancel_all_orders('BTC/BUSD')
+				createLimitOrderBinance()
+			issues = "None"
 
-			createLimitOrderBinance()
-		except:
-			issues = "Insufficients founds"
+		createLimitOrderBinance()
+		#except:
+		#	issues = "Unknown Error"
 	
 	#-------------------- BYBIT --------------------
 	elif thisBot['exchange'] == "Bybit":
@@ -635,32 +652,40 @@ def createOrders():
 		
 		try:
 			def createLimitOrderBybit():
-				global order
+				global order, issues
 
 				orderTime1 = time.localtime()
 				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
-				print(orderTime)
 
 				if orderTime in clock:
-					if Operation['side'] == "BUY":
-						binance.create_market_buy_order('BTC/BUSD', tradeAmount)
-					elif Operation['side'] == "SELL":
-						binance.create_market_sell_order('BTC/BUSD', tradeAmount)
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Market Order")
+
+					try:
+						if Operation['side'] == "BUY":
+							binance.create_market_buy_order('BTC/BUSD', tradeAmount)
+						elif Operation['side'] == "SELL":
+							binance.create_market_sell_order('BTC/BUSD', tradeAmount)
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
 
 				else:
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Limit Order")
 					ticker = binance.fetch_ticker('BTC/BUSD')
 					orderPrice = float(ticker['close'])
-					print("\n -- Order Price: " + orderPrice + " -- ")
+					print("\n -- Order Price: " + str(orderPrice) + " -- ")
 
-					if Operation['side'] == "BUY":
-						order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
-					elif Operation['side'] == "SELL":
-						order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
-					
+					try:
+						if Operation['side'] == "BUY":
+							order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
+						elif Operation['side'] == "SELL":
+							order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
+
 				time.sleep(12)
 				print("\n -- Order Status: " + order['status'] + " -- ")
 				if order['status'] == "open":
@@ -713,7 +738,7 @@ def getUsers_cancel():
 
 	operation.update_one(
 		{"Operation-BTC": True},
-		{"$set": {"status": False, "side": "", "stopLoss": 0.00, "entryPrice": 0.00, "impulseC%": 0.0, "takeprofit": 0.00}})
+		{"$set": {"status": False, "side": "", "stopLoss": 0.00, "entryPrice": 0.00, "impulseC%": 0.0, "takeProfit": 0.00}})
 	
 	print("\n-------------------- CANCEL -------------------- ")
 
@@ -734,32 +759,40 @@ def cancelOrders():
 		
 		try:
 			def createLimitOrderBybit():
-				global order
+				global order, issues
 
 				orderTime1 = time.localtime()
 				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
-				print(orderTime)
 
 				if orderTime in clock:
-					if Operation['side'] == "BUY":
-						binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					elif Operation['side'] == "SELL":
-						binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Market Order")
+
+					try:
+						if Operation['side'] == "BUY":
+							binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						elif Operation['side'] == "SELL":
+							binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
 
 				else:
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Limit Order")
 					ticker = binance.fetch_ticker('BTC/BUSD')
 					orderPrice = float(ticker['close'])
-					print("\n -- Order Price: " + orderPrice + " -- ")
+					print("\n -- Order Price: " + str(orderPrice) + " -- ")
 
-					if Operation['side'] == "BUY":
-						order = binance.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-					elif Operation['side'] == "SELL":
-						order = binance.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
-					
+					try:
+						if Operation['side'] == "BUY":
+							order = binance.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+						elif Operation['side'] == "SELL":
+							order = binance.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
+
 				time.sleep(12)
 				print("\n -- Order Status: " + order['status'] + " -- ")
 				if order['status'] == "open":
@@ -783,32 +816,40 @@ def cancelOrders():
 		
 		try:
 			def createLimitOrderBybit():
-				global order
+				global order, issues
 
 				orderTime1 = time.localtime()
 				orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
-				print(orderTime)
 
 				if orderTime in clock:
-					if Operation['side'] == "BUY":
-						bybit.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					elif Operation['side'] == "SELL":
-						bybit.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Market Order")
+
+					try:
+						if Operation['side'] == "BUY":
+							bybit.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						elif Operation['side'] == "SELL":
+							bybit.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
 
 				else:
+					print("\n -- Time: " + str(orderTime1.tm_min) + ":" + str(orderTime1.tm_sec) + " --> Limit Order")
 					ticker = binance.fetch_ticker('BTC/BUSD')
 					orderPrice = float(ticker['close'])
-					print("\n -- Order Price: " + orderPrice + " -- ")
+					print("\n -- Order Price: " + str(orderPrice) + " -- ")
 
-					if Operation['side'] == "BUY":
-						order = bybit.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-					elif Operation['side'] == "SELL":
-						order = bybit.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-					else:
-						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
-					
+					try:
+						if Operation['side'] == "BUY":
+							order = bybit.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+						elif Operation['side'] == "SELL":
+							order = bybit.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
+						else:
+							print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+					except:
+						issues = "Insufficients founds"
+
 				time.sleep(12)
 				print("\n -- Order Status: " + order['status'] + " -- ")
 				if order['status'] == "open":
