@@ -199,7 +199,17 @@ def Price():
 
 		if Operation['status'] == True:
 			if Operation['side'] == "BUY":
-				if priceJson['price'] <= Operation['stopLoss']:
+				if   priceJson['price'] <= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['low']   <= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['high']  <= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['price'] >= Operation['takeProfit']:
+					getUsers_cancelMarket()
+				elif priceJson['low']   >= Operation['takeProfit']:
+					getUsers_cancelMarket()
+				elif priceJson['high']  >= Operation['takeProfit']:
 					getUsers_cancelMarket()
 				else:
 					newStopLoss = (priceJson['price'] - Operation['trail'])
@@ -213,7 +223,17 @@ def Price():
 						pass
 
 			elif Operation['side'] == "SELL":
-				if priceJson['price'] >= Operation['stopLoss']:
+				if   priceJson['price'] >= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['low']   >= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['high']  >= Operation['stopLoss']:
+					getUsers_cancelMarket()
+				elif priceJson['price'] <= Operation['takeProfit']:
+					getUsers_cancelMarket()
+				elif priceJson['low']   <= Operation['takeProfit']:
+					getUsers_cancelMarket()
+				elif priceJson['high']  <= Operation['takeProfit']:
 					getUsers_cancelMarket()
 				else:
 					newStopLoss = (priceJson['price'] + Operation['trail'])
@@ -903,10 +923,10 @@ def cancelOrdersMarket():
 			try:
 				if Operation['side'] == "BUY":
 					order = binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					issues = "None"
+					issues = "SL or TP"
 				elif Operation['side'] == "SELL":
 					order = binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
-					issues = "None"
+					issues = "SL or TP"
 				else:
 					print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
 					issues = "Invalid data"
@@ -1018,6 +1038,7 @@ def btc():
 	SideColor=SideColor,
 	EntryP=EntryP,
 	epColor=epColor)
+
 
 @BTC.route('/time', methods=['GET'])
 def ptime():
