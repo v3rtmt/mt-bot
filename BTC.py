@@ -225,7 +225,7 @@ def Price():
 						)
 						print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
 					else:
-						pass
+						print("\n --- Non-Modifiable Price --- \n")
 
 			elif Operation['side'] == "SELL":
 				if   priceJson['price'] >= Operation['stopLoss']:
@@ -255,7 +255,7 @@ def Price():
 						)
 						print("\n --- Stop Loss -> " + str(newStopLoss) + " --- \n")
 					else:
-						pass
+						print("\n --- Non-Modifiable Price --- \n")
 		else:
 			print("\n --- Price not in Operation --- \n")
 	return 'Precio Actualizado'
@@ -562,49 +562,7 @@ def getUsers_create():
 			pass
 	print("\n-------------------- Create -------------------- ")
 	lockThisFunction = False
-	#---------------------------------------- Trailing Stop Loss ----------------------------------------
 	
-	operationFilter = {"Operation-BTC": True}	
-	status = mongo.db.Status
-	Operation = status.find_one(operationFilter)
-
-	while Operation['status'] == True:
-		time.sleep(4)
-		binance = ccxt.binance({
-			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
-			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
-			'options': {'defaultType': 'future',},})
-	
-		ticker = binance.fetch_ticker('BTC/BUSD')
-		currentPrice = float(ticker['close'])
-		operationFilter = {"Operation-BTC": True}	
-		status = mongo.db.Status
-		Operation = status.find_one(operationFilter)
-	
-		if Operation['side'] == "BUY":
-			if currentPrice <= Operation['stopLoss']:
-				print("\n --- BUY:   Stop Loss Crossover--- \n")
-				getUsers_cancelMarket()
-			else:
-				pass
-			if currentPrice >= Operation['takeProfit']:
-				print("\n --- BUY:   Take Profit Crossover--- \n")
-				getUsers_cancelMarket()
-			else:
-				pass
-		elif Operation['side'] == "SELL":
-			if currentPrice >= Operation['stopLoss']:
-				print("\n --- SELL:   Stop Loss Crossover--- \n")
-				getUsers_cancelMarket()
-			else:
-				pass
-			if currentPrice <= Operation['takeProfit']:
-				print("\n --- SELL:   Take Profit Crossover--- \n")
-				getUsers_cancelMarket()
-			else:
-				pass
-		else:
-			pass
 
 def createOrders():
 	global issues, tradeAmount
