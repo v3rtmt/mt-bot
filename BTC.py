@@ -196,20 +196,25 @@ def Price():
 		operationFilter = {"Operation-BTC": True}	
 		status = mongo.db.Status
 		Operation = status.find_one(operationFilter)
-
 		if Operation['status'] == True:
 			if Operation['side'] == "BUY":
 				if   priceJson['price'] <= Operation['stopLoss']:
+					print("\n --- BUY:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
-				elif priceJson['low']   <= Operation['stopLoss']:
+				elif priceJson['low'] <= Operation['stopLoss']:
+					print("\n --- BUY:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
-				elif priceJson['high']  <= Operation['stopLoss']:
+				elif priceJson['high'] <= Operation['stopLoss']:
+					print("\n --- BUY:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['price'] >= Operation['takeProfit']:
+					print("\n --- BUY:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
-				elif priceJson['low']   >= Operation['takeProfit']:
+				elif priceJson['low'] >= Operation['takeProfit']:
+					print("\n --- BUY:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
-				elif priceJson['high']  >= Operation['takeProfit']:
+				elif priceJson['high'] >= Operation['takeProfit']:
+					print("\n --- BUY:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
 				else:
 					newStopLoss = (priceJson['price'] - Operation['trail'])
@@ -224,16 +229,22 @@ def Price():
 
 			elif Operation['side'] == "SELL":
 				if   priceJson['price'] >= Operation['stopLoss']:
+					print("\n --- SELL:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['low']   >= Operation['stopLoss']:
+					print("\n --- SELL:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['high']  >= Operation['stopLoss']:
+					print("\n --- SELL:   Stop Loss Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['price'] <= Operation['takeProfit']:
+					print("\n --- SELL:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['low']   <= Operation['takeProfit']:
+					print("\n --- SELL:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
 				elif priceJson['high']  <= Operation['takeProfit']:
+					print("\n --- SELL:   Take Profit Crossover--- \n")
 					getUsers_cancelMarket()
 				else:
 					newStopLoss = (priceJson['price'] + Operation['trail'])
@@ -247,7 +258,6 @@ def Price():
 						pass
 		else:
 			print("\n --- Price not in Operation --- \n")
-
 	return 'Precio Actualizado'
 
 @BTC.route('/Script-BTC', methods=['POST'])
@@ -666,7 +676,7 @@ def createOrders():
 			else:
 				print("\n -- Order Status: Close -- ")
 
-		print("this is a test")
+
 		createLimitOrderBinance()
 		
 	
