@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, current_app as app
 from Mongo.extensions import mongo
 from datetime import datetime
 import schedule
+import requests
 import time
 import ccxt
 
@@ -51,14 +52,8 @@ def btc():
 def Price():
 	@app.after_response
 	def afterPrice():
-		operationFilter = {"Operation-BTC": True}	
-		status = mongo.db.Status
-		Operation = status.find_one(operationFilter)
-
-		if Operation['status'] == True:
-			getUsers_check()
-		else:
-			print("\n --- Price not in Operation --- \n")
+		#req = requests.post("https://mt-strategy.herokuapp.com/")
+		req = requests.get("http://127.0.0.1:5000/")
 
 	return 'Precio Actualizado'
 

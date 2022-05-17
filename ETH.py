@@ -465,7 +465,7 @@ def getUsers_check():
 				else:
 					pass
 		else:
-			print("Not in Operation -- ETH --")
+			print(" Not in Operation -- ETH --")
 
 def checkOrders():
 	global issues
