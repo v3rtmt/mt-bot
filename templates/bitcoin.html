@@ -29,10 +29,14 @@
                               Cryptos
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                              <li><a class="dropdown-item" href="/BTC">Bitcoin</a></li>
-                              <li><a class="dropdown-item" href="/ETH">Ethereum</a></li>
-                              <li><hr class="dropdown-divider"></li>
-                              <li><a class="dropdown-item" href="/request">Request a Crypto</a></li>
+                                <li><a class="dropdown-item" href="/BTC">Bitcoin</a></li>
+                                <li><a class="dropdown-item" href="/ETH">Ethereum</a></li>
+                                <li><a class="dropdown-item" href="/BNB">BNB</a></li>
+                                <li><a class="dropdown-item" href="/SOL">Solana</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/unavailable">Public Signals</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/request">Request a Crypto</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -61,36 +65,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th></th>
-                            <td>Squeeze Momentum</td>
-                            <td><span class="badge rounded-pill bg-{{ SqueezeColor }}">{{ Squeeze }}</td></span></td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <td>SQZMOM Status</td>
-                            <td><span class="badge rounded-pill bg-{{ SqzmomColor }}">{{ Sqzmom }}</td></span></td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <td>Hull</td>
-                            <td><span class="badge rounded-pill bg-{{ HullColor }}">{{ Hull }}</td></span></td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <td>Sar</td>
-                            <td><span class="badge rounded-pill bg-{{ SarColor }}">{{ Sar }}</td></span></td>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <td>Sniper</td>
-                            <td><span class="badge rounded-pill bg-warning">NULL</td></span></td>
-                        </tr>
-                        <tr>
-                            <th> </th>
-                            <td> </td>
-                            <td> </td>
-                        </tr>
+
                         <tr>
                             <th></th>
                             <td>In Operation</td>
@@ -99,18 +74,14 @@
                         <tr>
                             <th></th>
                             <td>Current Price</td>
-                            <td><span class="badge rounded-pill bg-{{ SarColor }}">${{ Price }}</td></span></td>
+                            <td><span class="badge rounded-pill bg-{{ SideColor }}">${{ Price }}</td></span></td>
                         </tr>
                         <tr>
                             <th></th>
                             <td>Entry Price</td>
                             <td><span class="badge rounded-pill bg-{{ epColor }}">${{ EntryP }}</td></span></td>
                         </tr>
-                        <tr>
-                            <th></th>
-                            <td>Stop Loss</td>
-                            <td><span class="badge rounded-pill bg-{{ slColor }}">${{ StopL }}</td></span></td>
-                        </tr>
+                        
                     </tbody>
                 </table>
               </div>
@@ -124,6 +95,8 @@
                     <ul>
                         <li><a href="https://www.binance.com/" class="link-secondary">Binance</a></li>
                         <li><a href="https://www.bybit.com/" class="link-secondary">Bybit</a></li>
+                        <li>Kraken coming soon</li>
+                        <li>Coinbase coming soon</li>
                         <li>Request your favorite exchange <a href="/request" class="link-primary">here</a></li>
                     </ul>
                 </div>

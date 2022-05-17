@@ -1,13 +1,14 @@
 from flask import Blueprint, render_template, request, current_app as app
-from itsdangerous import json
 from Mongo.extensions import mongo
-from bson.objectid import ObjectId
+import time
+import schedule
 
 
-appTest = Blueprint('appTest', __name__)
+
+appRoutes = Blueprint('appRoutes', __name__)
 
 
-@appTest.route('/addUser', methods=['POST'])
+@appRoutes.route('/addUser', methods=['POST'])
 def addUser():
 
 	user = mongo.db.Users
@@ -15,7 +16,7 @@ def addUser():
 
 	return 'User added'
 
-@appTest.route('/addBot', methods=['POST'])
+@appRoutes.route('/addBot', methods=['POST'])
 def addBot():
 
 	bot = mongo.db.Bots
@@ -23,7 +24,7 @@ def addBot():
 
 	return 'Bot added'
 
-@appTest.route('/addStatus', methods=['POST'])
+@appRoutes.route('/addStatus', methods=['POST'])
 def addStatus():
 
 	status = mongo.db.Status
@@ -31,34 +32,23 @@ def addStatus():
 
 	return 'Status added'
 
-@appTest.route('/updateOp', methods=['POST'])
-def updateOP():
-
-	operation = mongo.db.Status
-	
-	if request.json['Operation-BTC'] == True:
-		id = "6247922bd9e272fc60471100"
-		operation.find_one_and_update(
-			{'_id': ObjectId(id)}, {'$inc': {}, '$set': (request.json)}
-			)
-		status = request.json['status']
-		print("\n --- Operation -> " + str(status) + " --- \n")
-	else:
-		print("Error en Operation")
-
-	return 'Operation Actualizado'
-
 # -----------------------------------------------------------------------    
 	
-@appTest.route('/', methods=['GET'])
+@appRoutes.route('/', methods=['GET'])
 def index_en():
+	@app.after_response
+	def init():
+		while True:
+			schedule.run_pending()
+			time.sleep(6)
+
 	return render_template('EN/index_en.html')
 
-@appTest.route('/es', methods=['GET'])
+@appRoutes.route('/es', methods=['GET'])
 def index_es():
 	return render_template('ES/index_es.html')
 
-@appTest.route('/request', methods=['GET', 'POST'])
+@appRoutes.route('/request', methods=['GET', 'POST'])
 def request_en():
 
 	if request.form.get("name") == None:
@@ -83,7 +73,7 @@ def request_en():
 
 	return render_template('EN/requests.html')
 
-@appTest.route('/request-es', methods=['GET', 'POST'])
+@appRoutes.route('/request-es', methods=['GET', 'POST'])
 def request_es():
 
 	if request.form.get("name") == None:
@@ -108,19 +98,23 @@ def request_es():
 
 	return render_template('ES/requests.html')
 
+@appRoutes.route('/unavailable', methods=['GET'])
+def question():
+	return render_template('question.html')
+
 import ccxt
 import datetime
 
-@appTest.route('/test', methods=['GET', 'POST'])
+@appRoutes.route('/test', methods=['GET', 'POST'])
 def test():
-	bybit = ccxt.bybit({
-			'apiKey': 'd7QTP08KaYjLtdooCJ',
-			'secret': 'G2Kpfs3tR7DODcm5isMdUpka8adcrwbZ8M5S',
+	binance = ccxt.binance({
+			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
 			'options': {
 				'defaultType': 'future',
 			},
 		})
-	balance = bybit.fetch_balance()
-	balanceUSDT = balance['USDT']['total']
+	balance = binance.fetch_balance()
+	balanceUSDT = balance['BUSD']['total']
 	datetime_object = datetime.datetime.now()
 	return str(balanceUSDT) + '    ' + str(datetime_object)

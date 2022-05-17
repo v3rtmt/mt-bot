@@ -4,7 +4,7 @@ from afterResponse import AfterResponse
 
 # --- Importar Rutas de Prueba ---
 
-from appTest import appTest
+from appRoutes import appRoutes
 
 # ------------------------
 
@@ -12,6 +12,8 @@ from appTest import appTest
 
 from BTC import BTC
 from ETH import ETH
+from BNB import BNB
+from SOL import SOL
 
 # ------------------------
 
@@ -29,11 +31,14 @@ def create_app(config_object='Mongo.settings'):
 	mongo.init_app(app)
 
 	# -- Ejecuta Rutas de Prueba --
-	app.register_blueprint(appTest)
+	app.register_blueprint(appRoutes)
 
 	# -- Ejecuta Criptos --
 	app.register_blueprint(BTC)
 	app.register_blueprint(ETH)
+	app.register_blueprint(BNB)
+	app.register_blueprint(SOL)
+	
 
 	# -- Inicia aplicacion --
 	return app

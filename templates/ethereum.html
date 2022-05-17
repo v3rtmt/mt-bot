@@ -22,19 +22,23 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/hvert.mt/">Contact</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                               Cryptos
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                              <li><a class="dropdown-item" href="#">Bitcoin</a></li>
-                              <li><a class="dropdown-item" href="#">Ethereum</a></li>
-                              <li><hr class="dropdown-divider"></li>
-                              <li><a class="dropdown-item" href="#">Request a Crypto</a></li>
+                                <li><a class="dropdown-item" href="/BTC">Bitcoin</a></li>
+                                <li><a class="dropdown-item" href="/ETH">Ethereum</a></li>
+                                <li><a class="dropdown-item" href="/BNB">BNB</a></li>
+                                <li><a class="dropdown-item" href="/SOL">Solana</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/unavailable">Public Signals</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/request">Request a Crypto</a></li>
                             </ul>
-                          </li>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -43,50 +47,63 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
     
         <!-- Inicio -->
-        <header class="py-5 bg-image-full" style="background-image: url(static/fondo.jpg)">
+        <header>
             <div class="text-center my-5">
-                <img class="img-fluid rounded-circle mb-4" src="{{ url_for('static', filename='icono2.png') }}" width="200px" height="150px" alt="..." />
-                <h1 class="text-white fs-3 fw-bolder">MT Strategy</h1>
-                <p class="text-white-50 mb-0">Crypto-Python Bot</p>
+                <h1 class="fs-3 fw-bolder"><br><br>Ethereum<br></h1>
+                <img class="img-fluid rounded-circle mb-4" src="{{ url_for('static', filename='eth.png') }}" width="100px" height="100px" alt="..." />
             </div>
         </header>
     
-        <!-- Primer texto -->
-        <section class="py-5">
-            <div class="container my-5">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6">
-                        <h2>About The Bot</h2>
-                        <p class="lead"></p>
-                        <p class="mb-0">This bot is designed to carry out operations in the cryptocurrency futures market, with a defined strategy, the bot automatically carries out operations to all users in the pair they have chosen.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    
-        <!-- Imagen en PNG -->
-        <div>
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Factors</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-            <img src="{{ url_for('static', filename='fondo2.png') }}" class="img-fluid rounded mx-auto d-block" width="300px"> 
-
+                        <tr>
+                            <th></th>
+                            <td>In Operation</td>
+                            <td><span class="badge rounded-pill bg-{{ OperationColor }}">{{ Operation|upper }}</span>     <span class="badge rounded-pill bg-{{ SideColor }}">{{ Side }}</span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Current Price</td>
+                            <td><span class="badge rounded-pill bg-{{ SideColor }}">${{ Price }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Entry Price</td>
+                            <td><span class="badge rounded-pill bg-{{ epColor }}">${{ EntryP }}</td></span></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+              </div>
         </div>
-
-        <!-- Segundo texto -->
-        <section class="py-5">
-            <div class="container my-5">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6">
-                        <h2>How it Works?</h2>
-                        <p class="lead"></p>
-                        <p class="mb-0">Signals of a strategy are sent through 'POST' methods to different URLs located on a second server, these signals determine when the bot is going to carry out an operation and when it is going to cancel it.
-                            <br><br>
-                            The user will have previously established their API keys given by their exchange and the parameters to operate using the strategy.
-                            <br><br>                           
-                            Each currency has its strategy and exchanges available, if you can't find your exchange in your favorite currency you can request it here</p>
-                    </div>
+        <br><br>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-2"></div>
+                <div class="col-8">
+                    <h3>Available Exchanges</h3>
+                    <ul>
+                        <li><a href="https://www.binance.com/" class="link-secondary">Binance</a></li>
+                        <li><a href="https://www.bybit.com/" class="link-secondary">Bybit</a></li>
+                        <li>Kraken coming soon</li>
+                        <li>Coinbase coming soon</li>
+                        <li>Request your favorite exchange <a href="/request" class="link-primary">here</a></li>
+                    </ul>
                 </div>
+                <div class="col-2"></div>
             </div>
-        </section>
+        </div>
+        <br><br>
 
         <!-- Final -->
         <footer class="py-5 bg-dark">
@@ -99,4 +116,3 @@
     </body>
 
 </html>
-
