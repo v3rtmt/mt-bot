@@ -37,7 +37,7 @@ def eth():
 	if Operation['entryPrice'] == 0: epColor = "secondary"
 	else: epColor = "primary"
 
-	return render_template('bitcoin.html',
+	return render_template('ethereum.html',
 	Price=price,
 	Operation=Operation['status'],
 	OperationColor=OperationColor,
