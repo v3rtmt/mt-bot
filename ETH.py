@@ -51,16 +51,9 @@ def eth():
 def Price():
 	@app.after_response
 	def afterPrice():
-		operationFilter = {"Operation-ETH": True}	
-		status = mongo.db.Status
-		Operation = status.find_one(operationFilter)
+		req = requests.get("https://mt-strategy.herokuapp.com/")
 
-		if Operation['status'] == True:
-			getUsers_check()
-		else:
-			print("\n --- Price not in Operation --- \n")
-
-	return 'Precio Actualizado'
+	return 'Ciclo Reiniciado'
 
 # --- Define la direccion y los parametros de las operaciones ---
 @ETH.route('/Script-ETH', methods=['POST'])

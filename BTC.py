@@ -52,10 +52,9 @@ def btc():
 def Price():
 	@app.after_response
 	def afterPrice():
-		#req = requests.post("https://mt-strategy.herokuapp.com/")
-		req = requests.get("http://127.0.0.1:5000/")
+		req = requests.get("https://mt-strategy.herokuapp.com/")
 
-	return 'Precio Actualizado'
+	return 'Ciclo Reiniciado'
 
 # --- Define la direccion y los parametros de las operaciones ---
 @BTC.route('/Script-BTC', methods=['POST'])
