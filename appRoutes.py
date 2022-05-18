@@ -40,7 +40,7 @@ def index_en():
 	def init():
 		while True:
 			schedule.run_pending()
-			time.sleep(6)
+			time.sleep(1)
 
 	return render_template('EN/index_en.html')
 
