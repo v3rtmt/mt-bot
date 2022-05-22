@@ -56,11 +56,12 @@
     
         <div class="container">
             <div class="table-responsive">
+                <h2 class="fs-3 fw-bolder">Status<br></h2>
                 <table class="table table-hover">
                     <thead>
                         <tr>
                             <th scope="col"></th>
-                            <th scope="col">Factors</th>
+                            <th scope="col">Data</th>
                             <th scope="col">Status</th>
                         </tr>
                     </thead>
@@ -73,13 +74,18 @@
                         </tr>
                         <tr>
                             <th></th>
-                            <td>Current Price</td>
-                            <td><span class="badge rounded-pill bg-{{ SideColor }}">${{ Price }}</td></span></td>
+                            <td>Entry Price</td>
+                            <td><span class="badge rounded-pill bg-{{ epColor }}">${{ EntryP|round(1) }}</td></span></td>
                         </tr>
                         <tr>
                             <th></th>
-                            <td>Entry Price</td>
-                            <td><span class="badge rounded-pill bg-{{ epColor }}">${{ EntryP }}</td></span></td>
+                            <td>Current Price</td>
+                            <td><span class="badge rounded-pill bg-{{ PriceColor }}">${{ Price|round(1) }}</td></span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>Today Profit</td>
+                            <td><span class="badge rounded-pill bg-{{ ProfitColor }}">{{ profit }}%</td></span></td>
                         </tr>
                         
                     </tbody>
@@ -87,6 +93,55 @@
               </div>
         </div>
         <br><br>
+
+        <div class="container">
+            <div class="table-responsive">
+                <h2 class="fs-3 fw-bolder">Log<br></h2>
+                <table class="table table-hover">
+
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Side</th>
+                            <th scope="col">Open</th>
+                            <th scope="col">Close</th>
+                            <th scope="col">S.Profit</th>
+                            <th scope="col">A.Profit</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for order in Logs %}
+
+                            <tr>
+                                <th></th>
+                                <td>{{ order.status }}</td>
+                                <td><span class="badge rounded-pill bg-{% if order.side == 'BUY' %}success{% else %}danger{% endif %}">{{ order.side }}</span></td>
+                                <td>{{ order.timeOpen }}</td>
+                                <td>{{ order.timeClose }}</td>
+                                <td><span class="badge rounded-pill bg-{% if order.singleProfit > 0 %}success{% else %}danger{% endif %}">{{ order.singleProfit }}%</span></td>
+                                <td><span class="badge rounded-pill bg-{% if order.acumulateProfit > 0 %}success{% else %}danger{% endif %}">{{ order.acumulateProfit }}%</span></td>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>${{ order.priceOpen }}</th>
+                                <th class="text-{% if order.side == 'BUY' and order.priceClose > order.priceOpen %}success{% elif order.side == 'SELL' and order.priceClose < order.priceOpen %}success{% else %}danger{% endif %}">${{ order.priceClose }}</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+
+                        {% endfor %}    
+                    
+                </table>
+              </div>
+        </div>
+        <br><br>
+
+
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-2"></div>
@@ -95,8 +150,7 @@
                     <ul>
                         <li><a href="https://www.binance.com/" class="link-secondary">Binance</a></li>
                         <li><a href="https://www.bybit.com/" class="link-secondary">Bybit</a></li>
-                        <li>Kraken coming soon</li>
-                        <li>Coinbase coming soon</li>
+                        <li><a href="https://www.kraken.com/" class="link-secondary">Kraken</a></li>
                         <li>Request your favorite exchange <a href="/request" class="link-primary">here</a></li>
                     </ul>
                 </div>
@@ -116,6 +170,3 @@
     </body>
 
 </html>
-
-
-

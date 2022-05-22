@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, current_app as app
+from flask import Blueprint, jsonify, render_template, request, current_app as app
 from Mongo.extensions import mongo
+from bson.objectid import ObjectId
 import time
 import schedule
 
@@ -103,10 +104,12 @@ def question():
 	return render_template('question.html')
 
 import ccxt
-import datetime
+from datetime import datetime
 
 @appRoutes.route('/test', methods=['GET', 'POST'])
 def test():
+
+
 	binance = ccxt.binance({
 			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
 			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
@@ -118,3 +121,33 @@ def test():
 	balanceUSDT = balance['BUSD']['total']
 	datetime_object = datetime.datetime.now()
 	return str(balanceUSDT) + '    ' + str(datetime_object)
+
+@appRoutes.route('/log', methods=['POST'])
+def log():
+
+	status = mongo.db.Status
+	logFilter = {"Log-BTC": True}
+	log = status.find_one(logFilter)
+
+	dateTime = datetime.now()
+	date = dateTime.strftime("%d/%m/%y")
+
+	#print(log['Log'][date])
+
+	logs = log['Log'][date]
+	for order in logs:
+		print(f'{order}\n')
+
+	return 'log'
+
+@appRoutes.route('/Login', methods=['GET'])
+def login():
+	return render_template('login.html')
+
+@appRoutes.route('/Register', methods=['GET'])
+def register():
+	return render_template('register.html')
+
+@appRoutes.route('/Dashboard', methods=['GET'])
+def dashboard():
+	return render_template('Dashboard/dashboard.html')
