@@ -37,13 +37,7 @@ def addStatus():
 	
 @appRoutes.route('/', methods=['GET'])
 def index_en():
-	@app.after_response
-	def init():
-		while True:
-			schedule.run_pending()
-			time.sleep(1)
-
-	return render_template('EN/index_en.html')
+	return render_template('index.html')
 
 @appRoutes.route('/es', methods=['GET'])
 def index_es():
@@ -151,3 +145,20 @@ def register():
 @appRoutes.route('/Dashboard', methods=['GET'])
 def dashboard():
 	return render_template('Dashboard/dashboard.html')
+
+@appRoutes.route('/Help', methods=['GET'])
+def help():
+	return render_template('Dashboard/help.html')
+
+@appRoutes.route('/Notifications', methods=['GET'])
+def notifications():
+	return render_template('Dashboard/notifications.html')
+
+@appRoutes.route('/Schedule', methods=['POST'])
+def scheduler():
+	@app.after_response
+	def init():
+		while True:
+			schedule.run_pending()
+			time.sleep(1)
+	return 'init'

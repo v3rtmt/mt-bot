@@ -37,7 +37,7 @@ def sol():
 	if Operation['entryPrice'] == 0: epColor = "secondary"
 	else: epColor = "primary"
 
-	return render_template('solana.html',
+	return render_template('Currencies/solana.html',
 	Price=price,
 	Operation=Operation['status'],
 	OperationColor=OperationColor,

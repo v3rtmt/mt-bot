@@ -37,7 +37,7 @@ def bnb():
 	if Operation['entryPrice'] == 0: epColor = "secondary"
 	else: epColor = "primary"
 
-	return render_template('bnb.html',
+	return render_template('Currencies/bnb.html',
 	Price=price,
 	Operation=Operation['status'],
 	OperationColor=OperationColor,
