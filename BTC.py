@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, current_app as app
 from Mongo.extensions import mongo
-from datetime import datetime
+from scheduler import Scheduler
 import concurrent.futures
-import schedule
-import requests
+import datetime
 import time
 import ccxt
+import pytz
 
 # --------------
 
@@ -45,12 +45,13 @@ def btc():
 	operationFilter = {"Operation-BTC": True}
 	Operation = status.find_one(operationFilter)
 
-	dateTime = datetime.now()
+	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
 	date = dateTime.strftime("%d/%m/%y")
 	logFilter = {"Log-BTC": True}
 	Log = status.find_one(logFilter)
-	#Logs = Log['Log'][date]
 	Logs = Log['Log']
+	
 
 	if Operation['status'] == True: OperationColor = "primary"
 	else: OperationColor = "secondary"
@@ -86,24 +87,27 @@ def btc():
 def Price():
 	@app.after_response
 	def afterPrice():
-		req = requests.get("https://mt-strategy.herokuapp.com/")
+		pass
+		# --- Proximamente OLHC chart---
+		pass
 
 	return 'Ciclo Reiniciado'
 
 # --- Define la direccion y los parametros de las operaciones ---
 @BTC.route('/Script-BTC', methods=['POST'])
 def script():
-	status = mongo.db.Status
+	global scriptJson
 	scriptJson = request.json
 	@app.after_response
 	def afterSar():
+		status = mongo.db.Status
 		operationFilter = {"Operation-BTC": True}	
 		Operation = status.find_one(operationFilter)
 
 
 		if scriptJson['side'] == "BUY":
 			
-			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- Order -> BUY --- ")
 
 			if Operation['status'] == True:
 				if Operation['side'] == "BUY":
@@ -111,32 +115,26 @@ def script():
 				else:
 					getUsers_cancel()
 
+					getUsers_check()
+
 					if Operation['updatePending'] == True:
 						print(" --- Update Pending --- \n")
 						getUsers_update()
 
-					orderPrice = scriptJson['close']
-					status.update_one(
-						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice}})
-
 					getUsers_create()
 			else:
+				getUsers_check()
+
 				if Operation['updatePending'] == True:
 					print("Update Pending\n")
 					getUsers_update()
-
-				orderPrice = scriptJson['close']
-				status.update_one(
-					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "BUY", "entryPrice": orderPrice}})
 
 				getUsers_create()
 
 
 		elif scriptJson['side'] == "SELL":
 
-			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- Order -> SELL --- ")
 
 			if Operation['status'] == True:
 				if Operation['side'] == "SELL":
@@ -144,33 +142,29 @@ def script():
 				else:
 					getUsers_cancel()
 
+					getUsers_check()
+
 					if Operation['updatePending'] == True:
 						getUsers_update()
 
-					orderPrice = scriptJson['close']
-					status.update_one(
-						{"Operation-BTC": True},
-						{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice}})
-
 					getUsers_create()
 			else:
+				getUsers_check()
+
 				if Operation['updatePending'] == True:
 					getUsers_update()
 
-				orderPrice = scriptJson['close']
-				status.update_one(
-					{"Operation-BTC": True},
-					{"$set": {"status": True, "side": "SELL", "entryPrice": orderPrice}})
-					
 				getUsers_create()	
 
 		
 		elif scriptJson['side'] == "CANCEL":
 
-			print("\n --- Order -> " + str(scriptJson['side']) + " --- ")
+			print("\n --- Order -> CANCEL --- ")
 
 			if Operation['status'] == True:
 				getUsers_cancel()
+
+				getUsers_check()
 
 			else:
 				print("Not Operation to Cancel\n")
@@ -193,6 +187,14 @@ def getUsers_create():
 		getUsers_create()
 	lockThisFunction = True
 
+	status = mongo.db.Status
+	operationFilter = {"Operation-BTC": True}	
+	Operation = status.find_one(operationFilter)
+
+	status.update_one(
+		{"Operation-BTC": True},
+		{"$set": {"status": True, "side": scriptJson['side'], "entryPrice": scriptJson['close']}})
+
 	print("\n-------------------- Create -------------------- \n")
 
 	bots = mongo.db.Bots
@@ -209,10 +211,36 @@ def getUsers_create():
 		executor.map(createOrders, databaseBots)
 
 	print("\n-------------------- Create -------------------- \n")
+
+	newLog = {
+		"status": "Open",
+		"side": scriptJson['side'],
+
+		"dateOpen": dataLog['dateOpen'],
+		"timeOpen": dataLog['timeOpen'],
+		"priceOpen": dataLog['priceOpen'],
+
+		"dateClose": "-",
+		"timeClose": "-",
+		"priceClose": 0.00,
+
+		"singleProfit": 0.00,
+		"acumulateProfit": 0.00
+	}
+
+	status.update(
+		{"Log-BTC": True},
+		{"$push":
+			{
+				"Log": newLog
+			} 
+		}
+	)
+
 	lockThisFunction = False
 	
 def createOrders(thisBot):
-	global issues, tradeAmount
+	global issues, tradeAmount, dataLog
 	issues = "None"
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
@@ -234,7 +262,7 @@ def createOrders(thisBot):
 			status = mongo.db.Status
 			Operation = status.find_one(operationFilter)
 			
-			global order, issues, tradeAmount
+			global order, issues, tradeAmount, orderPrice
 			retrying = False
 			thisOrder = False
 
@@ -353,18 +381,37 @@ def createOrders(thisBot):
 		{"_id": thisBot['_id']},
 		{"$set": {"lastOrderAmount": tradeAmount}})
 
-	dateTime = datetime.now()
+	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
 	date = dateTime.strftime("%d/%m/%y")
 	ctime = dateTime.strftime("%H:%M:%S")
+
 	bots.update(
 		{"_id": thisBot['_id']},
 		{"$push": 
 			{"log":
 		{
-			"status": "Open", "side": Operation['side'], "dateOpen": date, "timeOpen": ctime, "dateClose": "-", "timeClose": "-", "amount": tradeAmount, "issuesOpen": issues, "issuesClose": "-"
+			"status": "Open",
+			"side": Operation['side'],
+			"amount": tradeAmount,
+			"dateOpen": date,
+			"timeOpen": ctime,
+			"priceOpen": order['price'],
+			"issuesOpen": issues,
+			"dateClose": "-",
+			"timeClose": "-",
+			"priceClose": 0.00,
+			"issuesClose": "-",
+			"profit": 0.00
 		}}})
 
 	print(" Bot: " + str(thisBot['exchangeConnection']['apiKey']) + "key created at $" + str(orderPrice)+ " with '" + str(issues) + "' isues")
+
+	dataLog = {
+		"dateOpen": date,
+		"timeOpen": ctime,
+		"priceOpen": order['price']
+	}
 
 
 
@@ -393,17 +440,56 @@ def getUsers_cancel():
 	with concurrent.futures.ThreadPoolExecutor() as executor:
 		executor.map(cancelOrders, databaseBots)
 	
-	operation = mongo.db.Status
-	operation.update_one(
+	status = mongo.db.Status
+	status.update_one(
 		{"Operation-BTC": True},
 		{"$set": {"status": False, "side": "", "entryPrice": 0.00}})
 
 	print("\n-------------------- CANCEL -------------------- \n")
+	
+	logFilter = {"Log-BTC": True}	
+	log = status.find_one(logFilter)
+
+	thisOrder = log['Log'][-1]
+	lastOrder = log['Log'][-2]
+	
+	if thisOrder['side'] == "BUY":
+		singleProfit = ( dataLog['priceClose'] * 100 / (thisOrder['priceOpen']) ) - 100
+	else:
+		singleProfit = ( (thisOrder['priceOpen']) * 100 / dataLog['priceClose'] ) - 100
+
+	operationFilter = {"Operation-BTC": True}	
+	Operation = status.find_one(operationFilter)
+
+	if Operation['init'] == True:
+		acumulateProfit = singleProfit
+		status.update_one(
+			{"Operation-BTC": True},
+			{"$set": {"init": False}})
+	else:
+		acumulateProfit = lastOrder['acumulateProfit'] + singleProfit
+
+	status.update_one(
+		{"Log-BTC": True, "Log.status": "Open"},
+		{"$set": {
+			"Log.$.status": "Close",
+			"Log.$.dateClose": dataLog['dateClose'],
+			"Log.$.timeClose": dataLog['timeClose'],
+			"Log.$.priceClose": dataLog['priceClose'],
+			"Log.$.singleProfit": singleProfit,
+			"Log.$.acumulateProfit": acumulateProfit
+			}
+		}
+	)
+
 	lockThisFunction = False
 
 def cancelOrders(thisBot):
-	global issues
+	global issues, dataLog
 	issues = "None"
+	operationFilter = {"Operation-BTC": True}	
+	status = mongo.db.Status
+	Operation = status.find_one(operationFilter)
 	
 	#-------------------- BINANCE -------------------- 
 	if thisBot['exchange'] == "Binance":
@@ -443,6 +529,7 @@ def cancelOrders(thisBot):
 				time.sleep(1)
 				createMarketOrderBinance()		
 
+			
 
 		createMarketOrderBinance()
 	
@@ -491,23 +578,41 @@ def cancelOrders(thisBot):
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
 		issues = "Data Error (Report with Admins)"
 
-	dateTime = datetime.now()
+	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
 	date = dateTime.strftime("%d/%m/%y")
 	ctime = dateTime.strftime("%H:%M:%S")
+
+	if Operation['side'] == "BUY":
+		profit = ( order['price'] * 100 / (thisBot['log'][-1]['priceOpen']) ) - 100
+	else:
+		profit = ( (thisBot['log'][-1]['priceOpen']) * 100 / order['price'] ) - 100
 
 	bots = mongo.db.Bots
 	bots.update_one(
 		{"_id": (thisBot['_id']), "log.status": "Open"},
-		{"$set": {"log.$.status": "Close", "log.$.dateClose": date, "log.$.timeClose": ctime, "log.$.issuesClose": issues}})
+		{"$set": {
+			"log.$.status": "Close", 
+			"log.$.dateClose": date, 
+			"log.$.timeClose": ctime,
+			"log.$.priceClose": order['price'],
+			"log.$.issuesClose": issues,
+			"log.$.profit": profit}})
 
 	print(" Bot: " + str(thisBot['exchangeConnection']['apiKey']) + "key canceled with '" + str(issues) + "' isues")
+
+	dataLog = {
+		"dateOpen": date,
+		"timeOpen": ctime,
+		"priceOpen": order['price']
+	}
 
 
 
 
 
 # --- Revisa continuamente el estado de las cuentas en base a los parametros ---
-def getUsers_check():
+def getUsers_check(server1):
 	global lockThisFunction, thisBot
 	if lockThisFunction == True:
 		pass
@@ -553,6 +658,140 @@ def checkOrders(thisBot):
 			balance = binance.fetch_balance()
 			balanceBUSD = balance['BUSD']['total']
 
+			if balanceBUSD < thisBot['limitAmount']:
+				global issues
+				print("\n Bot: " + str(thisBot['exchangeConnection']['apiKey']) + " -- Limit Balance Reached -- ")
+
+				try:
+					if Operation['side'] == "BUY":
+						binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "Limit Balance Reached"
+					elif Operation['side'] == "SELL":
+						binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "Limit Balance Reached"
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
+				except:
+					issues = "No Order Open"
+
+				bots = mongo.db.Bots
+				dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+				dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+				date = dateTime.strftime("%d/%m/%y")
+				ctime = dateTime.strftime("%H:%M:%S")
+				bots.update_one(
+					{"_id": (thisBot['_id']), "log.status": "Open"},
+					{"$set": {"log.$.status": "Close", "log.$.dateClose": date, "log.$.timeClose": ctime, "log.$.issuesClose": issues}})
+				
+				bots.update_one(
+					{"_id": (thisBot['_id'])},
+					{"$set": {"isEnabledforTrade": False}})
+			else:
+				print("\n Bot: " + str(thisBot['exchangeConnection']['apiKey']) + " -- Balance in Range --  ")
+
+
+		checkMarketOrderBinance()
+	
+	#-------------------- BYBIT --------------------
+	elif thisBot['exchange'] == "Bybit":
+		bybit = ccxt.bybit({
+			'apiKey': (thisBot['exchangeConnection']['apiKey']),
+			'secret': (thisBot['exchangeConnection']['apiSecret']),
+			'options': {'defaultType': 'future',},})
+		
+		bybit.enableRateLimit = True
+		
+		def checkMarketOrderBybit():
+			
+			balance = bybit.fetch_balance()
+			balanceBUSD = balance['BUSD']['total']
+
+			if balanceBUSD < thisBot['limitAmount']:
+				global issues
+				print("\n Bot: " + str(thisBot['exchangeConnection']['apiKey']) + " -- Limit Balance Reached -- ")
+
+				try:
+					if Operation['side'] == "BUY":
+						bybit.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "Limit Balance Reached"
+					elif Operation['side'] == "SELL":
+						bybit.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "Limit Balance Reached"
+					else:
+						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
+				except:
+					issues = "No Order Open"
+
+				bots = mongo.db.Bots
+				dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+				dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+				date = dateTime.strftime("%d/%m/%y")
+				ctime = dateTime.strftime("%H:%M:%S")
+				bots.update_one(
+					{"_id": (thisBot['_id']), "log.status": "Open"},
+					{"$set": {"log.$.status": "Close", "log.$.dateClose": date, "log.$.timeClose": ctime, "log.$.issuesClose": issues}})
+				
+				bots.update_one(
+					{"_id": (thisBot['_id'])},
+					{"$set": {"isEnabledforTrade": False}})
+
+			else:
+				print("\n Bot: " + str(thisBot['exchangeConnection']['apiKey']) + " -- Balance in Range --  ")
+
+
+		checkMarketOrderBybit()
+	
+	else:
+		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
+		issues = "Data Error (Report with Admins)"
+
+
+
+
+
+# --- Revisa continuamente el estado de las cuentas en base a los parametros ---
+def getUsers_checkInter(server2):
+	global lockThisFunction, thisBot
+	if lockThisFunction == True:
+		pass
+	else:
+		pairFormat = {"pair": "BTCUSDT"}
+		bots = mongo.db.Bots
+		thisPairBot = bots.find(pairFormat)
+		
+		databaseBots = []
+
+		for bot in thisPairBot:
+			if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
+				databaseBots.append(bot)
+
+		with concurrent.futures.ThreadPoolExecutor() as executor:
+			executor.map(checkOrdersInter, databaseBots)
+		
+
+def checkOrdersInter(thisBot):
+	global issues
+	issues = ""
+	operationFilter = {"Operation-BTC": True}	
+	status = mongo.db.Status
+	Operation = status.find_one(operationFilter)
+	
+	#-------------------- BINANCE -------------------- 
+	if thisBot['exchange'] == "Binance":
+		binance = ccxt.binance({
+			'apiKey': (thisBot['exchangeConnection']['apiKey']),
+			'secret': (thisBot['exchangeConnection']['apiSecret']),
+			'options': {'defaultType': 'future',},})
+		
+		binance.enableRateLimit = True
+		
+		def checkMarketOrderBinance():
+			
+			balance = binance.fetch_balance()
+			balanceBUSD = balance['BUSD']['total']
+
 			if balanceBUSD < thisBot['tradeAmount']:
 				global issues
 				print("\n Bot: " + str(thisBot['exchangeConnection']['apiKey']) + " -- Limit Balance Reached -- ")
@@ -571,7 +810,8 @@ def checkOrders(thisBot):
 					issues = "No Order Open"
 
 				bots = mongo.db.Bots
-				dateTime = datetime.now()
+				dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+				dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
 				date = dateTime.strftime("%d/%m/%y")
 				ctime = dateTime.strftime("%H:%M:%S")
 				bots.update_one(
@@ -619,7 +859,8 @@ def checkOrders(thisBot):
 					issues = "No Order Open"
 
 				bots = mongo.db.Bots
-				dateTime = datetime.now()
+				dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+				dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
 				date = dateTime.strftime("%d/%m/%y")
 				ctime = dateTime.strftime("%H:%M:%S")
 				bots.update_one(
@@ -645,7 +886,7 @@ def checkOrders(thisBot):
 
 
 # --- Actualiza cada 24hrs la base de datos de usuarios en base a los parametros ---
-def getUsers_update():
+def getUsers_update(server3):
 	global lockThisFunction, thisBot
 	if lockThisFunction == True:
 		time.sleep(2)
@@ -657,6 +898,8 @@ def getUsers_update():
 	Operation = status.find_one(operationFilter)
 
 	if Operation['status'] == True:
+		
+		print("\n-------------------- UPDATE IN OPERATION -------------------- \n")
 
 		status.update_one(
 			{"Operation-BTC": True},
@@ -680,7 +923,7 @@ def getUsers_update():
 
 		status.update_one(
 			{"Operation-BTC": True},
-			{"$set": {"updatePending": False}})
+			{"$set": {"updatePending": False, "init": True}})
 
 	print("\n-------------------- UPDATE -------------------- \n")
 	
@@ -699,11 +942,12 @@ def updateBots(thisBot):
 		balance = binance.fetch_balance()
 		balanceBUSD = balance['BUSD']['total']
 		newTradeAmount = balanceBUSD * .75
+		newLimitAmount = balanceBUSD * .68
 
 		bots = mongo.db.Bots	
 		bots.update_one(
 			{"_id": thisBot['_id']},
-			{"$set": {"tradeAmount": round(newTradeAmount, 2), "isEnabledforTrade": True}})
+			{"$set": {"tradeAmount": round(newTradeAmount, 2), "limitAmount": round(newLimitAmount, 2), "isEnabledforTrade": True}})
 
 	
 	#-------------------- BYBIT --------------------
@@ -732,8 +976,14 @@ def updateBots(thisBot):
 
 # -------------------- Schedule --------------------
 
-schedule.every().day.at("05:00").do(getUsers_update)
-#schedule.every().day.at("05:01").do(getUsers_update)
-#schedule.every().day.at("09:00").do(getUsers_update)
+server = datetime.timezone.utc
+mty = pytz.timezone('America/Monterrey')
+scheduleBTC = Scheduler(tzinfo=server)
+
+time00 = datetime.time(hour=0, tzinfo=mty)
+scheduleBTC.daily(time00, getUsers_update, args=(mty,))
+
+time10 = datetime.timedelta(seconds=10)
+scheduleBTC.cyclic(time10, getUsers_check, args=(mty,))
 
 # -------------------- Schedule --------------------

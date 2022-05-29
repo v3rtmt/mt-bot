@@ -665,7 +665,7 @@ def updateBots():
 
 # -------------------- Schedule --------------------
 
-schedule.every(6).seconds.do(getUsers_check)
-schedule.every().day.at("05:00").do(getUsers_update)
+#schedule.every(6).seconds.do(getUsers_check)
+#schedule.every().day.at("05:00").do(getUsers_update)
 
 # -------------------- Schedule --------------------

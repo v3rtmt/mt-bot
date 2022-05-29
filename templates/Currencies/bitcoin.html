@@ -60,28 +60,28 @@
 					<!-- Notification Icon -->
 					<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
 						<i class="bi bi-bell"></i>
-						<span class="badge bg-primary badge-number">4</span>
+						<span class="badge bg-primary badge-number">1</span>
 					</a>
 
 					<!-- Notification Dropdown -->
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
 						<li class="dropdown-header">
-							Tienes 4 nuevas notificaciones
-						<a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
+							Tienes 1 nueva notificación
+						<a href="/Notifications"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
 						</li>
 						<li>
 						<hr class="dropdown-divider">
 						</li>
 
 						<li class="notification-item">
-						<i class="bi bi-exclamation-circle text-warning"></i>
+						<i class="bi bi-info-circle text-primary"></i>
 						<div>
-							<h4>Lorem Ipsum</h4>
-							<p>Quae dolorem earum veritatis oditseno</p>
-							<p>Hace 30 min.</p>
+							<h4>Estás list@?</h4>
+							<p>MT Strategy fase Alpha se acerca pronto</p>
+							<p>27/05/22</p>
 						</div>
 						</li>
-
+						<!--
 						<li>
 						<hr class="dropdown-divider">
 						</li>
@@ -127,7 +127,7 @@
 						<li class="dropdown-footer">
 						<a href="#">Mostrar todas las notificaciones</a>
 						</li>
-
+								-->
 					</ul>
 				</li>
 
@@ -335,7 +335,7 @@
 										</div>
 										<div class="ps-3">
 											<h6>${{ Price }}</h6>
-											<span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">incremento</span>
+											<!--<span class="text-success small pt-1 fw-bold">X%</span> <span class="text-muted small pt-2 ps-1">incremento</span>-->
 
 										</div>
 									</div>
@@ -352,12 +352,12 @@
 									<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
 									<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
 										<li class="dropdown-header text-start">
-											<h6>Filter</h6>
+											<h6>Filtro</h6>
 										</li>
 
-										<li><a class="dropdown-item" href="#">Today</a></li>
-										<li><a class="dropdown-item" href="#">This Month</a></li>
-										<li><a class="dropdown-item" href="#">This Year</a></li>
+										<li><a class="dropdown-item" href="#">Hoy</a></li>
+										<li><a class="dropdown-item" href="#">Semanal</a></li>
+										<li><a class="dropdown-item" href="#">Mensual</a></li>
 									</ul>
 								</div>
 
@@ -369,8 +369,8 @@
 											<i class="bi bi-graph-up"></i>
 										</div>
 										<div class="ps-3">
-											<h6>2.4%</h6>
-											<span class="text-success small pt-1 fw-bold">53%</span> <span class="text-muted small pt-2 ps-1">rentabilidad</span>
+											<h6>{{ Logs[-2]['acumulateProfit'] }}%</h6>
+											<!--<span class="text-success small pt-1 fw-bold">X%</span> <span class="text-muted small pt-2 ps-1">rentabilidad</span>-->
 
 										</div>
 									</div>
@@ -402,7 +402,7 @@
 												<tbody>
 														<tr>
 																<td>Operación</td>
-																<td><span class="badge rounded-pill bg-{{ OperationColor }}">{{ Operation|upper }}</span>     <span class="badge rounded-pill bg-{{ SideColor }}">{{ Side }}</span></td>
+																<td><span class="badge rounded-pill bg-{{ SideColor }}">{{ Side }}</span></td>
 														</tr>
 														<tr>
 																<td>Precio de Entrada</td>
@@ -414,11 +414,11 @@
 														</tr>
 														<tr>
 																<td>Profit Individual</td>
-																<td><span class="badge rounded-pill bg-danger">-.2%</td></span></td>
+																<td><span class="badge rounded-pill bg-secondary">X%</td></span></td>
 														</tr>
 														<tr>
 																<td>Profit del Dia</td>
-																<td><span class="badge rounded-pill bg-success">2.4%</td></span></td>
+																<td><span class="badge rounded-pill bg-secondary">X%</td></span></td>
 														</tr>
 												</tbody>
 												</table>
@@ -432,68 +432,29 @@
 								<div class="col-lg-8">
 										<div class="card recent-sales overflow-auto">
 		
-										<div class="filter">
-												<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-												<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-												<li class="dropdown-header text-start">
-														<h6>Filter</h6>
-												</li>
-		
-												<li><a class="dropdown-item" href="#">Today</a></li>
-												<li><a class="dropdown-item" href="#">This Month</a></li>
-												<li><a class="dropdown-item" href="#">This Year</a></li>
-												</ul>
-										</div>
-		
 										<div class="card-body">
 												<h5 class="card-title">Operaciones Recientes <span>| Hoy</span></h5>
 		
 												<table class="table table-borderless">
 												<thead>
 														<tr>
-														<th scope="col">#</th>
 														<th scope="col">Side</th>
 														<th scope="col">Hora</th>
 														<th scope="col">Precio</th>
 														<th scope="col">Status</th>
+														<th scope="col">Profit</th>
 														</tr>
 												</thead>
 												<tbody>
+													{% for order in Logs[-5:]|reverse %}
 														<tr>
-														<th scope="row"><a href="#">#24</a></th>
-														<td><span class="badge bg-success">BUY</span></td>
-														<td>18:45:03</td>
-														<td>$30604</td>
-														<td><span class="badge bg-success">Abierta</span></td>
+														<td><span class="badge bg-{% if order.side == 'BUY' %}success{% else %}danger{% endif %}">{{ order.side }}</span></td>
+														<td>{{ order.timeOpen }}</td>
+														<td>{{ order.priceOpen }}</td>
+														<td><span class="badge bg-{% if order.status == 'Open' %}success{% else %}danger{% endif %}">{{ order.status }}</span></td>
+														<td>{{ order.singleProfit }}%</td>
 														</tr>
-														<tr>
-														<th scope="row"><a href="#">#23</a></th>
-														<td><span class="badge bg-danger">SELL</span></td>
-														<td>15:24:05</td>
-														<td>$30112</td>
-														<td><span class="badge bg-danger">Cerrada</span></td>
-														</tr>
-														<tr>
-														<th scope="row"><a href="#">#22</a></th>
-														<td><span class="badge bg-success">BUY</span></td>
-														<td>14:05:28</td>
-														<td>$29435</td>
-														<td><span class="badge bg-danger">Cerrada</span></td>
-														</tr>
-														<tr>
-														<th scope="row"><a href="#">#21</a></th>
-														<td><span class="badge bg-danger">SELL</span></td>
-														<td>11:17:59</td>
-														<td>$31589</td>
-														<td><span class="badge bg-danger">Cerrada</span></td>
-														</tr>
-														<tr>
-														<th scope="row"><a href="#">#20</a></th>
-														<td><span class="badge bg-success">BUY</span></td>
-														<td>09:38:23</td>
-														<td>$32875</td>
-														<td><span class="badge bg-danger">Cerrada</span></td>
-														</tr>
+													{% endfor %}
 												</tbody>
 												</table>
 		

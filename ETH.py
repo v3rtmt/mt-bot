@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, request, current_app as app
 from Mongo.extensions import mongo
-from datetime import datetime
-import schedule
+from scheduler import Scheduler
+import concurrent.futures
+import datetime
 import time
 import ccxt
+import pytz
 
 # --------------
 
@@ -664,7 +666,13 @@ def updateBots():
 
 # -------------------- Schedule --------------------
 
-schedule.every(6).seconds.do(getUsers_check)
-schedule.every().day.at("05:00").do(getUsers_update)
+server = datetime.timezone.utc
+mty = pytz.timezone('America/Monterrey')
+scheduleETH = Scheduler(tzinfo=server)
+
+time00 = datetime.time(hour=0, tzinfo=mty)
+scheduleETH.daily(time00, getUsers_update, args=(mty,))
+
+scheduleETH.minutely(datetime.time(second=15, tzinfo=mty), getUsers_update, args=(mty,))
 
 # -------------------- Schedule --------------------
