@@ -115,7 +115,7 @@ def script():
 				else:
 					getUsers_cancel()
 
-					getUsers_check()
+					getUsers_checkInter()
 
 					if Operation['updatePending'] == True:
 						print(" --- Update Pending --- \n")
@@ -123,7 +123,7 @@ def script():
 
 					getUsers_create()
 			else:
-				getUsers_check()
+				getUsers_checkInter()
 
 				if Operation['updatePending'] == True:
 					print("Update Pending\n")
@@ -142,14 +142,14 @@ def script():
 				else:
 					getUsers_cancel()
 
-					getUsers_check()
+					getUsers_checkInter()
 
 					if Operation['updatePending'] == True:
 						getUsers_update()
 
 					getUsers_create()
 			else:
-				getUsers_check()
+				getUsers_checkInter()
 
 				if Operation['updatePending'] == True:
 					getUsers_update()
@@ -164,7 +164,7 @@ def script():
 			if Operation['status'] == True:
 				getUsers_cancel()
 
-				getUsers_check()
+				getUsers_checkInter()
 
 			else:
 				print("Not Operation to Cancel\n")
@@ -752,7 +752,7 @@ def checkOrders(thisBot):
 
 
 # --- Revisa continuamente el estado de las cuentas en base a los parametros ---
-def getUsers_checkInter(server2):
+def getUsers_checkInter():
 	global lockThisFunction, thisBot
 	if lockThisFunction == True:
 		pass
