@@ -103,7 +103,7 @@ def script():
 		status = mongo.db.Status
 		operationFilter = {"Operation-BTC": True}	
 		Operation = status.find_one(operationFilter)
-
+		server = "SERVER"
 
 		if scriptJson['side'] == "BUY":
 			
@@ -119,7 +119,7 @@ def script():
 
 					if Operation['updatePending'] == True:
 						print(" --- Update Pending --- \n")
-						getUsers_update()
+						getUsers_update(server)
 
 					getUsers_create()
 			else:
@@ -127,7 +127,7 @@ def script():
 
 				if Operation['updatePending'] == True:
 					print("Update Pending\n")
-					getUsers_update()
+					getUsers_update(server)
 
 				getUsers_create()
 
@@ -145,14 +145,14 @@ def script():
 					getUsers_checkInter()
 
 					if Operation['updatePending'] == True:
-						getUsers_update()
+						getUsers_update(server)
 
 					getUsers_create()
 			else:
 				getUsers_checkInter()
 
 				if Operation['updatePending'] == True:
-					getUsers_update()
+					getUsers_update(server)
 
 				getUsers_create()	
 
@@ -212,13 +212,26 @@ def getUsers_create():
 
 	print("\n-------------------- Create -------------------- \n")
 
+	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+	date = dateTime.strftime("%d/%m/%y")
+	ctime = dateTime.strftime("%H:%M:%S")
+
+	binance = ccxt.binance({
+		'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+		'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
+		'options': {'defaultType': 'future',},})
+	binance.enableRateLimit = True
+	tickerBUSD = binance.fetch_ticker('BTC/BUSD')
+	priceBUSD = float(tickerBUSD['close'])
+
 	newLog = {
 		"status": "Open",
 		"side": scriptJson['side'],
 
-		"dateOpen": dataLog['dateOpen'],
-		"timeOpen": dataLog['timeOpen'],
-		"priceOpen": dataLog['priceOpen'],
+		"dateOpen": date,
+		"timeOpen": ctime,
+		"priceOpen": priceBUSD,
 
 		"dateClose": "-",
 		"timeClose": "-",
@@ -407,12 +420,6 @@ def createOrders(thisBot):
 
 	print(" Bot: " + str(thisBot['exchangeConnection']['apiKey']) + "key created at $" + str(orderPrice)+ " with '" + str(issues) + "' isues")
 
-	dataLog = {
-		"dateOpen": date,
-		"timeOpen": ctime,
-		"priceOpen": order['price']
-	}
-
 
 
 
@@ -446,6 +453,19 @@ def getUsers_cancel():
 		{"$set": {"status": False, "side": "", "entryPrice": 0.00}})
 
 	print("\n-------------------- CANCEL -------------------- \n")
+
+	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+	date = dateTime.strftime("%d/%m/%y")
+	ctime = dateTime.strftime("%H:%M:%S")
+
+	binance = ccxt.binance({
+		'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+		'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
+		'options': {'defaultType': 'future',},})
+	binance.enableRateLimit = True
+	tickerBUSD = binance.fetch_ticker('BTC/BUSD')
+	priceBUSD = float(tickerBUSD['close'])
 	
 	logFilter = {"Log-BTC": True}	
 	log = status.find_one(logFilter)
@@ -454,9 +474,9 @@ def getUsers_cancel():
 	lastOrder = log['Log'][-2]
 	
 	if thisOrder['side'] == "BUY":
-		singleProfit = ( dataLog['priceClose'] * 100 / (thisOrder['priceOpen']) ) - 100
+		singleProfit = ( priceBUSD * 100 / (thisOrder['priceOpen']) ) - 100
 	else:
-		singleProfit = ( (thisOrder['priceOpen']) * 100 / dataLog['priceClose'] ) - 100
+		singleProfit = ( (thisOrder['priceOpen']) * 100 / priceBUSD ) - 100
 
 	operationFilter = {"Operation-BTC": True}	
 	Operation = status.find_one(operationFilter)
@@ -473,9 +493,9 @@ def getUsers_cancel():
 		{"Log-BTC": True, "Log.status": "Open"},
 		{"$set": {
 			"Log.$.status": "Close",
-			"Log.$.dateClose": dataLog['dateClose'],
-			"Log.$.timeClose": dataLog['timeClose'],
-			"Log.$.priceClose": dataLog['priceClose'],
+			"Log.$.dateClose": date,
+			"Log.$.timeClose": ctime,
+			"Log.$.priceClose": priceBUSD,
 			"Log.$.singleProfit": singleProfit,
 			"Log.$.acumulateProfit": acumulateProfit
 			}
