@@ -369,7 +369,7 @@
 											<i class="bi bi-graph-up"></i>
 										</div>
 										<div class="ps-3">
-											<h6>{{ Logs[-2]['acumulateProfit'] }}%</h6>
+											<h6>{{ Logs[-2]['acumulateProfit']|round(3) }}%</h6>
 											<!--<span class="text-success small pt-1 fw-bold">X%</span> <span class="text-muted small pt-2 ps-1">rentabilidad</span>-->
 
 										</div>
@@ -452,7 +452,7 @@
 														<td>{{ order.timeOpen }}</td>
 														<td>{{ order.priceOpen }}</td>
 														<td><span class="badge bg-{% if order.status == 'Open' %}success{% else %}danger{% endif %}">{{ order.status }}</span></td>
-														<td>{{ order.singleProfit }}%</td>
+														<td>{{ order.singleProfit|round(3) }}%</td>
 														</tr>
 													{% endfor %}
 												</tbody>

@@ -191,24 +191,32 @@ def getUsers_create():
 	operationFilter = {"Operation-BTC": True}	
 	Operation = status.find_one(operationFilter)
 
-	status.update_one(
-		{"Operation-BTC": True},
-		{"$set": {"status": True, "side": scriptJson['side'], "entryPrice": scriptJson['close']}})
-
 	print("\n-------------------- Create -------------------- \n")
 
-	bots = mongo.db.Bots
-	pairFormat = {"pair": "BTCUSDT"}
-	thisPairBot = bots.find(pairFormat)
+	def inTimeCreate():
+		orderTime1 = time.localtime()
+		orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
-	databaseBots = []
+		if orderTime in clock:
+			bots = mongo.db.Bots
+			pairFormat = {"pair": "BTCUSDT"}
+			thisPairBot = bots.find(pairFormat)
 
-	for bot in thisPairBot:
-		if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
-			databaseBots.append(bot)
+			databaseBots = []
 
-	with concurrent.futures.ThreadPoolExecutor() as executor:
-		executor.map(createOrders, databaseBots)
+			for bot in thisPairBot:
+				if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
+					databaseBots.append(bot)
+
+			with concurrent.futures.ThreadPoolExecutor() as executor:
+				executor.map(createOrders, databaseBots)
+
+		else:
+			time.sleep(1)
+			inTimeCreate()
+
+
+	inTimeCreate()
 
 	print("\n-------------------- Create -------------------- \n")
 
@@ -224,6 +232,10 @@ def getUsers_create():
 	binance.enableRateLimit = True
 	tickerBUSD = binance.fetch_ticker('BTC/BUSD')
 	priceBUSD = float(tickerBUSD['close'])
+
+	status.update_one(
+		{"Operation-BTC": True},
+		{"$set": {"status": True, "side": scriptJson['side'], "entryPrice": priceBUSD}})
 
 	newLog = {
 		"status": "Open",
@@ -434,18 +446,30 @@ def getUsers_cancel():
 
 	print("\n-------------------- CANCEL -------------------- \n")
 
-	bots = mongo.db.Bots
-	pairFormat = {"pair": "BTCUSDT",}
-	thisPairBot = bots.find(pairFormat)
+	def inTimeCancel():
+		orderTime1 = time.localtime()
+		orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
-	databaseBots = []
+		if orderTime in clock:
+			bots = mongo.db.Bots
+			pairFormat = {"pair": "BTCUSDT"}
+			thisPairBot = bots.find(pairFormat)
 
-	for bot in thisPairBot:
-		if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
-			databaseBots.append(bot)
+			databaseBots = []
 
-	with concurrent.futures.ThreadPoolExecutor() as executor:
-		executor.map(cancelOrders, databaseBots)
+			for bot in thisPairBot:
+				if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
+					databaseBots.append(bot)
+
+			with concurrent.futures.ThreadPoolExecutor() as executor:
+				executor.map(cancelOrders, databaseBots)
+
+		else:
+			time.sleep(1)
+			inTimeCancel()
+
+
+	inTimeCancel()
 	
 	status = mongo.db.Status
 	status.update_one(
@@ -789,7 +813,7 @@ def getUsers_checkInter():
 
 		with concurrent.futures.ThreadPoolExecutor() as executor:
 			executor.map(checkOrdersInter, databaseBots)
-		
+
 
 def checkOrdersInter(thisBot):
 	global issues
@@ -939,7 +963,7 @@ def getUsers_update(server3):
 				databaseBots.append(bot)
 
 		with concurrent.futures.ThreadPoolExecutor() as executor:
-			executor.map(checkOrders, databaseBots)
+			executor.map(updateBots, databaseBots)
 
 		status.update_one(
 			{"Operation-BTC": True},
