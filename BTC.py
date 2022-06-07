@@ -15,18 +15,18 @@ BTC = Blueprint('BTC', __name__)
 
 lockThisFunction = False
 clock = [
-	"440", "441", "442", "0443", "0444", "0445", "446", "447", "448", "449", "450", "451", "452", "453", "454", "455", "456", "457", "458", "459",
-	"940", "941", "942", "0943", "0944", "0945", "946", "947", "948", "949", "950", "951", "952", "953", "954", "955", "956", "957", "958", "959",
-	"1440", "1441", "1442", "1443", "1444", "1445", "1446", "1447", "1448", "1449", "1450", "1451", "1452", "1453", "1454", "1455", "1456", "1457", "1458", "1459",  
-	"1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959",  
-	"2440", "2441", "2442", "2443", "2444", "2445", "2446", "2447", "2448", "2449", "2450", "2451", "2452", "2453", "2454", "2455", "2456", "2457", "2458", "2459",  
-	"2940", "2941", "2942", "2943", "2944", "2945", "2946", "2947", "2948", "2949", "2950", "2951", "2952", "2953", "2954", "2955", "2956", "2957", "2958", "2959",  
-	"3440", "3441", "3442", "3443", "3444", "3445", "3446", "3447", "3448", "3449", "3450", "3451", "3452", "3453", "3454", "3455", "3456", "3457", "3458", "3459",  
-	"3940", "3941", "3942", "3943", "3944", "3945", "3946", "3947", "3948", "3949", "3950", "3951", "3952", "3953", "3954", "3955", "3956", "3957", "3958", "3959",  
-	"4440", "4441", "4442", "4443", "4444", "4445", "4446", "4447", "4448", "4449", "4450", "4451", "4452", "4453", "4454", "4455", "4456", "4457", "4458", "4459",  
-	"4940", "4941", "4942", "4943", "4944", "4945", "4946", "4947", "4948", "4949", "4950", "4951", "4952", "4953", "4954", "4955", "4956", "4957", "4958", "4959",  
-	"5440", "5441", "5442", "5443", "5444", "5445", "5446", "5447", "5448", "5449", "5450", "5451", "5452", "5453", "5454", "5455", "5456", "5457", "5458", "5459",  
-	"5940", "5941", "5942", "5943", "5944", "5945", "5946", "5947", "5948", "5949", "5950", "5951", "5952", "5953", "5954", "5955", "5956", "5957", "5958", "5959"  
+	"442", "0443", "0444", "0445", "446", "447", "448", "449", "450", "451", "452", "453", "454", "455", "456", "457", "458", "459",
+	"942", "0943", "0944", "0945", "946", "947", "948", "949", "950", "951", "952", "953", "954", "955", "956", "957", "958", "959",
+	"1442", "1443", "1444", "1445", "1446", "1447", "1448", "1449", "1450", "1451", "1452", "1453", "1454", "1455", "1456", "1457", "1458", "1459",  
+	"1942", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959",  
+	"2442", "2443", "2444", "2445", "2446", "2447", "2448", "2449", "2450", "2451", "2452", "2453", "2454", "2455", "2456", "2457", "2458", "2459",  
+	"2942", "2943", "2944", "2945", "2946", "2947", "2948", "2949", "2950", "2951", "2952", "2953", "2954", "2955", "2956", "2957", "2958", "2959",  
+	"3442", "3443", "3444", "3445", "3446", "3447", "3448", "3449", "3450", "3451", "3452", "3453", "3454", "3455", "3456", "3457", "3458", "3459",  
+	"3942", "3943", "3944", "3945", "3946", "3947", "3948", "3949", "3950", "3951", "3952", "3953", "3954", "3955", "3956", "3957", "3958", "3959",  
+	"4442", "4443", "4444", "4445", "4446", "4447", "4448", "4449", "4450", "4451", "4452", "4453", "4454", "4455", "4456", "4457", "4458", "4459",  
+	"4942", "4943", "4944", "4945", "4946", "4947", "4948", "4949", "4950", "4951", "4952", "4953", "4954", "4955", "4956", "4957", "4958", "4959",  
+	"5442", "5443", "5444", "5445", "5446", "5447", "5448", "5449", "5450", "5451", "5452", "5453", "5454", "5455", "5456", "5457", "5458", "5459",  
+	"5942", "5943", "5944", "5945", "5946", "5947", "5948", "5949", "5950", "5951", "5952", "5953", "5954", "5955", "5956", "5957", "5958", "5959"  
 ]
 
 
@@ -265,7 +265,7 @@ def getUsers_create():
 	lockThisFunction = False
 	
 def createOrders(thisBot):
-	global issues, tradeAmount, dataLog
+	global issues, tradeAmount, dataLog, orderPrice
 	issues = "None"
 	operationFilter = {"Operation-BTC": True}	
 	status = mongo.db.Status
@@ -280,16 +280,13 @@ def createOrders(thisBot):
 			'options': {'defaultType': 'future',},})
 		
 		binance.enableRateLimit = True
-		binance.set_leverage(thisBot['quantityLeverage'], 'BTC/BUSD', params={"marginMode": "isolated"})
-
-		def createLimitOrderBinance():
+		
+		def createMarketOrderBinance():
 			operationFilter = {"Operation-BTC": True}	
 			status = mongo.db.Status
 			Operation = status.find_one(operationFilter)
 			
-			global order, issues, tradeAmount, orderPrice
-			retrying = False
-			thisOrder = False
+			global order, issues, tradeAmount
 
 			orderTime1 = time.localtime()
 			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
@@ -303,38 +300,24 @@ def createOrders(thisBot):
 
 				try:
 					if Operation['side'] == "BUY":
-						order = binance.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
-						thisOrder = True
+						order = binance.create_market_buy_order('BTC/BUSD', tradeAmount, params={'reduce_only': True})
+						issues = "None"
 					elif Operation['side'] == "SELL":
-						order = binance.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
-						thisOrder = True
+						order = binance.create_market_sell_order('BTC/BUSD', tradeAmount, params={'reduce_only': True})
+						issues = "None"
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
 				except:
-					if retrying == True:
-						issues = "None"
-						retrying = False
-						thisOrder = False
-					else:
-						issues = "Insufficients founds"
-						thisOrder = False
+					issues = "Insufficients founds"
 			
 			else:
 				time.sleep(1)
-				createLimitOrderBinance()
-			
-			
-			time.sleep(3)
-			if (thisOrder == True) and (order['status'] == "open"):
-				retrying = True
-				thisOrder = False
-				binance.cancel_all_orders('BTC/BUSD')
-				createLimitOrderBinance()
+				createMarketOrderBinance()		
 
+			
 
-		createLimitOrderBinance()
-		
-	
+		createMarketOrderBinance()
 	#-------------------- BYBIT --------------------
 	elif thisBot['exchange'] == "Bybit":
 		bybit = ccxt.bybit({
@@ -343,16 +326,13 @@ def createOrders(thisBot):
 			'options': {'defaultType': 'future',},})
 		
 		bybit.enableRateLimit = True
-		bybit.set_leverage(thisBot['quantityLeverage'], 'BTC/BUSD', params={"marginMode": "isolated"})
-
-		def createLimitOrderBybit():
+		
+		def createMarketOrderBybit():
 			operationFilter = {"Operation-BTC": True}	
 			status = mongo.db.Status
 			Operation = status.find_one(operationFilter)
 			
-			global order, issues, tradeAmount, orderPrice
-			retrying = False
-			thisOrder = False
+			global order, issues, tradeAmount
 
 			orderTime1 = time.localtime()
 			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
@@ -366,37 +346,23 @@ def createOrders(thisBot):
 
 				try:
 					if Operation['side'] == "BUY":
-						order = bybit.create_limit_buy_order('BTC/BUSD', tradeAmount, orderPrice)
-						thisOrder = True
+						order = bybit.create_market_buy_order('BTC/BUSD', tradeAmount, params={'reduce_only': True})
+						issues = "None"
 					elif Operation['side'] == "SELL":
-						order = bybit.create_limit_sell_order('BTC/BUSD', tradeAmount, orderPrice)
-						thisOrder = True
+						order = bybit.create_market_sell_order('BTC/BUSD', tradeAmount, params={'reduce_only': True})
+						issues = "None"
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
 				except:
-					if retrying == True:
-						issues = "None"
-						retrying = False
-						thisOrder = False
-					else:
-						issues = "Insufficients founds"
-						thisOrder = False
+					issues = "Insufficients founds"
 
 			else:
 				time.sleep(1)
-				createLimitOrderBybit()
-			
-			
-			time.sleep(3)
-			if (thisOrder == True) and (order['status'] == "open"):
-				retrying = True
-				thisOrder = False
-				bybit.cancel_all_orders('BTC/BUSD')
-				createLimitOrderBybit()
+				createMarketOrderBybit()	
 
 
-		createLimitOrderBybit()
-	
+		createMarketOrderBybit()
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
 		issues = "Invalid Exchange"
@@ -535,7 +501,6 @@ def cancelOrders(thisBot):
 	status = mongo.db.Status
 	Operation = status.find_one(operationFilter)
 	
-
 	#-------------------- BINANCE -------------------- 
 	if thisBot['exchange'] == "Binance":
 		binance = ccxt.binance({
@@ -544,124 +509,79 @@ def cancelOrders(thisBot):
 			'options': {'defaultType': 'future',},})
 		
 		binance.enableRateLimit = True
-		binance.set_leverage(thisBot['quantityLeverage'], 'BTC/BUSD', params={"marginMode": "isolated"})
-
-		def cancelLimitOrderBinance():
+		
+		def createMarketOrderBinance():
 			operationFilter = {"Operation-BTC": True}	
 			status = mongo.db.Status
 			Operation = status.find_one(operationFilter)
 			
-			global order, issues, tradeAmount, orderPrice
-			retrying = False
-			thisOrder = False
+			global order, issues
 
 			orderTime1 = time.localtime()
 			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
 			if orderTime in clock:
 
-				ticker = binance.fetch_ticker('BTC/BUSD')
-				orderPrice1 = float(ticker['close'])
-				orderPrice = orderPrice1
-				tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage'] ) / orderPrice )
-
 				try:
 					if Operation['side'] == "BUY":
-						order = binance.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-						thisOrder = True
+						order = binance.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "None"
 					elif Operation['side'] == "SELL":
-						order = binance.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-						thisOrder = True
+						order = binance.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "None"
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
 				except:
-					if retrying == True:
-						issues = "None"
-						retrying = False
-						thisOrder = False
-					else:
-						issues = "Insufficients founds"
-						thisOrder = False
+					issues = "No order Open"
 			
 			else:
 				time.sleep(1)
-				cancelLimitOrderBinance()
+				createMarketOrderBinance()		
+
 			
-			
-			time.sleep(3)
-			if (thisOrder == True) and (order['status'] == "open"):
-				retrying = True
-				thisOrder = False
-				binance.cancel_all_orders('BTC/BUSD')
-				cancelLimitOrderBinance()
 
-
-		cancelLimitOrderBinance()
-
-
-	#-------------------- BINANCE -------------------- 
+		createMarketOrderBinance()
+	#-------------------- BYBIT --------------------
 	elif thisBot['exchange'] == "Bybit":
-		bybit = ccxt.binance({
+		bybit = ccxt.bybit({
 			'apiKey': (thisBot['exchangeConnection']['apiKey']),
 			'secret': (thisBot['exchangeConnection']['apiSecret']),
 			'options': {'defaultType': 'future',},})
 		
 		bybit.enableRateLimit = True
-		bybit.set_leverage(thisBot['quantityLeverage'], 'BTC/BUSD', params={"marginMode": "isolated"})
-
-		def cancelLimitOrderBybit():
+		
+		def createMarketOrderBybit():
 			operationFilter = {"Operation-BTC": True}	
 			status = mongo.db.Status
 			Operation = status.find_one(operationFilter)
 			
-			global order, issues, tradeAmount, orderPrice
-			retrying = False
-			thisOrder = False
+			global order, issues
 
 			orderTime1 = time.localtime()
 			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
 			if orderTime in clock:
 
-				ticker = bybit.fetch_ticker('BTC/BUSD')
-				orderPrice1 = float(ticker['close'])
-				orderPrice = orderPrice1
-				tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage'] ) / orderPrice )
-
 				try:
 					if Operation['side'] == "BUY":
-						order = bybit.create_limit_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-						thisOrder = True
+						order = bybit.create_market_sell_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "None"
 					elif Operation['side'] == "SELL":
-						order = bybit.create_limit_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], orderPrice, params={'reduce_only': True})
-						thisOrder = True
+						order = bybit.create_market_buy_order('BTC/BUSD', thisBot['lastOrderAmount'], params={'reduce_only': True})
+						issues = "None"
 					else:
 						print("ERROR SIDE (SIDE NO DECLARADA) [EXCHANGE]")
+						issues = "Invalid data"
 				except:
-					if retrying == True:
-						issues = "None"
-						retrying = False
-						thisOrder = False
-					else:
-						issues = "Insufficients founds"
-						thisOrder = False
-			
+					issues = "No order Open"
+
 			else:
 				time.sleep(1)
-				cancelLimitOrderBybit()
-			
-			
-			time.sleep(3)
-			if (thisOrder == True) and (order['status'] == "open"):
-				retrying = True
-				thisOrder = False
-				binance.cancel_all_orders('BTC/BUSD')
-				cancelLimitOrderBybit()
+				createMarketOrderBybit()	
 
 
-		cancelLimitOrderBybit()
-
-
+		createMarketOrderBybit()
 	else:
 		print("ERROR EN BASE DE DATOS (EXCHANGE INVALIDO)")	
 		issues = "Data Error (Report with Admins)"
