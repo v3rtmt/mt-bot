@@ -1,6 +1,3 @@
-from itertools import accumulate
-from pickle import OBJ
-from re import X
 from flask import Blueprint, jsonify, render_template, request, current_app as app
 from Mongo.extensions import mongo
 from bson.objectid import ObjectId
@@ -11,7 +8,7 @@ import datetime
 import pytz
 
 from BTC import scheduleBTC
-from ETH import scheduleETH
+#from ETH import scheduleETH
 
 # RECORDATORIO DE ORDENAR T0D0 ESTE JALE
 
@@ -57,6 +54,18 @@ def help():
 #								BACKTEND
 # -----------------------------------------------------------------------
 
+@appRoutes.route('/Schedule', methods=['POST'])
+def scheduler():
+	print(scheduleBTC)
+	#print(scheduleETH)
+	@app.after_response
+	def init():
+		while True:
+			scheduleBTC.exec_jobs()
+			#scheduleETH.exec_jobs()
+			time.sleep(3)
+	return 'Scheduel'
+
 @appRoutes.route('/addUser', methods=['POST'])
 def addUser():
 	user = mongo.db.Users
@@ -101,76 +110,56 @@ def request_en():
 
 @appRoutes.route('/test', methods=['GET', 'POST'])
 def test():
-
-	binance = ccxt.binance({
-			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
-			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
-			'options': {
-				'defaultType': 'future',
-			},
-		})
-	balance = binance.fetch_balance()
-	balanceUSDT = balance['BUSD']['total']
-	datetime_object = datetime.datetime.now()
-
-	#order = binance.create_market_sell_order('BTC/BUSD', 0.001)
-	#print(str(order['price']) + '\n\n')
-
-	time.sleep(1)
-
-	#order1 = binance.create_market_buy_order('BTC/BUSD', 0.001, params={'reduce_only': True})
-	#print(str(order1['price']) + '\n\n')
-
-	profit = 29228 * 100 / 29123.2   # BUY  primero entrada y luego salida
-	profit = 29172.5 * 100 / 29123.2 # SELL primero salida luego entrada
-	singleProfit = profit - 100
-	print(str(round(singleProfit, 3)))
-
-	return str(balanceUSDT) + '    ' + str(datetime_object)
-
-@appRoutes.route('/log', methods=['POST'])
-def log():
-
-	status = mongo.db.Status
-	logFilter = {"Log-BTC": True}	
-	log = status.find_one(logFilter)
-
-	thisOrder = log['Log'][-1]
-	lastOrder = log['Log'][-2]
-	
-	if thisOrder['side'] == "BUY":
-		singleProfit = ( 31000 * 100 / (thisOrder['priceOpen']) ) - 100
-	else:
-		singleProfit = ( (thisOrder['priceOpen']) * 100 / 29000 ) - 100
-
-	acumulateProfit = lastOrder['acumulateProfit'] + singleProfit
-
-	print(singleProfit)
-	print(acumulateProfit)
-	
-
-	return 'log'
-
-@appRoutes.route('/Schedule', methods=['POST'])
-def scheduler():
-	print(scheduleBTC)
-	#print(scheduleETH)
 	@app.after_response
-	def init():
-		while True:
-			scheduleBTC.exec_jobs()
-			#scheduleETH.exec_jobs()
-			time.sleep(10)
-	return 'Scheduel'
+	def cre():
+		import time
+		binance = ccxt.binance({
+				'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+				'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
+				'options': {
+					'defaultType': 'future',
+				},
+			})
+		binance.set_leverage(50, 'BTC/BUSD', params={"marginMode": "isolated"})
+		#datetime_object = datetime.datetime.now()
+		#tickerBUSD = binance.fetch_ticker('BTC/BUSD')
+		#priceBUSD = float(tickerBUSD['close'])
+		tradeAmount = 0.001
+		clock = [
+		"450", "451", "452", "453", "454", "455", "456", "457", "458", "459",
+		"950", "951", "952", "953", "954", "955", "956", "957", "958", "959",
+		"1450", "1451", "1452", "1453", "1454", "1455", "1456", "1457", "1458", "1459",  
+		"1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959",  
+		"2450", "2451", "2452", "2453", "2454", "2455", "2456", "2457", "2458", "2459",  
+		"2950", "2951", "2952", "2953", "2954", "2955", "2956", "2957", "2958", "2959",  
+		"3450", "3451", "3452", "3453", "3454", "3455", "3456", "3457", "3458", "3459",  
+		"3950", "3951", "3952", "3953", "3954", "3955", "3956", "3957", "3958", "3959",  
+		"4450", "4451", "4452", "4453", "4454", "4455", "4456", "4457", "4458", "4459",  
+		"4950", "4951", "4952", "4953", "4954", "4955", "4956", "4957", "4958", "4959",  
+		"5450", "5451", "5452", "5453", "5454", "5455", "5456", "5457", "5458", "5459",  
+		"5950", "5951", "5952", "5953", "5954", "5955", "5956", "5957", "5958", "5959"  
+		]
+		
+		def create():
+			import time
+			orderTime1 = time.localtime()
+			orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
 
-@appRoutes.route('/testbot', methods=['POST'])
-def testbot():
-	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
-	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+			if orderTime in clock:
+				order = binance.create_market_sell_order('BTC/BUSD', tradeAmount)
+				print(order['datetime'])
+				print(order['price'])
 
-	date = dateTime.strftime("%d/%m/%y")
-	ctime = dateTime.strftime("%H:%M:%S")
+				time.sleep(3)
 
-	print(date)
-	print(ctime)
+				order = binance.create_market_buy_order('BTC/BUSD', tradeAmount, params={'reduce_only': True})	
+				print(order['datetime'])
+				print(order['price'])
+			else:
+				time.sleep(1.1)
+				create()
+
+		create()
+
 	return 'did'
+
