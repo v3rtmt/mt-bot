@@ -9,6 +9,9 @@
 	<meta content="" name="description">
 	<meta content="" name="keywords">
 
+	<!-- Favicons -->
+	<link href="{{ url_for('static', filename='icono2.png') }}" rel="icon">
+
 	<!-- CSS Imports -->  
 	<div>
 
@@ -136,22 +139,22 @@
 
 					<!-- Procfile Icon -->
 					<a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-						<img src="{{ url_for('static', filename='mt.png') }}" alt="Profile" class="rounded-circle">
-						<span class="d-none d-md-block dropdown-toggle ps-2">Humberto MT</span>
+						<img src="data:image/jpeg;base64,{{ user.profilePicture.img64 }}" alt="Profile" class="rounded-circle " width="38px" height="40px">
+						<span class="d-none d-md-block dropdown-toggle ps-2">{{ user.name }}</span>
 					</a>
 
 					<!-- Procfile Dropdonw -->
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
 						<li class="dropdown-header">
-						<h6>Humberto MT</h6>
-						<span>CEO MT Strategy</span>
+						<h6>{{ user.name }}</h6>
+						<span>{{ user.range }}</span>
 						</li>
 						<li>
 						<hr class="dropdown-divider">
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+						<a class="dropdown-item d-flex align-items-center" href="/Profile">
 							<i class="bi bi-person"></i>
 							<span>Perfil</span>
 						</a>
@@ -161,9 +164,9 @@
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-							<i class="bi bi-gear"></i>
-							<span>Configuraciones</span>
+						<a class="dropdown-item d-flex align-items-center" href="/Help">
+							<i class="bi bi-question-circle"></i>
+							<span>Ayuda</span>
 						</a>
 						</li>
 						<li>
@@ -171,7 +174,7 @@
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="#">
+						<a class="dropdown-item d-flex align-items-center" href="/Logout">
 							<i class="bi bi-box-arrow-right"></i>
 							<span>Cerrar Sesion</span>
 						</a>
@@ -285,7 +288,7 @@
 
 		<!-- Perfil -->
 		<li class="nav-item">
-		<a class="nav-link collapsed" href="/Login">
+		<a class="nav-link collapsed" href="/Profile">
 			<i class="bi bi-person"></i>
 			<span>Perfil</span>
 		</a>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app as app
+from flask import Blueprint, render_template, request, current_app as app, session, redirect
 from Mongo.extensions import mongo
 from scheduler import Scheduler
 import concurrent.futures
@@ -28,54 +28,63 @@ clock = [
 # --- Pagina Visual HTML, inicio de ciclo para schedule
 @BTC.route('/BTC', methods=['GET'])
 def btc():
-	binance = ccxt.binance({
-		'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
-		'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
-		'options': {'defaultType': 'future',},})
-	binance.enableRateLimit = True
-	ticker = binance.fetch_ticker('BTC/BUSD')
-	price = float(ticker['close'])
-	
-	status = mongo.db.Status
-	operationFilter = {"Operation-BTC": True}
-	Operation = status.find_one(operationFilter)
+	if 'username' in session:
 
-	dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
-	dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
-	date = dateTime.strftime("%d/%m/%y")
-	logFilter = {"Log-BTC": True}
-	Log = status.find_one(logFilter)
-	Logs = Log['Log']
-	
+		binance = ccxt.binance({
+			'apiKey': 'hJkAG2ynUNlMRGn62ihJh5UgKpZKk6U2wu0BXmKTvlZ5VBATNd1SRdAN43q9Jtaq',
+			'secret': '3b7qmlRibSsbnLQhHIoOFogqROqr9FXxg563nyRj5pjJsvcJWpFnxyggA5TaTyfJ',
+			'options': {'defaultType': 'future',},})
+		binance.enableRateLimit = True
+		ticker = binance.fetch_ticker('BTC/BUSD')
+		price = float(ticker['close'])
+		
+		status = mongo.db.Status
+		operationFilter = {"Operation-BTC": True}
+		Operation = status.find_one(operationFilter)
 
-	if Operation['status'] == True: OperationColor = "primary"
-	else: OperationColor = "secondary"
-	if Operation['side'] == "BUY": SideColor = "success"
-	elif Operation['side'] == "SELL": SideColor = "danger"
-	else: SideColor = "secondary"
-	if Operation['entryPrice'] == 0: epColor = "secondary"
-	else: epColor = "primary"
-	if Operation['status'] == True and Operation['side'] == "BUY" and price > Operation['entryPrice']: priceColor = "success"
-	elif Operation['status'] == True and Operation['side'] == "BUY" and price < Operation['entryPrice']: priceColor = "danger"
-	elif Operation['status'] == True and Operation['side'] == "SELL" and price < Operation['entryPrice']: priceColor = "success"
-	elif Operation['status'] == True and Operation['side'] == "SELL" and price > Operation['entryPrice']: priceColor = "danger"
-	else: priceColor = "secondary"
-	if Operation['todayProfit'] > 0: profitColor = "success"
-	else: profitColor = "danger"
+		dateTimeUTC = datetime.datetime.now(tz=pytz.UTC)
+		dateTime = dateTimeUTC.astimezone(pytz.timezone('America/Monterrey'))
+		date = dateTime.strftime("%d/%m/%y")
+		logFilter = {"Log-BTC": True}
+		Log = status.find_one(logFilter)
+		Logs = Log['Log']
+		
 
+		if Operation['status'] == True: OperationColor = "primary"
+		else: OperationColor = "secondary"
+		if Operation['side'] == "BUY": SideColor = "success"
+		elif Operation['side'] == "SELL": SideColor = "danger"
+		else: SideColor = "secondary"
+		if Operation['entryPrice'] == 0: epColor = "secondary"
+		else: epColor = "primary"
+		if Operation['status'] == True and Operation['side'] == "BUY" and price > Operation['entryPrice']: priceColor = "success"
+		elif Operation['status'] == True and Operation['side'] == "BUY" and price < Operation['entryPrice']: priceColor = "danger"
+		elif Operation['status'] == True and Operation['side'] == "SELL" and price < Operation['entryPrice']: priceColor = "success"
+		elif Operation['status'] == True and Operation['side'] == "SELL" and price > Operation['entryPrice']: priceColor = "danger"
+		else: priceColor = "secondary"
+		if Operation['todayProfit'] > 0: profitColor = "success"
+		else: profitColor = "danger"
 
-	return render_template('Currencies/bitcoin.html',
-	Operation=Operation['status'],
-	OperationColor=OperationColor,
-	Side=Operation['side'],
-	SideColor=SideColor,
-	EntryP=Operation['entryPrice'],
-	epColor=epColor,
-	Price=price,
-	PriceColor=priceColor,
-	Profit=Operation['todayProfit'],
-	ProfitColor=profitColor,
-	Logs=Logs)
+		
+		mongoUser = mongo.db.newUser
+		user = mongoUser.find_one({"username": session['username']})
+
+		return render_template('Currencies/bitcoin.html',
+		Operation=Operation['status'],
+		OperationColor=OperationColor,
+		Side=Operation['side'],
+		SideColor=SideColor,
+		EntryP=Operation['entryPrice'],
+		epColor=epColor,
+		Price=price,
+		PriceColor=priceColor,
+		Profit=Operation['todayProfit'],
+		ProfitColor=profitColor,
+		Logs=Logs,
+		user=user)
+
+	else:
+		redirect("/Login")
 
 # --- Sin uso por el momento, anteriormente servia como limite de perdida y limite de ganancia ---
 @BTC.route('/Price-BTC', methods=['POST'])

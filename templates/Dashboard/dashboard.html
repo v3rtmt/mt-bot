@@ -9,7 +9,9 @@
 	<meta content="" name="description">
 	<meta content="" name="keywords">
 
-	
+	<!-- Favicons -->
+	<link href="{{ url_for('static', filename='img/icono2.png') }}" rel="icon">
+
 	<!-- CSS Imports -->  
 	<div>
 
@@ -25,9 +27,6 @@
 		<!-- Template Main CSS File -->
 		<link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
 
-		<!-- Favicons -->
-		<link href="{{ url_for('static', filename='icono2.png') }}" rel="icon">
-		<link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
 		<!-- Google Fonts -->
 		<link href="https://fonts.gstatic.com" rel="preconnect">
@@ -61,28 +60,28 @@
 					<!-- Notification Icon -->
 					<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
 						<i class="bi bi-bell"></i>
-						<span class="badge bg-primary badge-number">4</span>
+						<span class="badge bg-primary badge-number">1</span>
 					</a>
 
 					<!-- Notification Dropdown -->
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
 						<li class="dropdown-header">
-							Tienes 4 nuevas notificaciones
-						<a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
+							Tienes 1 nueva notificación
+						<a href="/Notifications"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
 						</li>
 						<li>
 						<hr class="dropdown-divider">
 						</li>
 
 						<li class="notification-item">
-						<i class="bi bi-exclamation-circle text-warning"></i>
+						<i class="bi bi-info-circle text-primary"></i>
 						<div>
-							<h4>Lorem Ipsum</h4>
-							<p>Quae dolorem earum veritatis oditseno</p>
-							<p>Hace 30 min.</p>
+							<h4>Estás list@?</h4>
+							<p>MT Strategy fase Alpha se acerca pronto</p>
+							<p>27/05/22</p>
 						</div>
 						</li>
-
+						<!--
 						<li>
 						<hr class="dropdown-divider">
 						</li>
@@ -128,7 +127,7 @@
 						<li class="dropdown-footer">
 						<a href="#">Mostrar todas las notificaciones</a>
 						</li>
-
+								-->
 					</ul>
 				</li>
 
@@ -137,22 +136,22 @@
 
 					<!-- Procfile Icon -->
 					<a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-						<img src="{{ url_for('static', filename='mt.png') }}" alt="Profile" class="rounded-circle">
-						<span class="d-none d-md-block dropdown-toggle ps-2">Humberto MT</span>
+						<img src="data:image/jpeg;base64,{{ session.user.profilePicture.img64 }}" alt="Profile" class="rounded-circle " width="38px" height="40px">
+						<span class="d-none d-md-block dropdown-toggle ps-2">{{ user.name }}</span>
 					</a>
 
 					<!-- Procfile Dropdonw -->
 					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
 						<li class="dropdown-header">
-						<h6>Humberto MT</h6>
-						<span>CEO MT Strategy</span>
+						<h6>{{ session.user.name }}</h6>
+						<span>{{ session.user.range }}</span>
 						</li>
 						<li>
 						<hr class="dropdown-divider">
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+						<a class="dropdown-item d-flex align-items-center" href="/Profile">
 							<i class="bi bi-person"></i>
 							<span>Perfil</span>
 						</a>
@@ -162,9 +161,9 @@
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-							<i class="bi bi-gear"></i>
-							<span>Configuraciones</span>
+						<a class="dropdown-item d-flex align-items-center" href="/Help">
+							<i class="bi bi-question-circle"></i>
+							<span>Ayuda</span>
 						</a>
 						</li>
 						<li>
@@ -172,7 +171,7 @@
 						</li>
 
 						<li>
-						<a class="dropdown-item d-flex align-items-center" href="#">
+						<a class="dropdown-item d-flex align-items-center" href="/Logout">
 							<i class="bi bi-box-arrow-right"></i>
 							<span>Cerrar Sesion</span>
 						</a>
@@ -286,7 +285,7 @@
 	
 			<!-- Perfil -->
 			<li class="nav-item">
-			<a class="nav-link collapsed" href="/Login">
+			<a class="nav-link collapsed" href="/Profile">
 				<i class="bi bi-person"></i>
 				<span>Perfil</span>
 			</a>
@@ -306,7 +305,7 @@
 	<main id="main" class="main">
 
 	<div class="pagetitle">
-	<h1>Dashboard</h1>
+	<h1>Dashboard (Datos de prueba, no resultados reales)</h1>
 	<nav>
 		<ol class="breadcrumb">
 		<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
@@ -595,7 +594,7 @@
 				<div class="activite-label">2 hrs</div>
 				<i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
 				<div class="activity-content">
-					Nueva estrategia duplica ganancias
+					Nueva estrategia bot
 				</div>
 				</div><!-- End activity item-->
 
@@ -735,9 +734,7 @@
 		<script src="{{ url_for('static', filename='assets/vendor/chart.js/chart.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='assets/vendor/echarts/echarts.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='assets/vendor/quill/quill.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/simple-datatables/simple-datatables.js') }}"></script>
 		<script src="{{ url_for('static', filename='assets/vendor/tinymce/tinymce.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
 		<script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
 
 	</div>	
