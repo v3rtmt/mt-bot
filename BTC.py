@@ -25,7 +25,7 @@ clock = [
 
 
 
-# --- Pagina Visual HTML, inicio de ciclo para schedule
+# --- Pagina Visual HTM
 @BTC.route('/BTC', methods=['GET'])
 def btc():
 	if 'username' in session:
@@ -119,19 +119,18 @@ def script():
 				else:
 					getUsers_cancel()
 
-					getUsers_checkInter()
+					#getUsers_checkInter()
 
-					if Operation['updatePending'] == True:
-						print(" --- Update Pending --- \n")
-						getUsers_update(server)
+					#if Operation['updatePending'] == True:
+					#	getUsers_update(server)
 
 					getUsers_create()
 			else:
-				getUsers_checkInter()
+				#getUsers_checkInter()
 
-				if Operation['updatePending'] == True:
-					print("Update Pending\n")
-					getUsers_update(server)
+				#if Operation['updatePending'] == True:
+				#	print("Update Pending\n")
+				#	getUsers_update(server)
 
 				getUsers_create()
 
@@ -146,32 +145,33 @@ def script():
 				else:
 					getUsers_cancel()
 
-					getUsers_checkInter()
+					#getUsers_checkInter()
 
-					if Operation['updatePending'] == True:
-						getUsers_update(server)
+					#if Operation['updatePending'] == True:
+					#	getUsers_update(server)
 
 					getUsers_create()
 			else:
-				getUsers_checkInter()
+				#getUsers_checkInter()
 
-				if Operation['updatePending'] == True:
-					getUsers_update(server)
+				#if Operation['updatePending'] == True:
+				#	getUsers_update(server)
 
 				getUsers_create()	
 
 		
-		elif scriptJson['side'] == "CLOSE":
+		elif scriptJson['side'] == "STRATEGY":
+			if scriptJson['size'] == 0:
 
-			print("\n --- Order -> CLOSE --- ")
+				print("\n --- Order -> CLOSE --- ")
 
-			if Operation['status'] == True:
-				getUsers_cancel()
+				if Operation['status'] == True:
+					getUsers_cancel()
 
-				getUsers_checkInter()
+					#getUsers_checkInter()
 
-			else:
-				print("Not Operation to Close\n")
+				else:
+					print("Not Operation to Close\n")
 
 
 		else:
@@ -307,7 +307,9 @@ def createOrders(thisBot):
 				ticker = binance.fetch_ticker('BTC/BUSD')
 				orderPrice1 = float(ticker['close'])
 				orderPrice = orderPrice1
-				tradeAmount = ( ( thisBot['tradeAmount'] * thisBot['quantityLeverage'] ) / orderPrice )
+				balance = binance.fetch_balance()
+				balanceBUSD = balance['BUSD']['total']
+				tradeAmount = ( ( balanceBUSD * thisBot['quantityLeverage'] ) / orderPrice )
 
 				try:
 					if Operation['side'] == "BUY":
@@ -1006,9 +1008,9 @@ mty = pytz.timezone('America/Monterrey')
 scheduleBTC = Scheduler(tzinfo=server)
 
 time00 = datetime.time(hour=0, tzinfo=mty)
-scheduleBTC.daily(time00, getUsers_update, args=(mty,))
+#scheduleBTC.daily(time00, getUsers_update, args=(mty,))
 
 time10 = datetime.timedelta(seconds=3)
-scheduleBTC.cyclic(time10, getUsers_check, args=(mty,))
+#scheduleBTC.cyclic(time10, getUsers_check, args=(mty,))
 
 # -------------------- Schedule --------------------
