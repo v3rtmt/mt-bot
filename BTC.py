@@ -423,30 +423,19 @@ def getUsers_cancel():
 
 	print("\n-------------------- CANCEL -------------------- \n")
 
-	def inTimeCancel():
-		orderTime1 = time.localtime()
-		orderTime = str(orderTime1.tm_min) + str(orderTime1.tm_sec)
+	
+	bots = mongo.db.Bots
+	pairFormat = {"pair": "BTCUSDT"}
+	thisPairBot = bots.find(pairFormat)
 
-		if orderTime in clock:
-			bots = mongo.db.Bots
-			pairFormat = {"pair": "BTCUSDT"}
-			thisPairBot = bots.find(pairFormat)
+	databaseBots = []
 
-			databaseBots = []
+	for bot in thisPairBot:
+		if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
+			databaseBots.append(bot)
 
-			for bot in thisPairBot:
-				if bot['isEnabled'] == True and bot['isEnabledforTrade'] == True:
-					databaseBots.append(bot)
-
-			with concurrent.futures.ThreadPoolExecutor() as executor:
-				executor.map(cancelOrders, databaseBots)
-
-		else:
-			time.sleep(1)
-			inTimeCancel()
-
-
-	inTimeCancel()
+	with concurrent.futures.ThreadPoolExecutor() as executor:
+		executor.map(cancelOrders, databaseBots)
 	
 	status = mongo.db.Status
 	status.update_one(
