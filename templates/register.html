@@ -89,6 +89,12 @@
 								<input type="password" name="password" class="form-control" id="yourPassword" required>
 								<div class="invalid-feedback">Ingresa una contraseña</div>
 							</div>
+
+							<div class="col-12">
+								<label for="usercode" class="form-label {% if usercode is true %} is-invalid {% endif %}">Codigo de acceso</label>
+								<input type="password" name="usercode" class="form-control" id="usercode" required>
+								<div class="invalid-feedback">{% if usercode is true %} Codigo de acceso incorrecto {% else %} Ingresa el codigo de acceso {% endif %}</div>
+							</div>
 		
 							<div class="col-12">
 							<div class="form-check">

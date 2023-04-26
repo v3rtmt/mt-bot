@@ -1,0 +1,176 @@
+{% extends "Dashboard/template.html" %}
+
+{% block content%}
+
+	<!-- ======= Side-bar ======= -->
+	<aside id="sidebar" class="sidebar">
+
+		<ul class="sidebar-nav" id="sidebar-nav">
+	
+			<!-- Dashboard -->
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="/Dashboard">
+					<i class="bi bi-columns-gap"></i>
+					<span>Panel de Control</span>
+				</a>
+			</li>
+	
+			<!-- Notificaciones -->
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="/Notifications">
+					<i class="bi bi-bell"></i>
+					<span>Notificaciones</span>
+				</a>
+			</li>
+	
+			<!-- Bot -->
+			<li class="nav-item">
+				<a class="nav-link" data-bs-target="#bots-nav" data-bs-toggle="collapse" href="#">
+				  <i class="bi bi-robot"></i><span>Bots</span><i class="bi bi-chevron-down ms-auto"></i>
+				</a>
+				<ul id="bots-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav">
+					{% for i in user.data.bots %}
+						<li>
+							<a href="/Bot/{{ i }}">
+								<i class="bi bi-circle"></i><span>Bot {{ loop.index }}</span>
+							</a>
+						</li>
+					{% endfor %}
+					<li>
+						<a href="/Bot/create" class="active">
+							<i class="bi bi-circle"></i><span>Crear Bot</span>
+						</a>
+					</li>
+				</ul>
+			</li>
+	
+			<!-- Perfil -->
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="/Profile">
+					<i class="bi bi-person"></i>
+					<span>Perfil</span>
+				</a>
+			</li>
+	
+			<!-- Ayuda -->
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="/Help">
+					<i class="bi bi-question-circle"></i>
+					<span>Ayuda</span>
+				</a>
+			</li>
+	
+	</aside>
+
+	<!-- ======= Main ======= -->
+	<main id="main" class="main">
+		
+		<!-- Titulo -->
+        <div class="pagetitle">
+			<h1>Crear bot</h1>
+			<nav>
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+					<li class="breadcrumb-item">Bot</li>
+					<li class="breadcrumb-item active">Crear</li>
+				</ol>
+			</nav>
+        </div>
+    
+        <section class="section profile">
+			<div class="row">
+				<div>
+					<div class="card">
+						<div class="card-body pt-3">
+								<!-- Crear nuevo bot -->
+								<div>
+								<form action="/Bot/create" method="POST" class="needs-validation" novalidate>
+									<div class="row mb-3">
+										<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Exchange</label>
+										<div class="col-md-8 col-lg-9">
+											<select name="exchange" id="exchange" class="form-select" aria-label="Default select example" disabled>
+												<option value="Binance">  Binance  </option>
+												<option value="Bybit">    Bybit    </option>
+												<option value="Bitget">   Bitget   </option>
+												<option value="Coinbase"> Coinbase </option>
+											</select>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label for="pair" class="col-md-4 col-lg-3 col-form-label">Par</label>
+										<div class="col-md-8 col-lg-9">
+											<select name="pair" id="pair" class="form-select" aria-label="Default select example" disabled>
+												<option value="ETH/BUSD"> ETH/BUSD </option>
+												<option value="ETH/USDT"> ETH/USDT </option>
+												<option value="BTC/BUSD"> BTC/BUSD </option>
+												<option value="BTC/USDT"> BTC/USDT </option>
+											</select>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label for="apikey" class="col-md-4 col-lg-3 col-form-label {% if apiKey is true %} is-invalid {% endif %}">Api Key</label>
+										<div class="col-md-8 col-lg-9">
+											<input name="apiKey" type="text" class="form-control {% if apiKey is true %} is-invalid {% endif %}" id="apikey">
+											<div class="invalid-feedback">{% if apiKey is true %} Necesitas una Api Key para crear un nuevo bot {% endif %}</div>
+										</div>
+									</div>
+				
+									<div class="row mb-3">
+										<label for="apiSecret" class="col-md-4 col-lg-3 col-form-label {% if apiSecret is true %} is-invalid {% endif %}">Api Secret</label>
+										<div class="col-md-8 col-lg-9">
+											<input name="apiSecret" type="password" class="form-control {% if apiSecret is true %} is-invalid {% endif %}" id="apiSecret">
+											<div class="invalid-feedback">{% if apiSecret is true %} Necesitas una Api Secret para crear un nuevo bot {% endif %}</div>
+										</div>
+									</div>
+									
+									<div class="row mb-3">
+										<label for="apiKey2" class="col-md-4 col-lg-3 col-form-label">Repuesto Api Key</label>
+										<div class="col-md-8 col-lg-9">
+											<input name="apiKey2" type="text" class="form-control" id="apiKey2">
+										</div>
+									</div>
+				
+									<div class="row mb-3">
+										<label for="apiSecret2" class="col-md-4 col-lg-3 col-form-label">Repuesto Api Secret</label>
+										<div class="col-md-8 col-lg-9">
+											<input name="apiSecret2" type="password" class="form-control" id="apiSecret2">
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label for="order" class="col-md-4 col-lg-3 col-form-label">Orden</label>
+										<div class="row col-md-8 col-lg-9">
+											<div class="col-md-6 col-lg-6">
+												<input name="order" type="text" class="form-control" id="order" value="100" disabled>
+											</div>
+											<div class="col-md-6 col-lg-6">
+												<select name="ordervalue" id="ordervalue" class="form-select" aria-label="Default select example" disabled>
+													<option value="%">   %   </option>
+													<option value="USd"> USD </option>
+												</select>
+											</div>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Leverage</label>
+										<div class="col-md-8 col-lg-9">
+											<input name="value" type="text" class="form-control" id="currentPassword" value="50" disabled>
+										</div>
+									</div>
+				
+									<div class="text-center">
+										<button type="submit" class="btn btn-primary">Crear bot</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+        </section>
+    </main>
+
+{% endblock%}

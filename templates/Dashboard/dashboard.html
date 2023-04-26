@@ -1,189 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "Dashboard/template.html" %}
 
-<head>
-	<meta charset="utf-8">
-	<meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-	<title>MT Strategy</title>
-	<meta content="" name="description">
-	<meta content="" name="keywords">
-
-	<!-- Favicons -->
-	<link href="{{ url_for('static', filename='img/icono2.png') }}" rel="icon">
-
-	<!-- CSS Imports -->  
-	<div>
-
-		<!-- Vendor CSS Files -->
-		<link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
-
-		<!-- Template Main CSS File -->
-		<link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-
-
-		<!-- Google Fonts -->
-		<link href="https://fonts.gstatic.com" rel="preconnect">
-		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-		<link rel="stylesheet" href="https://cdn.cryptofonts.com/1.4.0/cryptofont.css">
-
-	</div>
-
-</head>
-
-<body>
-
-	<!-- ======= Top-bar ======= -->
-	<header id="header" class="header fixed-top d-flex align-items-center">
-
-		<!-- Logo -->
-		<div class="d-flex align-items-center justify-content-between">
-			<i class="bi bi-list toggle-sidebar-btn"></i>
-			<a href="/" class="logo d-flex align-items-center">
-				<span class="d-none d-lg-block">MT Strategy</span>
-			</a>
-		</div>
-
-		<!-- Icons -->
-		<nav class="header-nav ms-auto">
-			<ul class="d-flex align-items-center">
-
-				<!-- Notification -->
-				<li class="nav-item dropdown">
-
-					<!-- Notification Icon -->
-					<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-						<i class="bi bi-bell"></i>
-						<span class="badge bg-primary badge-number">1</span>
-					</a>
-
-					<!-- Notification Dropdown -->
-					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-						<li class="dropdown-header">
-							Tienes 1 nueva notificación
-						<a href="/Notifications"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
-						</li>
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li class="notification-item">
-						<i class="bi bi-info-circle text-primary"></i>
-						<div>
-							<h4>Estás list@?</h4>
-							<p>MT Strategy fase Alpha se acerca pronto</p>
-							<p>27/05/22</p>
-						</div>
-						</li>
-						<!--
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li class="notification-item">
-						<i class="bi bi-x-circle text-danger"></i>
-						<div>
-							<h4>Atque rerum nesciunt</h4>
-							<p>Quae dolorem earum veritatis oditseno</p>
-							<p>Hace 1 hr.</p>
-						</div>
-						</li>
-
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li class="notification-item">
-						<i class="bi bi-check-circle text-success"></i>
-						<div>
-							<h4>Sit rerum fuga</h4>
-							<p>Quae dolorem earum veritatis oditseno</p>
-							<p>Hace 2 hrs.</p>
-						</div>
-						</li>
-
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li class="notification-item">
-						<i class="bi bi-info-circle text-primary"></i>
-						<div>
-							<h4>Dicta reprehenderit</h4>
-							<p>Quae dolorem earum veritatis oditseno</p>
-							<p>Hace 4 hrs.</p>
-						</div>
-						</li>
-
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-						<li class="dropdown-footer">
-						<a href="#">Mostrar todas las notificaciones</a>
-						</li>
-								-->
-					</ul>
-				</li>
-
-				<!-- Procfile -->
-				<li class="nav-item dropdown pe-3">
-
-					<!-- Procfile Icon -->
-					<a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-						<img src="data:image/jpeg;base64,{{ user.profilePicture.img64 }}" alt="Profile" class="rounded-circle " width="38px" height="40px">
-						<span class="d-none d-md-block dropdown-toggle ps-2">{{ user.name }}</span>
-					</a>
-
-					<!-- Procfile Dropdonw -->
-					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-						<li class="dropdown-header">
-						<h6>{{ user.name }}</h6>
-						<span>{{ user.range }}</span>
-						</li>
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li>
-						<a class="dropdown-item d-flex align-items-center" href="/Profile">
-							<i class="bi bi-person"></i>
-							<span>Perfil</span>
-						</a>
-						</li>
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li>
-						<a class="dropdown-item d-flex align-items-center" href="/Help">
-							<i class="bi bi-question-circle"></i>
-							<span>Ayuda</span>
-						</a>
-						</li>
-						<li>
-						<hr class="dropdown-divider">
-						</li>
-
-						<li>
-						<a class="dropdown-item d-flex align-items-center" href="/Logout">
-							<i class="bi bi-box-arrow-right"></i>
-							<span>Cerrar Sesion</span>
-						</a>
-						</li>
-
-					</ul>
-				</li>
-
-			</ul>
-		</nav>
-
-	</header>
+{% block content%}
 
 	<!-- ======= Side-bar ======= -->
 	<aside id="sidebar" class="sidebar">
@@ -192,553 +9,228 @@
 	
 			<!-- Dashboard -->
 			<li class="nav-item">
-			<a class="nav-link" href="/Dashboard">
-				<i class="bi bi-grid"></i>
-				<span>Dashboard</span>
-			</a>
+				<a class="nav-link" href="/Dashboard">
+					<i class="bi bi-columns-gap"></i>
+					<span>Panel de Control</span>
+				</a>
 			</li>
 	
 			<!-- Notificaciones -->
 			<li class="nav-item">
-			<a class="nav-link collapsed" href="/Notifications">
-				<i class="bi bi-bell"></i>
-				<span>Notificaciones</span>
-			</a>
+				<a class="nav-link collapsed" href="/Notifications">
+					<i class="bi bi-bell"></i>
+					<span>Notificaciones</span>
+				</a>
 			</li>
 	
-			<!-- Bots -->
+			<!-- Bot -->
 			<li class="nav-item">
-			<a class="nav-link collapsed" data-bs-target="#bots-nav" data-bs-toggle="collapse" href="#">
-				<i class="bi bi-robot"></i><span>Bots</span><i class="bi bi-chevron-down ms-auto"></i>
-			</a>
-			<ul id="bots-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 1</span>
+				<a class="nav-link collapsed" data-bs-target="#bots-nav" data-bs-toggle="collapse">
+				  	<i class="bi bi-robot"></i><span>Bots</span><i class="bi bi-chevron-down ms-auto"></i>
 				</a>
-				</li>
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 2</span>
-				</a>
-				</li>
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 3</span>
-				</a>
-				</li>
-			</ul>
-			</li>
-	
-			<!-- Monedas -->
-			<li class="nav-item">
-			<a class="nav-link collapsed" data-bs-target="#cryptos-nav" data-bs-toggle="collapse" href="#">
-				<i class="bi bi-currency-exchange"></i><span>Monedas</span><i class="bi bi-chevron-down ms-auto"></i>
-			</a>
-			<ul id="cryptos-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-				<li>
-				<a href="/BTC">
-					<i class="bi bi-coin"></i><span>Bitcoin</span>
-				</a>
-				</li>
-				<li>
-				<a href="/ETH">
-					<i class="bi bi-coin"></i><span>Ethereum</span>
-				</a>
-				</li>
-				<li>
-				<a href="/BNB">
-					<i class="bi bi-coin"></i><span>BNB</span>
-				</a>
-				</li>
-				<li>
-				<a href="SOL">
-					<i class="bi bi-coin"></i><span>Solana</span>
-				</a>
-				</li>
-			</ul>
-			</li>
-	
-			<!-- Status -->
-			<li class="nav-item">
-			<a class="nav-link collapsed" data-bs-target="#stats-nav" data-bs-toggle="collapse" href="#">
-				<i class="bi bi-bar-chart"></i><span>Estadisticas</span><i class="bi bi-chevron-down ms-auto"></i>
-			</a>
-			<ul id="stats-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 1</span>
-				</a>
-				</li>
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 2</span>
-				</a>
-				</li>
-				<li>
-				<a href="/Login">
-					<i class="bi bi-cpu"></i><span>Bot 3</span>
-				</a>
-				</li>
-			</ul>
+				<ul id="bots-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+					{% for i in user.data.bots %}
+						<li>
+							<a href="/Bot/{{ i }}">
+								<i class="bi bi-circle"></i><span>Bot {{ loop.index }}</span>
+							</a>
+						</li>
+					{% endfor %}
+					<li>
+						<a href="/Bot/create">
+							<i class="bi bi-circle"></i><span>Crear Bot</span>
+						</a>
+					</li>
+				</ul>
 			</li>
 	
 			<!-- Perfil -->
 			<li class="nav-item">
-			<a class="nav-link collapsed" href="/Profile">
-				<i class="bi bi-person"></i>
-				<span>Perfil</span>
-			</a>
+				<a class="nav-link collapsed" href="/Profile">
+					<i class="bi bi-person"></i>
+					<span>Perfil</span>
+				</a>
 			</li>
 	
 			<!-- Ayuda -->
 			<li class="nav-item">
-			<a class="nav-link collapsed" href="/Help">
-				<i class="bi bi-question-circle"></i>
-				<span>Ayuda</span>
-			</a>
+				<a class="nav-link collapsed" href="/Help">
+					<i class="bi bi-question-circle"></i>
+					<span>Ayuda</span>
+				</a>
 			</li>
 	
-		</aside>
-
+	</aside>
+	
 	<!-- ======= Main ======= -->
 	<main id="main" class="main">
 
-	<div class="pagetitle">
-	<h1>Dashboard (Datos de prueba, no resultados reales)</h1>
-	<nav>
-		<ol class="breadcrumb">
-		<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
-		<li class="breadcrumb-item active">Inicio</li>
-		</ol>
-	</nav>
-	</div><!-- End Page Title -->
-
-	<section class="section dashboard">
-	<div class="row">
-
-		<!-- Left side columns -->
-		<div class="col-lg-8">
-		<div class="row">
-
-			<!-- Sales Card -->
-			<div class="col-xxl-4 col-md-6">
-			<div class="card info-card sales-card">
-
-				<div class="filter">
-				<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-				<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-					<li class="dropdown-header text-start">
-					<h6>Filtro</h6>
-					</li>
-
-					<li><a class="dropdown-item" href="#">Hoy</a></li>
-					<li><a class="dropdown-item" href="#">Esta Semana</a></li>
-					<li><a class="dropdown-item" href="#">Este Mes</a></li>
-				</ul>
-				</div>
-
-				<div class="card-body">
-				<h5 class="card-title">Operaciones <span>| Hoy</span></h5>
-
-				<div class="d-flex align-items-center">
-					<div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-					<i class="bi bi-bank"></i>
-					</div>
-					<div class="ps-3">
-					<h6>64</h6>
-					<span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">incremento</span>
-
-					</div>
-				</div>
-				</div>
-
-			</div>
-			</div><!-- End Sales Card -->
-
-			<!-- Revenue Card -->
-			<div class="col-xxl-4 col-md-6">
-			<div class="card info-card revenue-card">
-
-				<div class="filter">
-				<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-				<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-					<li class="dropdown-header text-start">
-					<h6>Filter</h6>
-					</li>
-
-					<li><a class="dropdown-item" href="#">Today</a></li>
-					<li><a class="dropdown-item" href="#">This Month</a></li>
-					<li><a class="dropdown-item" href="#">This Year</a></li>
-				</ul>
-				</div>
-
-				<div class="card-body">
-				<h5 class="card-title">Rentabilidad <span>| Hoy</span></h5>
-
-				<div class="d-flex align-items-center">
-					<div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-					<i class="bi bi-currency-dollar"></i>
-					</div>
-					<div class="ps-3">
-					<h6>$3,264</h6>
-					<span class="text-success small pt-1 fw-bold">83%</span> <span class="text-muted small pt-2 ps-1">rentabilidad</span>
-
-					</div>
-				</div>
-				</div>
-
-			</div>
-			</div><!-- End Revenue Card -->
-
-
-			<!-- Reports -->
-			<div class="col-12">
-			<div class="card">
-
-				<div class="filter">
-				<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-				<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-					<li class="dropdown-header text-start">
-					<h6>Filter</h6>
-					</li>
-
-					<li><a class="dropdown-item" href="#">Today</a></li>
-					<li><a class="dropdown-item" href="#">This Month</a></li>
-					<li><a class="dropdown-item" href="#">This Year</a></li>
-				</ul>
-				</div>
-
-				<div class="card-body">
-				<h5 class="card-title">Reporte <span>| Hoy</span></h5>
-
-				<!-- Line Chart -->
-				<div id="reportsChart"></div>
-
-				<script>
-					document.addEventListener("DOMContentLoaded", () => {
-					new ApexCharts(document.querySelector("#reportsChart"), {
-						series: [{
-						name: 'Bot 1',
-						data: [31, 40, 28, 51, 42, 82, 96],
-						}, {
-						name: 'Bot 2',
-						data: [11, 32, 45, 32, 34, 52, 80]
-						}, {
-						name: 'Bot 3',
-						data: [15, 11, 32, 18, 9, 24, 72]
-						}],
-						chart: {
-						height: 350,
-						type: 'area',
-						toolbar: {
-							show: false
-						},
-						},
-						markers: {
-						size: 4
-						},
-						colors: ['#4154f1', '#2eca6a', '#ff771d'],
-						fill: {
-						type: "gradient",
-						gradient: {
-							shadeIntensity: 1,
-							opacityFrom: 0.3,
-							opacityTo: 0.4,
-							stops: [0, 90, 100]
-						}
-						},
-						dataLabels: {
-						enabled: false
-						},
-						stroke: {
-						curve: 'smooth',
-						width: 2
-						},
-						xaxis: {
-						type: 'datetime',
-						categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-						},
-						tooltip: {
-						x: {
-							format: 'dd/MM/yy HH:mm'
-						},
-						}
-					}).render();
-					});
-				</script>
-				<!-- End Line Chart -->
-
-				</div>
-
-			</div>
-			</div><!-- End Reports -->
-
-			<!-- Recent Sales -->
-			<div class="col-12">
-			<div class="card recent-sales overflow-auto">
-
-				<div class="filter">
-				<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-				<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-					<li class="dropdown-header text-start">
-					<h6>Filter</h6>
-					</li>
-
-					<li><a class="dropdown-item" href="#">Today</a></li>
-					<li><a class="dropdown-item" href="#">This Month</a></li>
-					<li><a class="dropdown-item" href="#">This Year</a></li>
-				</ul>
-				</div>
-
-				<div class="card-body">
-				<h5 class="card-title">Operaciones Recientes <span>| Hoy</span></h5>
-
-				<table class="table table-borderless">
-					<thead>
-					<tr>
-						<th scope="col">#</th>
-						<th scope="col">Side</th>
-						<th scope="col">Hora</th>
-						<th scope="col">Precio</th>
-						<th scope="col">Status</th>
-					</tr>
-					</thead>
-					<tbody>
-					<tr>
-						<th scope="row"><a href="#">#24</a></th>
-						<td><span class="badge bg-success">BUY</span></td>
-						<td>18:45:03</td>
-						<td>$30604</td>
-						<td><span class="badge bg-success">Abierta</span></td>
-					</tr>
-					<tr>
-						<th scope="row"><a href="#">#23</a></th>
-						<td><span class="badge bg-danger">SELL</span></td>
-						<td>15:24:05</td>
-						<td>$30112</td>
-						<td><span class="badge bg-danger">Cerrada</span></td>
-					</tr>
-					<tr>
-						<th scope="row"><a href="#">#22</a></th>
-						<td><span class="badge bg-success">BUY</span></td>
-						<td>14:05:28</td>
-						<td>$29435</td>
-						<td><span class="badge bg-danger">Cerrada</span></td>
-					</tr>
-					<tr>
-						<th scope="row"><a href="#">#21</a></th>
-						<td><span class="badge bg-danger">SELL</span></td>
-						<td>11:17:59</td>
-						<td>$31589</td>
-						<td><span class="badge bg-danger">Cerrada</span></td>
-					</tr>
-					<tr>
-						<th scope="row"><a href="#">#20</a></th>
-						<td><span class="badge bg-success">BUY</span></td>
-						<td>09:38:23</td>
-						<td>$32875</td>
-						<td><span class="badge bg-danger">Cerrada</span></td>
-					</tr>
-					</tbody>
-				</table>
-
-				</div>
-
-			</div>
-			</div><!-- End Recent Sales -->
-
+		<div class="pagetitle">
+			<h1>Panel de Control</h1>
+			<nav>
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="/Dashboard">Panel de Control</a></li>
+					<li class="breadcrumb-item active">Inicio</li>
+				</ol>
+			</nav>
 		</div>
-		</div><!-- End Left side columns -->
+	
+		<section class="section dashboard">
 
-		<!-- Right side columns -->
-		<div class="col-lg-4">
-
-		<!-- Recent Activity -->
-		<div class="card">
-			<div class="filter">
-			<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-			<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-				<li class="dropdown-header text-start">
-				<h6>Filter</h6>
-				</li>
-
-				<li><a class="dropdown-item" href="#">Today</a></li>
-				<li><a class="dropdown-item" href="#">This Month</a></li>
-				<li><a class="dropdown-item" href="#">This Year</a></li>
-			</ul>
+			<div class="row mb-3" >
+				<script src="https://www.cryptohopper.com/widgets/js/script"></script>
+				<div class="cryptohopper-web-widget" data-id="2"></div>
 			</div>
-
-			<div class="card-body">
-			<h5 class="card-title">Actividad Reciente</h5>
-
-			<div class="activity">
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">32 min</div>
-				<i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-				<div class="activity-content">
-					Nuevo diseño de interfaz
+	
+			<div class="row" >
+				<!-- Bitcoin Card -->
+				<div class="col-xxl-4 col-md-4">
+					<div class="card info-card sales-card">
+						<div class="card-body">
+							<h5 class="card-title">Bitcoin</h5>
+							<div class="d-flex align-items-center">
+								<div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-currency-bitcoin"></i>
+								</div>
+								<div class="ps-3">
+									<h6>${{ "{:,}".format(data.btcPrice|int) }}</h6>
+									{% if data.btcChange > 0 %} 
+										<span class="text-success small pt-1 fw-bold">+{{ data.btcChange|round(2, 'ceil') }}%</span>
+									{% else %}
+										<span class="text-danger small pt-1 fw-bold">{{ data.btcChange|round(2, 'ceil') }}%</span>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				</div><!-- End activity item-->
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">56 min</div>
-				<i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-				<div class="activity-content">
-					Base de datos actualizada
+		
+				<!-- Ethereum Card -->
+				<div class="col-xxl-4 col-md-4">
+					<div class="card info-card sales-card">
+						<div class="card-body">
+							<h5 class="card-title">Ethereum</h5>
+							<div class="d-flex align-items-center">
+								<div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-suit-diamond-fill"></i>
+								</div>
+								<div class="ps-3">
+									<h6>${{ "{:,}".format(data.ethPrice|int) }}</h6>
+									{% if data.ethChange > 0 %} 
+										<span class="text-success small pt-1 fw-bold">+{{ data.ethChange|round(2, 'ceil') }}%</span>
+									{% else %} 
+										<span class="text-danger small pt-1 fw-bold">{{ data.ethChange|round(2, 'ceil') }}%</span>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				</div><!-- End activity item-->
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">2 hrs</div>
-				<i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-				<div class="activity-content">
-					Nueva estrategia bot
+		
+				<!-- Portafolio Card -->
+				<div class="col-xxl-4 col-md-4">
+					<div class="card info-card revenue-card">
+						<div class="card-body">
+							<h5 class="card-title">Portafolio</h5>
+							<div class="d-flex align-items-center">
+								<div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-currency-dollar"></i>
+								</div>
+								<div class="ps-3">
+									<h6>$350</h6>
+									<span class="text-success small pt-1 fw-bold">+12.5%</span>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				</div><!-- End activity item-->
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">1 dia</div>
-				<i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-				<div class="activity-content">
-					El bitcoin se fue de sabatico cariño
-				</div>
-				</div><!-- End activity item-->
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">2 dias</div>
-				<i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-				<div class="activity-content">
-					Lorem ipsum dolor, sit amet consectetur adipisicing elit. 
-				</div>
-				</div><!-- End activity item-->
-
-				<div class="activity-item d-flex">
-				<div class="activite-label">4 sem</div>
-				<i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-				<div class="activity-content">
-					No mames quien lee esto
-				</div>
-				</div><!-- End activity item-->
-
 			</div>
+	
 
+			<div class="row">
+				<!-- Columna lado izquierdo -->
+				<div class="col-lg-8">
+					<div class="row">
+						<div class="col-12">
+							<div class="card">
+								<div class="filter">
+									<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+									<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+										<li class="dropdown-header text-start">
+											<h6>Filter</h6>
+										</li>
+										<li><a class="dropdown-item" href="#">Hoy</a></li>
+										<li><a class="dropdown-item" href="#">Esta Semana</a></li>
+										<li><a class="dropdown-item" href="#">Este Mes</a></li>
+									</ul>
+								</div>
+							
+								<div class="card-body">
+									<h5 class="card-title">Reporte</h5>
+									<div id="reportsChart"></div>
+									<script>
+										document.addEventListener("DOMContentLoaded", () => {
+										new ApexCharts(document.querySelector("#reportsChart"), {
+											series:     [{name: 'Bot', data: [0, 40, 28, 51, 42, 82, 96]}],
+											chart:      {height: 350, type: 'area', toolbar: {show: true}},
+											markers:    {size: 4},
+											colors:     ['#4154f1'],
+											dataLabels: {enabled: false},
+											stroke:     {curve: 'smooth', width: 2},
+											tooltip:    {x: {format: 'dd/MM/yy HH:mm'},},
+											fill: {
+												type: "gradient",
+													gradient: {
+													shadeIntensity: 1,
+													opacityFrom: 0.3,
+													opacityTo: 0.4,
+													stops: [0, 90, 100]}},
+											xaxis: {
+												type: 'datetime',
+												categories: 
+													["2023-09-19T00:00:00.000Z", 
+													 "2023-09-19T01:30:00.000Z", 
+													 "2023-09-19T02:30:00.000Z", 
+													 "2023-09-19T03:30:00.000Z", 
+													 "2023-09-19T04:30:00.000Z", 
+													 "2023-09-19T05:30:00.000Z", 
+													 "2023-09-19T06:30:00.000Z"]}
+										}).render();
+										});
+									</script>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		
+				<!-- Columna lado derechos -->
+				<div class="col-lg-4">
+					<div class="card">
+						<div class="card-body pb-0">
+							<h5 class="card-title">Portafolio</h5>
+							<div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+							<script>
+								document.addEventListener("DOMContentLoaded", () => {
+								echarts.init(document.querySelector("#trafficChart")).setOption({
+									avoidLabelOverlap: false,
+									tooltip:   {trigger: 'item'},
+									legend:    {top: '5%', left: 'center'},
+									series:    [{name: 'Access From', type: 'pie', radius: ['40%', '70%'],
+									label:     {show: false, position: 'center'},
+									emphasis:  {label: {show: true, fontSize: '18', fontWeight: 'bold'}},
+									labelLine: {show: false},
+									data: [
+										{value: 1048, name: 'Ethereum'},
+										{value: 735,  name: 'Tether'},
+										{value: 262,  name: 'Bitcoin'}]}]});});
+							</script>
+						</div>
+					</div>
+				</div>
 			</div>
-		</div><!-- End Recent Activity -->
-
-		<!-- Website Traffic -->
-		<div class="card">
-			<div class="filter">
-			<a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-			<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-				<li class="dropdown-header text-start">
-				<h6>Filter</h6>
-				</li>
-
-				<li><a class="dropdown-item" href="#">Today</a></li>
-				<li><a class="dropdown-item" href="#">This Month</a></li>
-				<li><a class="dropdown-item" href="#">This Year</a></li>
-			</ul>
-			</div>
-
-			<div class="card-body pb-0">
-			<h5 class="card-title">Portafolio Cripto</h5>
-
-			<div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-
-			<script>
-				document.addEventListener("DOMContentLoaded", () => {
-				echarts.init(document.querySelector("#trafficChart")).setOption({
-					tooltip: {
-					trigger: 'item'
-					},
-					legend: {
-					top: '5%',
-					left: 'center'
-					},
-					series: [{
-					name: 'Access From',
-					type: 'pie',
-					radius: ['40%', '70%'],
-					avoidLabelOverlap: false,
-					label: {
-						show: false,
-						position: 'center'
-					},
-					emphasis: {
-						label: {
-						show: true,
-						fontSize: '18',
-						fontWeight: 'bold'
-						}
-					},
-					labelLine: {
-						show: false
-					},
-					data: [{
-						value: 1048,
-						name: 'Ethereum'
-						},
-						{
-						value: 735,
-						name: 'Tether'
-						},
-						{
-						value: 580,
-						name: 'Bitcoin'
-						},
-						{
-						value: 484,
-						name: 'Polygon'
-						},
-						{
-						value: 300,
-						name: 'Cardano'
-						}
-					]
-					}]
-				});
-				});
-			</script>
-
-			</div>
-		</div><!-- End Website Traffic -->
-
-
-		</div><!-- End Right side columns -->
-
-	</div>
-	</section>
-
+		</section>
+	
 	</main>
 
-	<!-- ======= Footer ======= -->
-	<footer id="footer" class="footer">
-		<div class="copyright">
-			&copy; Copyright <strong><span>MT Strategy</span></strong>. Todos los derechos reservados
-		</div>
-	</footer>
-
-	<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-	<!-- JS Imports -->
-	<div>
-
-		<!-- Main JS File -->
-		<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-
-		<!-- JS Files -->
-		<script src="{{ url_for('static', filename='assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/chart.js/chart.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/echarts/echarts.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/quill/quill.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/tinymce/tinymce.min.js') }}"></script>
-		<script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
-
-	</div>	
-
-</body>
-
-</html>
+{% endblock%}

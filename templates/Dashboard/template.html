@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+	<title>MT Strategy</title>
+	<meta content="" name="description">
+	<meta content="" name="keywords">
+
+	<!-- Favicons -->
+	<link href="{{ url_for('static', filename='img/icono2.png') }}" rel="icon">
+
+	<!-- CSS Imports -->  
+	<div>
+
+        <!-- Datatable CSS Files -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css"/>
+    	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"/>
+
+		<!-- Vendor CSS Files -->
+		<link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
+
+		<!-- Template Main CSS File -->
+		<link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+
+
+		<!-- Google Fonts -->
+		<link href="https://fonts.gstatic.com" rel="preconnect">
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.cryptofonts.com/1.4.0/cryptofont.css">
+
+	</div>
+
+</head>
+
+<body>
+
+	<!-- ======= Top-bar ======= -->
+	<header id="header" class="header fixed-top d-flex align-items-center">
+
+		<!-- Logo -->
+		<div class="d-flex align-items-center justify-content-between">
+			<i class="bi bi-list toggle-sidebar-btn"></i>
+			<a href="/" class="logo d-flex align-items-center">
+				<span class="d-none d-lg-block">MT Strategy</span>
+			</a>
+		</div>
+
+		<!-- Icons -->
+		<nav class="header-nav ms-auto">
+			<ul class="d-flex align-items-center">
+
+				<!-- Notification -->
+				<li class="nav-item dropdown">
+
+					<!-- Notification Icon -->
+					<a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+						<i class="bi bi-bell"></i>
+						<!--<span class="badge bg-primary badge-number">1</span>-->
+					</a>
+
+					<!-- Notification Dropdown -->
+					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+						<li class="dropdown-header">
+							Tienes 0 notificaciónes nuevas
+						<a href="/Notifications"><span class="badge rounded-pill bg-primary p-2 ms-2">Ver Todas</span></a>
+						</li>
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li class="notification-item">
+						<i class="bi bi-info-circle text-primary"></i>
+						<div>
+							<h4>Notificaciones</h4>
+							<p>Ingresa a la pagina de notificaciones para ver más noticias</p>
+						</div>
+						</li>
+						<!--
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li class="notification-item">
+						<i class="bi bi-x-circle text-danger"></i>
+						<div>
+							<h4>Atque rerum nesciunt</h4>
+							<p>Quae dolorem earum veritatis oditseno</p>
+							<p>Hace 1 hr.</p>
+						</div>
+						</li>
+
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li class="notification-item">
+						<i class="bi bi-check-circle text-success"></i>
+						<div>
+							<h4>Sit rerum fuga</h4>
+							<p>Quae dolorem earum veritatis oditseno</p>
+							<p>Hace 2 hrs.</p>
+						</div>
+						</li>
+
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li class="notification-item">
+						<i class="bi bi-info-circle text-primary"></i>
+						<div>
+							<h4>Dicta reprehenderit</h4>
+							<p>Quae dolorem earum veritatis oditseno</p>
+							<p>Hace 4 hrs.</p>
+						</div>
+						</li>
+
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+						<li class="dropdown-footer">
+						<a href="#">Mostrar todas las notificaciones</a>
+						</li>
+								-->
+					</ul>
+				</li>
+
+				<!-- Procfile -->
+				<li class="nav-item dropdown pe-3">
+
+					<!-- Procfile Icon -->
+					<a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+						<img src="data:image/jpeg;base64,{{ user.profilePicture.img64 }}" alt="Profile" class="rounded-circle " width="38px" height="40px">
+						<span class="d-none d-md-block dropdown-toggle ps-2">{{ user.name }}</span>
+					</a>
+
+					<!-- Procfile Dropdonw -->
+					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+						<li class="dropdown-header">
+						<h6>{{ user.name }}</h6>
+						<span>{{ user.range }}</span>
+						</li>
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li>
+						<a class="dropdown-item d-flex align-items-center" href="/Profile">
+							<i class="bi bi-person"></i>
+							<span>Perfil</span>
+						</a>
+						</li>
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li>
+						<a class="dropdown-item d-flex align-items-center" href="/Help">
+							<i class="bi bi-question-circle"></i>
+							<span>Ayuda</span>
+						</a>
+						</li>
+						<li>
+						<hr class="dropdown-divider">
+						</li>
+
+						<li>
+						<a class="dropdown-item d-flex align-items-center" href="/Logout">
+							<i class="bi bi-box-arrow-right"></i>
+							<span>Cerrar Sesion</span>
+						</a>
+						</li>
+
+					</ul>
+				</li>
+
+			</ul>
+		</nav>
+
+	</header>
+
+    {% block content %}
+    {% endblock %}
+
+    <!-- ======= Footer ======= -->
+	<footer id="footer" class="footer">
+		<div class="copyright">
+			&copy; Copyright <strong><span>MT Strategy</span></strong>. Todos los derechos reservados
+		</div>
+	</footer>
+
+	<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+	<!-- JS Imports -->
+	<div>
+
+        <!-- Datatable JS File -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+		<script src="{{ url_for('static', filename='assets/js/data.js') }}"></script>
+		<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				$('#example').DataTable();
+			});
+		</script>
+
+		<!-- Main JS File -->
+		<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+		<!-- JS Files -->
+		<script src="{{ url_for('static', filename='assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='assets/vendor/chart.js/chart.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='assets/vendor/echarts/echarts.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='assets/vendor/quill/quill.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='assets/vendor/tinymce/tinymce.min.js') }}"></script>
+		<script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
+
+	</div>	
+
+</body>
+
+</html>

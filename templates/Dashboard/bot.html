@@ -1,0 +1,474 @@
+{% extends "Dashboard/template.html" %}
+
+{% block content%}
+
+	<!-- ======= Side-bar ======= -->
+	<aside id="sidebar" class="sidebar">
+
+		<ul class="sidebar-nav" id="sidebar-nav">
+	
+			<!-- Dashboard -->
+			<li class="nav-item">
+			<a class="nav-link collapsed" href="/Dashboard">
+				<i class="bi bi-columns-gap"></i>
+				<span>Panel de Control</span>
+			</a>
+			</li>
+	
+			<!-- Notificaciones -->
+			<li class="nav-item">
+			<a class="nav-link collapsed" href="/Notifications">
+				<i class="bi bi-bell"></i>
+				<span>Notificaciones</span>
+			</a>
+			</li>
+
+			<!-- Bot -->
+			<li class="nav-item">
+				<a class="nav-link" data-bs-target="#bots-nav" data-bs-toggle="collapse">
+				  	<i class="bi bi-robot"></i><span>Bots</span><i class="bi bi-chevron-down ms-auto"></i>
+				</a>
+				<ul id="bots-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav">
+					{% for i in user.data.bots %}
+						<li>
+							<a href="/Bot/{{ i }}" class="{% if bot._id == i %} active {% else %} {% endif %}">
+								<i class="bi bi-circle"></i><span>Bot {{ loop.index }}</span>
+							</a>
+						</li>
+					{% endfor %}
+					<li>
+						<a href="/Bot/create">
+							<i class="bi bi-circle"></i><span>Crear Bot</span>
+						</a>
+					</li>
+				</ul>
+			</li>
+	
+			<!-- Perfil -->
+			<li class="nav-item">
+			<a class="nav-link collapsed" href="/Profile">
+				<i class="bi bi-person"></i>
+				<span>Perfil</span>
+			</a>
+			</li>
+	
+			<!-- Ayuda -->
+			<li class="nav-item">
+			<a class="nav-link collapsed" href="/Help">
+				<i class="bi bi-question-circle"></i>
+				<span>Ayuda</span>
+			</a>
+			</li>
+	
+	</aside>
+
+	<!-- ======= Main ======= -->
+	<main id="main" class="main">
+		
+		<!-- Titulo -->
+        <div class="pagetitle">
+			<h1>Bot</h1>
+			<nav>
+				<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+				<li class="breadcrumb-item active">Bot</li>
+				</ol>
+			</nav>
+        </div>
+    
+        <section class="section profile">
+			<div class="row card card-body pt-3">
+
+				<!-- Bots Tabs -->
+				<ul class="nav nav-tabs nav-tabs-bordered">
+					<li class="nav-item">
+						<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#general">General</button>
+					</li>
+
+					<li class="nav-item">
+						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#operaciones">Operaciones</button>
+					</li>
+
+					<li class="nav-item">
+						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#notificaciones">Notificaciones</button>
+					</li>
+
+					<li class="nav-item">
+						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#configuracion">Configuración</button>
+					</li>
+
+					<li class="nav-item">
+						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#simulacion">Simulación</button>
+					</li>
+				</ul>
+
+				<div class="tab-content pt-2">
+				
+					<!-- General -->
+					<div class="tab-pane fade show active profile-overview" id="general">
+	
+					<h5 class="card-title">Informacion General</h5>
+						
+						<div class="container">	
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">ID Bot</div>
+										<div class="col-lg-8 col-md-8"> {{ bot._id }} </div>
+									</div>
+					
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">ID Usuario</div>
+										<div class="col-lg-8 col-md-8"> {{ bot.ownerID}} </div>
+									</div>
+					
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">Exchange</div>
+										<div class="col-lg-8 col-md-8"> {{ bot.settings.exchange.name}} </div>
+									</div>
+				
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">Par</div>
+										<div class="col-lg-8 col-md-8"> {{ bot.settings.pair}} </div>
+									</div>
+
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">Orden</div>
+										<div class="col-lg-8 col-md-8"> {{ bot.settings.tradeAmount}} {{ bot.settings.amountType}} </div>
+									</div>
+				
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">Leverage</div>
+										<div class="col-lg-8 col-md-8">x{{ bot.settings.leverage}} </div>
+									</div>
+
+									<div class="row">
+										<div class="col-lg-4 col-md-4 label">Estado</div>
+										<div class="col-lg-8 col-md-8"> {% if bot.isEnabled == True %} Activo {% else %} Inactivo {% endif %}</div>
+									</div>
+										
+									<div class="row">
+										<form action="" method="post">
+											{% if bot.isEnabled == False %}
+												<div class="col-lg-5 col-md-4 label"><button type="submit" id="action" name="action" value="active" class="btn btn-primary">Activar</button></div>
+											{% else %} 
+												<div class="col-lg-5 col-md-4 label"><button type="submit" id="action" name="action" value="inactive" class="btn btn-primary">Desactivar</button></div>
+											{% endif %}
+										</form>
+									</div>
+									
+								</div>
+
+								<div class="col-lg-8">
+									<div id="GraficaBot"></div>
+									<script>
+										document.addEventListener("DOMContentLoaded", () => {
+											new ApexCharts(document.querySelector("#GraficaBot"), {
+												series:     [{name: 'Bot', data: [0, 40, 28, 51, 42, 82, 96]}],
+												chart:      {height: 350, type: 'area', toolbar: {show: true}},
+												markers:    {size: 4},
+												colors:     ['#4154f1'],
+												dataLabels: {enabled: false},
+												stroke:     {curve: 'smooth', width: 2},
+												tooltip:    {x: {format: 'dd/MM/yy HH:mm'},},
+												fill: {
+													type: "gradient",
+														gradient: {
+														shadeIntensity: 1,
+														opacityFrom: 0.3,
+														opacityTo: 0.4,
+														stops: [0, 90, 100]}},
+												xaxis: {
+													type: 'datetime',
+													categories: 
+														["2023-09-19T00:00:00.000Z", 
+														"2023-09-19T01:30:00.000Z", 
+														"2023-09-19T02:30:00.000Z", 
+														"2023-09-19T03:30:00.000Z", 
+														"2023-09-19T04:30:00.000Z", 
+														"2023-09-19T05:30:00.000Z", 
+														"2023-09-19T06:30:00.000Z"]}
+											}).render();
+											});
+									</script>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Operaciones -->
+					<div class="tab-pane fade pt-3 table-responsive" id="operaciones">
+						<table id="example" class="table table-hover" style="width:100%">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Fecha</th>
+									<th>Hora</th>
+									<th>Orden</th>
+									<th>Precio</th>
+									<th>Cantidad</th>
+									<th>Estado</th>
+									<th>PNL</th>
+									<th>Detalles</th>
+								</tr>
+							</thead>
+							<tbody class="table-group-divider">
+								{% for log in bot.log|reverse %}
+									<tr>
+										<th scope="row">{{ log.ID }}</th>
+										<td>{{ log.open.date }}</td>
+										<td>{{ log.open.time }}</td>
+										<td><span class="badge {% if log.side == 'Buy' %} bg-success {% elif log.side == 'Sell' %} bg-danger {% else %} bg-secondary {% endif %}">{{ log.side }}</span></td>
+										<td>{{ log.open.price }}</td>
+										<td>{{ log.qty }}</td>
+										<td><span class="badge {% if log.status == 'Open' %} bg-primary {% elif log.status == 'Closed' %} bg-secondary {% else %} bg-danger {% endif %}">{{ log.status }}</span></td>
+										<td class="fw-bold {% if log.pnl|float > 0 %} text-success {% elif log.pnl|float < 0 %} text-danger {% else %} text-secondary {% endif %}">{{ log.pnl }}</td>
+										<td>
+											<button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#{{ log.modalID }}">
+												<i class="bi bi-info-circle"></i>
+											</button>
+										</td>
+										<div class="modal fade" id="{{ log.modalID }}" tabindex="-1">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h5 class="modal-title">Detalles de Orden</h5>
+														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<div class="modal-body">
+														<div class="container">
+															<h5 class="card-title">Informacion General</h5>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">ID orden</div>
+																<div class="col-lg-8 col-md-8">{{ log.ID }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Tipo de orden</div>
+																<div class="col-lg-8 col-md-8">{{ log.side }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Cantidad</div>
+																<div class="col-lg-8 col-md-8">{{ log.qty }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Estado</div>
+																<div class="col-lg-8 col-md-8">{{ log.status }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">PNL</div>
+																<div class="col-lg-8 col-md-8"><p class="fw-bold text-success">{{ log.pnl }}</p></div>
+															</div>
+
+															<h5 class="card-title">Apertura</h5>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Fecha</div>
+																<div class="col-lg-8 col-md-8">{{ log.open.date }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Hora</div>
+																<div class="col-lg-8 col-md-8">{{ log.open.time }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Precio</div>
+																<div class="col-lg-8 col-md-8">{{ log.open.price }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Comentarios</div>
+																<div class="col-lg-8 col-md-8">{{ log.open.comments }}</div>
+															</div>
+
+															<h5 class="card-title">Cierre</h5>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Fecha</div>
+																<div class="col-lg-8 col-md-8">{{ log.close.date }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Hora</div>
+																<div class="col-lg-8 col-md-8">{{ log.close.time }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Precio</div>
+																<div class="col-lg-8 col-md-8">{{ log.close.price }}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Comentarios</div>
+																<div class="col-lg-8 col-md-8">{{ log.close.comments }}</div>
+															</div>
+														</div>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Notificaciones -->
+					<div class="tab-pane fade pt-3" id="notificaciones">
+						<form>
+							<div class="row mb-3">
+								<label for="email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+								<div class="col-md-8 col-lg-9">
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="emailNotification" {% if bot.settings.notifications.emailNotifications is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="emailNotification">Notificaciones</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="emailEntry" {% if bot.settings.notifications.emailEntry is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="emailEntry">Apertura de Ordenes</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="emailClose" {% if bot.settings.notifications.emailClose is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="emailClose">Cierre de Ordenes</label>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row mb-3">
+								<label for="telegram" class="col-md-4 col-lg-3 col-form-label">Telegram</label>
+								<div class="col-md-8 col-lg-9">
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="telegramNotifications" {% if bot.settings.notifications.telegramNotifications is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="telegramNotifications">Notificaciones</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="telegramEntry" {% if bot.settings.notifications.telegramEntry is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="telegramEntry">Apertura de Ordenes</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="telegramClose" {% if bot.settings.notifications.telegramClose is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="telegramClose">Cierre de Ordenes</label>
+									</div>
+								</div>
+							</div>
+
+							<div class="text-center">
+								<button type="submit" class="btn btn-primary disabled">Guardar cambios</button>
+							</div>
+						</form>
+					</div>
+	
+					<!-- Configuracion -->
+					<div class="tab-pane fade pt-3" id="configuracion">
+						<form action="" method="post">
+							<div class="row mb-3">
+								<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Exchange</label>
+								<div class="col-md-8 col-lg-9">
+									<select class="form-select" aria-label="Default select example" disabled>
+										<option value="Binance"  {% if bot.settings.exchange.name == "Binance"  %} selected {% endif %}> Binance  </option>
+										<option value="Bybit"    {% if bot.settings.exchange.name == "Bybit"    %} selected {% endif %}> Bybit    </option>
+										<option value="Bitget"   {% if bot.settings.exchange.name == "Bitget"   %} selected {% endif %}> Bitget   </option>
+										<option value="Coinbase" {% if bot.settings.exchange.name == "Coinbase" %} selected {% endif %}> Coinbase </option>
+									</select>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label for="pair" class="col-md-4 col-lg-3 col-form-label">Par</label>
+								<div class="col-md-8 col-lg-9">
+									<select class="form-select" aria-label="Default select example" disabled>
+										<option value="BTCUSDT" {% if bot.settings.pair == "Coinbase" %} selected {% endif %}> BTCUSDT </option>
+										<option value="BTCBUSD" {% if bot.settings.pair == "Coinbase" %} selected {% endif %}> BTCBUSD </option>
+										<option value="ETHUSDT" {% if bot.settings.pair == "Coinbase" %} selected {% endif %}> ETHUSDT </option>
+										<option value="ETHBUSD" {% if bot.settings.pair == "Coinbase" %} selected {% endif %}> ETHBUSD </option>
+									</select>
+								</div>
+							</div>
+		
+							<div class="row mb-3">
+								<label for="apiKey" class="col-md-4 col-lg-3 col-form-label">Api Key</label>
+								<div class="col-md-8 col-lg-9">
+									<input name="apiKey" type="text" class="form-control" id="apiKey" value="{{ bot.settings.exchange.apiKey }}" disabled>
+								</div>
+							</div>
+		
+							<div class="row mb-3">
+								<label for="apiSecret" class="col-md-4 col-lg-3 col-form-label">Api Secret</label>
+								<div class="col-md-8 col-lg-9">
+									<input name="apiSecret" type="password" class="form-control" id="apiSecret" value="{{ bot.settings.exchange.apiSecret }}" disabled>
+								</div>
+							</div>
+							
+							<div class="row mb-3">
+								<label for="apiKey2" class="col-md-4 col-lg-3 col-form-label">Repuesto Api Key</label>
+								<div class="col-md-8 col-lg-9">
+									<input name="apiKey2" type="text" class="form-control" id="apiKey2" value="{{ bot.settings.exchange.apiKey2 }}">
+								</div>
+							</div>
+		
+							<div class="row mb-3">
+								<label for="apiSecret2" class="col-md-4 col-lg-3 col-form-label">Repuesto Api Secret</label>
+								<div class="col-md-8 col-lg-9">
+									<input name="apiSecret2" type="password" class="form-control" id="apiSecret2" value="{{ bot.settings.exchange.apiSecret2 }}">
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label for="amount" class="col-md-4 col-lg-3 col-form-label">Orden</label>
+								<div class="row col-md-8 col-lg-9">
+									<div class="col-md-6 col-lg-6">
+										<input name="amount" type="text" class="form-control" id="amount" value="100" disabled>
+									</div>
+									<div class="col-md-6 col-lg-6">
+										<select class="form-select" aria-label="Default select example" disabled>
+											<option value="%" selected> % </option> <!-- Arreglar cantidades a operar -->
+											<option value="USD"> USD </option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<label for="leverage" class="col-md-4 col-lg-3 col-form-label">Leverage</label>
+								<div class="col-md-8 col-lg-9">
+									<input name="leverage" type="text" class="form-control" id="leverage" value="50" disabled>
+								</div>
+							</div>
+		
+							<div class="text-center">
+								<button type="submit" id="action" name="action" value="update" class="btn btn-primary">Actualizar</button>
+								<button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#delete">Eliminar</button>
+								<div class="modal fade" id="delete" tabindex="-1">
+									<div class="modal-dialog modal-dialog-centered">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title">Confirmación de eliminación</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body">
+												Estás seguro de que quieres eliminar este bot?
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+												<form action="" method="post">
+													<button type="submit" name="action" value="delete" class="btn btn-outline-danger">Eliminar</button>
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<!-- Simulacion -->
+					<div class="tab-pane fade pt-3" id="simulacion">
+						<form action="/Bot/post/{{ bot._id }}" method="post">
+							<div class="text-center">
+								<button type="submit" id="action" name="action" value="Buy" class="btn btn-success">Simular Compra</button>
+								<button type="submit" id="action" name="action" value="Sell" class="btn btn-danger">Simular Venta</button>
+								<button type="submit" id="action" name="action" value="Close" class="btn btn-secondary">Simular Cierre</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+        </section>
+    
+    </main>
+{% endblock%}

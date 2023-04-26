@@ -1,23 +1,12 @@
-from flask import Flask
+from flask            import Flask, render_template
 from Mongo.extensions import mongo
-from afterResponse import AfterResponse
-from datetime import timedelta
+from afterResponse    import AfterResponse
+from datetime         import timedelta
 
-# --- Importar Rutas de Prueba ---
+# --- Importar Rutas de App ---
 
-from appRoutes import appRoutes, profile
-
-# ------------------------
-
-# --- Importar Criptos ---
-
-from BTC import BTC
-from ETH import ETH
-from BNB import BNB
-from SOL import SOL
-
-# ------------------------
-
+from Routes import Routes
+from Bot    import Bot
 
 def create_app(config_object='Mongo.settings'):
 
@@ -32,22 +21,22 @@ def create_app(config_object='Mongo.settings'):
 	mongo.init_app(app)
 
 	# -- Ejecuta Rutas de Prueba --
-	app.register_blueprint(appRoutes)
+	app.register_blueprint(Routes)
+	app.register_blueprint(Bot)
 
 	# -- Configuracion de cookies --
 	app.secret_key = "mtstrategy"
 	app.permanent_session_lifetime = timedelta(days=8)
-
-	# -- Ejecuta Criptos --
-	app.register_blueprint(BTC)
-	app.register_blueprint(ETH)
-	app.register_blueprint(BNB)
-	app.register_blueprint(SOL)
 	
 	# -- Carpeta temporal fotos de perfil --
 	profilePics = 'static/profilePics/'
 	app.config['UPLOAD_FOLDER'] = profilePics
 
+	# -- Error 404 --
+	@app.errorhandler(404)
+	def page_not_found(error):
+		return render_template('404.html'), 404
+    
 	# -- Inicia aplicacion --
 	return app
 
