@@ -28,7 +28,7 @@ def order(bot, request):
 		try:
 			lastOrder = bot['log'][-1] 
    
-			if lastOrder['side'] == "Sell":
+			if lastOrder['side'] == "Sell" and lastOrder['status'] == "Open":
 				order = errorDetails("Sell", bot, "Ya existe actualmente una posición de venta abierta")
     
 			elif lastOrder['status'] == "Open":
