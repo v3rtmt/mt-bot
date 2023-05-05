@@ -2,6 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from Mongo.extensions                  import mongo
 from datetime                          import datetime, timedelta, timezone
 from flask				               import Blueprint, redirect, render_template, request, session
+import requests
 import base64
 import atexit
 import ccxt
@@ -244,8 +245,8 @@ def help():
 		return redirect("/Login")
 
 
-# Actualiza los precios de las monedas en la base de datos cada 30 segundos
-def prices(): 
+# Actualiza los precios de crypto en la base de datos cada 30 segundos
+def pricesCrypto(): 
 	binance = ccxt.binance()
 	btc = binance.fetch_ohlcv('BTC/USDT', '1d', limit = 1)
 	eth = binance.fetch_ohlcv('ETH/USDT', '1d', limit = 1)
@@ -257,9 +258,20 @@ def prices():
 			 "ethPrice" : eth[0][4], 
 			 "btcChange": ((btc[0][4]) * 100 / (btc[0][1])) - 100,
 			 "ethChange": ((eth[0][4]) * 100 / (eth[0][1])) - 100}})
+ 
+ 
+# Actualiza los precios de forex en la base de datos cada 30 minutos
+def pricesForex(): 
+	usd = requests.get("https://api.getgeoapi.com/v2/currency/convert?api_key=f5ab8da44a8130165d6d27474c9824111ebaacdb&from=USD&to=MXN&amount=1&format=json")
+	price = usd.json()
+	mongo.db.Data.update_one(
+		{"data": True},
+		{"$set": {"usdPrice" : float(price['rates']['MXN']['rate'])}})
+
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(prices, 'interval', seconds=30)
+scheduler.add_job(pricesCrypto, 'interval', seconds=30)
+scheduler.add_job(pricesForex, 'interval', hours=1)
 scheduler.start()
 
 atexit.register(lambda: scheduler.shutdown())
