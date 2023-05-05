@@ -98,7 +98,7 @@
 					</li>
 
 					<li class="nav-item">
-						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#simulacion">Ejecución</button>
+						<button class="nav-link" data-bs-toggle="tab" data-bs-target="#ejecucion">Ejecución</button>
 					</li>
 				</ul>
 
@@ -169,7 +169,7 @@
 									<script>
 										document.addEventListener("DOMContentLoaded", () => {
 											new ApexCharts(document.querySelector("#GraficaBot"), {
-												series:     [{name: 'Bot', data: [0, 40, 28, 51, 42, 82, 96]}],
+												series:     [{name: 'Bot', data: [Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1]}],
 												chart:      {height: 350, type: 'area', toolbar: {show: true}},
 												markers:    {size: 4},
 												colors:     ['#4154f1'],
@@ -186,13 +186,13 @@
 												xaxis: {
 													type: 'datetime',
 													categories: 
-														["2023-09-19T00:00:00.000Z", 
-														"2023-09-19T01:30:00.000Z", 
-														"2023-09-19T02:30:00.000Z", 
-														"2023-09-19T03:30:00.000Z", 
-														"2023-09-19T04:30:00.000Z", 
-														"2023-09-19T05:30:00.000Z", 
-														"2023-09-19T06:30:00.000Z"]}
+													["2023-09-19T00:30:00.000Z", 
+													"2023-09-19T01:30:00.000Z", 
+													"2023-09-19T02:30:00.000Z", 
+													"2023-09-19T03:30:00.000Z", 
+													"2023-09-19T04:30:00.000Z", 
+													"2023-09-19T05:30:00.000Z", 
+													"2023-09-19T06:30:00.000Z"]}
 											}).render();
 											});
 									</script>
@@ -206,6 +206,7 @@
 						<table id="example" class="table table-hover" style="width:100%">
 							<thead>
 								<tr>
+									<th>Nº</th>
 									<th>ID</th>
 									<th>Fecha</th>
 									<th>Hora</th>
@@ -220,19 +221,36 @@
 							<tbody class="table-group-divider">
 								{% for log in bot.log|reverse %}
 									<tr>
+										{% set currency = bot.settings.pair.split('/') %}
+										
+										<th scope="row">{{ log.Nº }}</th>
 										<th scope="row">{{ log.ID }}</th>
 										<td>{{ log.open.date }}</td>
 										<td>{{ log.open.time }}</td>
-										<td><span class="badge {% if log.side == 'Buy' %} bg-success {% elif log.side == 'Sell' %} bg-danger {% else %} bg-secondary {% endif %}">{{ log.side }}</span></td>
-										<td>{{ log.open.price }}</td>
-										<td>{{ log.qty }}</td>
-										<td><span class="badge {% if log.status == 'Open' %} bg-primary {% elif log.status == 'Closed' %} bg-secondary {% else %} bg-danger {% endif %}">{{ log.status }}</span></td>
-										<td class="fw-bold {% if log.pnl|float > 0 %} text-success {% elif log.pnl|float < 0 %} text-danger {% else %} text-secondary {% endif %}">{{ log.pnl }}</td>
+										<td><span 
+											class="badge {% if log.side == 'Buy' %} bg-success {% elif log.side == 'Sell' %} bg-danger {% else %} bg-secondary {% endif %}">
+											{{ log.side }}
+										</span></td>
+										<td>
+											{% if log.status == 'Error' %} x {% else %}${{ log.open.price|round(2, 'floor') }}{% endif %}
+										</td>
+										<td>
+											{% if log.status == 'Error' %} x {% else %} {{ log.qty|round(4, 'floor') }} {{ currency[0] }}{% endif %}
+										</td>
+										<td><span 
+											class="badge {% if log.status == 'Open' %} bg-primary {% elif log.status == 'Closed' %} bg-secondary {% else %} bg-danger {% endif %}">
+											{{ log.status }}
+										</span></td>
+										<td 
+											class="fw-bold {% if log.pnl|float > 0 %} text-success {% elif log.pnl|float < 0 %} text-danger {% else %} text-secondary {% endif %}">
+											{% if log.status == 'Error' %} x {% elif log.status == "Open" %} {% else %} {{ log.pnl|round(2, 'floor') }}% {% endif %}
+										</td>
 										<td>
 											<button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#{{ log.modalID }}">
 												<i class="bi bi-info-circle"></i>
 											</button>
 										</td>
+
 										<div class="modal fade" id="{{ log.modalID }}" tabindex="-1">
 											<div class="modal-dialog">
 												<div class="modal-content">
@@ -253,7 +271,7 @@
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Cantidad</div>
-																<div class="col-lg-8 col-md-8">{{ log.qty }}</div>
+																<div class="col-lg-8 col-md-8">{% if log.status == 'Error' %} x {% else %} {{ log.qty|round(4, 'floor') }} {{ currency[0] }}{% endif %}</div>
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Estado</div>
@@ -261,7 +279,7 @@
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">PNL</div>
-																<div class="col-lg-8 col-md-8"><p class="fw-bold text-success">{{ log.pnl }}</p></div>
+																<div class="col-lg-8 col-md-8"><p class="fw-bold {% if log.pnl|float > 0 %} text-success {% elif log.pnl|float < 0 %} text-danger {% else %} text-secondary {% endif %}">{% if log.status == 'Error' %} x {% elif log.status == "Open" %} {% else %} {{ log.pnl|round(2, 'floor') }}% {% endif %}</p></div>
 															</div>
 
 															<h5 class="card-title">Apertura</h5>
@@ -275,7 +293,11 @@
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Precio</div>
-																<div class="col-lg-8 col-md-8">{{ log.open.price }}</div>
+																<div class="col-lg-8 col-md-8">{% if log.status == 'Error' %}x{% else %}${{ log.open.price|round(2, 'floor') }}{% endif %}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Balance</div>
+																<div class="col-lg-8 col-md-8">${{ log.open.balance|round(2, 'floor') }}</div>
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Comentarios</div>
@@ -293,7 +315,11 @@
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Precio</div>
-																<div class="col-lg-8 col-md-8">{{ log.close.price }}</div>
+																<div class="col-lg-8 col-md-8">{% if log.status == 'Error' %} x {% elif log.status == "Open" %} {% else %}${{ log.close.price|round(2, 'floor') }}{% endif %}</div>
+															</div>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 label">Balance</div>
+																<div class="col-lg-8 col-md-8">{% if log.status == 'Open' %} {% else %}${{ log.close.balance|round(2, 'floor') }}{% endif %}</div>
 															</div>
 															<div class="row">
 																<div class="col-lg-4 col-md-4 label">Comentarios</div>
@@ -320,16 +346,16 @@
 								<label for="email" class="col-md-4 col-lg-3 col-form-label">Email</label>
 								<div class="col-md-8 col-lg-9">
 									<div class="form-check">
-										<input class="form-check-input" type="checkbox" id="emailNotification" {% if bot.settings.notifications.emailNotifications is true %} checked {% endif %} disabled>
-										<label class="form-check-label" for="emailNotification">Notificaciones</label>
-									</div>
-									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="emailEntry" {% if bot.settings.notifications.emailEntry is true %} checked {% endif %} disabled>
 										<label class="form-check-label" for="emailEntry">Apertura de Ordenes</label>
 									</div>
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="emailClose" {% if bot.settings.notifications.emailClose is true %} checked {% endif %} disabled>
 										<label class="form-check-label" for="emailClose">Cierre de Ordenes</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="emailNotification" {% if bot.settings.notifications.emailNotifications is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="emailNotification">Errores</label>
 									</div>
 								</div>
 							</div>
@@ -338,16 +364,16 @@
 								<label for="telegram" class="col-md-4 col-lg-3 col-form-label">Telegram</label>
 								<div class="col-md-8 col-lg-9">
 									<div class="form-check">
-										<input class="form-check-input" type="checkbox" id="telegramNotifications" {% if bot.settings.notifications.telegramNotifications is true %} checked {% endif %} disabled>
-										<label class="form-check-label" for="telegramNotifications">Notificaciones</label>
-									</div>
-									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="telegramEntry" {% if bot.settings.notifications.telegramEntry is true %} checked {% endif %} disabled>
 										<label class="form-check-label" for="telegramEntry">Apertura de Ordenes</label>
 									</div>
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="telegramClose" {% if bot.settings.notifications.telegramClose is true %} checked {% endif %} disabled>
 										<label class="form-check-label" for="telegramClose">Cierre de Ordenes</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="telegramNotifications" {% if bot.settings.notifications.telegramNotifications is true %} checked {% endif %} disabled>
+										<label class="form-check-label" for="telegramNotifications">Errores</label>
 									</div>
 								</div>
 							</div>
@@ -365,7 +391,7 @@
 								<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Bot</label>
 								<div class="col-md-8 col-lg-9">
 									<select name="type" id="exchange" class="form-select" aria-label="Default select example" disabled>
-										<option value="Crypto Futures"      > Crypto Futuros </option>
+										<option value="Crypto Futures"      > Crypto Futures </option>
 										<option value="Crypto Spot" disabled> Crypto Spot    </option>
 										<option value="Forex" disabled      > Forex   		 </option>
 										<option value="Index" disabled      > Index 		 </option>
@@ -473,19 +499,67 @@
 						</form>
 					</div>
 
-					<!-- Simulacion -->
-					<div class="tab-pane fade pt-3" id="simulacion">
+					<!-- Ejecucion -->
+					<div class="tab-pane fade pt-3" id="ejecucion">	
 						<form action="/Bot/post/{{ bot._id }}" method="post">
-							<div class="text-center">
-								<button type="submit" id="action" name="action" value="Buy" class="btn btn-success">Ejecutar Compra</button>
-								<button type="submit" id="action" name="action" value="Sell" class="btn btn-danger">Ejecutar Venta</button>
-								<button type="submit" id="action" name="action" value="Close" class="btn btn-secondary">Ejecutar Cierre</button>
-							</div>
+							<style>
+								code {
+								  background-color: #f4f4f4;
+								  border: 1px solid #ddd;
+								  border-radius: 5px;
+								  display: block;
+								  font-family: monospace;
+								  padding: 10px;
+								}
+
+								.green{
+									color:green;
+								}
+
+								.red{
+									color:red;
+								}
+
+								.black{
+									color:darkslategrey;
+								}
+							</style>
+							  
+							<code class="green">
+								{ "action": "Buy" }
+								</br></br>
+								POST: /Bot/post/{{ bot._id}}
+							</code>
+							<div class="text-center py-3"><button type="submit" id="action" name="action" value="Buy" class="btn btn-success">Ejecutar Compra</button></div>
+
+							<code class="red">
+								{ "action": "Sell" }
+								</br></br>
+								POST: /Bot/post/{{ bot._id}}
+							</code>
+							<div class="text-center py-3"><button type="submit" id="action" name="action" value="Sell" class="btn btn-danger">Ejecutar Venta</button></div>
+
+							<code class="black">
+								{ "action": "Close" }
+								</br></br>
+								POST: /Bot/post/{{ bot._id}}
+							</code>
+							<div class="text-center py-3"><button type="submit" id="action" name="action" value="Close" class="btn btn-secondary">Ejecutar Cierre</button></div>
 						</form>
 					</div>
 				</div>
 			</div>
         </section>
-    
+		
+		<!-- Datatable JS File -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+		<script src="{{ url_for('static', filename='assets/js/data.js') }}"></script>
+		<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				$('#example').DataTable();
+			});
+		</script>
+
     </main>
 {% endblock%}

@@ -24,6 +24,8 @@ def createbot():
 		if (request.form.get("SecretKey") == ''):
 			return render_template('Dashboard/botcreate.html', user=user, apiKey=False, apiSecret=True)
 
+		currency = request.form.get("pair").split("/")
+  
 		if (float(request.form.get("orderAmount")) > 100) and (request.form.get("amountType") == "%"): orderAmount = 100
 		elif (float(request.form.get("orderAmount")) < 0) and (request.form.get("amountType") == "%"): orderAmount = 0
 		else: orderAmount = float(request.form.get("orderAmount"))
@@ -31,6 +33,11 @@ def createbot():
 		if int(request.form.get("leverage")) > 100: leverage = 100
 		elif int(request.form.get("leverage")) < 1: leverage = 1
 		else: leverage = int(request.form.get("leverage"))
+  
+		try:
+			if (float(request.form.get("simulatedBalance")) < 0): simulatedBalance = 0
+			else: simulatedBalance = float(request.form.get("simulatedBalance"))
+		except: simulatedBalance = 0.0
   
 		isSimulated = True if request.form.get("isSimulated") else False
   
@@ -49,7 +56,9 @@ def createbot():
 					"secretKey2"  : request.form.get("secretKey2")
 				},
 				"pair"        : request.form.get("pair"),
+				"currency"    : currency[1],
 				"tradeType"   : "isolated",
+				"balance"     : simulatedBalance,
 				"orderAmount" : orderAmount,
 				"amountType"  : request.form.get("amountType"),
 				"leverage"    : leverage,
@@ -100,7 +109,7 @@ def bot(id):
   		# Actualiza el Bot
 		elif request.form.get("action") == "update":
 			if (float(request.form.get("orderAmount")) > 100) and (request.form.get("amountType") == "%"): orderAmount = 100
-			elif (float(request.form.get("orderAmount")) < 0) and (request.form.get("amountType") == "%"): orderAmount = 0
+			elif (float(request.form.get("orderAmount")) < 0): orderAmount = 0
 			else: orderAmount = float(request.form.get("orderAmount"))
 			
 			if int(request.form.get("leverage")) > 100: leverage = 100
@@ -165,22 +174,24 @@ def afterBotPost(identifier):
 		# Crypto Futures
 		if bot['type'] == "Crypto Futures":
 			if bot['settings']['exchange']['name'] == "Binance":
-				order, type = Binance.order(bot, reqJson)
+				order = Binance.order(bot, reqJson)
 			if bot['settings']['exchange']['name'] == "Bybit":
 				pass # order = Bybit.order(bot, req)
 		
-		if type == "Open" or type == "Error":
+		if order['status'] == "Open" or order['status'] == "Error":
 			mongo.db.Bots.update_one({"_id": bot['_id']}, {"$push": {"log": order}})
 		else:
+			print("deberia de agregar el close")
 			mongo.db.Bots.update_one(
 				{"_id": bot['_id'], "log.status": "Open"},
 				{"$set": {
-					"Log.$.status"        : "Closed",
-					"Log.$.pnl"           : order['pnl'],
-					"Log.$.close.date"    : order['close']['date'],
-					"Log.$.close.time"    : order['close']['time'],
-					"Log.$.close.price"   : order['close']['price'],
-					"Log.$.close.comments": order['close']['comments']
+					"log.$.status"        : "Closed",
+					"log.$.pnl"           : order['pnl'],
+					"log.$.close.date"    : order['close']['date'],
+					"log.$.close.time"    : order['close']['time'],
+					"log.$.close.price"   : order['close']['price'],
+     				"log.$.close.balance" : order['close']['balance'],
+					"log.$.close.comments": order['close']['comments']
 					}
 				}
 			)

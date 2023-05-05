@@ -7,240 +7,336 @@ def order(bot, request):
 	
 	# Abrir ordenes de compra
 	if request['action'] == "Buy":
-		try:
-			lastOrder = bot['log'][-1]
-
-			if lastOrder['side'] == "Buy" and lastOrder['status'] == "Open":
-				order = errorDetails("Buy", bot, "Ya existe actualmente una posición de compra abierta")
-    
-			elif lastOrder['status'] == "Open":
-				order = errorDetails("Buy", bot, "Se requiere cerrar la posición de venta actual para abrir una nueva")
-    
-			else:
-				order = createOrder("Buy", bot)
-		except:
-			order = createOrder("Buy", bot)
-
-
+		for log in bot['log']:
+			if log['side'] == "Buy" and log['status'] == "Open":
+				order = errorDetails(bot, "Buy", "Ya existe actualmente una posición de compra abierta")
+				break
+			elif log['side'] == "Sell" and log['status'] == "Open":
+				order = errorDetails(bot, "Buy", "Se requiere cerrar la posición de venta actual para abrir una nueva")
+				break
+		else: order = createOrderSimulated(bot, "Buy") if bot['isSimulated'] == True else createOrder(bot, "Buy")
 
 	# Abrir ordenes de venta
 	elif request['action'] == "Sell":
-		try:
-			lastOrder = bot['log'][-1] 
-   
-			if lastOrder['side'] == "Sell" and lastOrder['status'] == "Open":
-				order = errorDetails("Sell", bot, "Ya existe actualmente una posición de venta abierta")
-    
-			elif lastOrder['status'] == "Open":
-				order = errorDetails("Sell", bot, "Se requiere cerrar la posición de compra actual para abrir una nueva")
-    
-			else:
-				order = createOrder("Sell", bot)
-		except:
-			order = createOrder("Sell", bot)
-
+		for log in bot['log']:
+			if log['side'] == "Sell" and log['status'] == "Open":
+				order = errorDetails(bot, "Sell", "Ya existe actualmente una posición de venta abierta")
+				break
+			elif log['side'] == "Buy" and log['status'] == "Open":
+				order = errorDetails(bot, "Sell", "Se requiere cerrar la posición de compra actual para abrir una nueva")
+				break
+		else: order = createOrderSimulated(bot, "Sell") if bot['isSimulated'] == True else createOrder(bot, "Sell")
 
 	# Cancelar ordenes
 	elif request['action'] == "Close":
-		try:
-			lastOrder = bot['log'][-1] 
-   
-			if lastOrder['status'] == "Closed" or lastOrder['status'] == "Error": 
-				order = errorDetails("Close", bot, "No existen posiciones por cerrar")
-    
-			else:
-				order = closeOrder(bot)
-    
-		except:
-			order = errorDetails(bot, "No existen posiciones por cerrar")
+		for log in bot['log']:
+			if log['status'] == "Open":
+				print("Si va a cancelar")
+				order = closeOrderSimulated(bot, log) if bot['isSimulated'] == True else closeOrder(bot, log)
+				break
+		else: order = errorDetails(bot, "Close", "No existen posiciones por cerrar")
 	
-	return order, order['status']
+	return order
 
 
 # Función para crear operaciones
-def createOrder(side, bot):
-	dateTime = datetime.now(timezone(timedelta(hours=-5)))
+def createOrder(bot, side):
+
+	try:
+		binance = connectExchange(bot['settings']['exchange']['apiKey'], bot['settings']['exchange']['secretKey'])
+		order, balance = binanceOrder(binance)
+		orderDetails = details(order, balance)
+	except:
+		try:
+			binance = connectExchange(bot['settings']['exchange']['apiKey2'], bot['settings']['exchange']['secretKey2'])
+			order, balance = binanceOrder(binance)
+			orderDetails = details(binanceOrder(binance, bot, side))
+		except:
+			orderDetails = errorDetails(side, bot, "No hay Api key valida para realizar la orden")
 	
 	# Conecta con el exchange
-	def connectExchange(bot, apiKey, apiSecret):
-		global binance
+	def connectExchange(apiKey, secretKey):
 		binance = ccxt.binance({
 			'apiKey': (apiKey),
-			'secret': (apiSecret),
+			'secret': (secretKey),
 			'options': {'defaultType': 'future',},})
 		
 		binance.enableRateLimit = True
 		binance.set_leverage(bot['settings']['leverage'], bot['settings']['pair'], params={"marginMode": "isolated"})
+		return binance
 	
 	# Crea las operaciones
-	def binanceOrder(side, bot):
+	def binanceOrder(binance):
 		global issues
-		orderPrice = float(binance.fetch_ticker(bot['settings']['pair'])['close'])
-		balance = binance.fetch_balance()['BUSD']['total']
-	
-		tradeAmount = ((balance * bot['settings']['leverage']) / orderPrice)
+  
+		balance = binance.fetch_balance()[bot['settings']['currency']]['total']
+  
+		if bot['settings']['amountType'] == "USD": amount = bot['settings']['orderAmount']
+		elif bot['settings']['amountType'] == "%": amount = balance * (bot['settings']['orderAmount'] / 100)
+
+		orderAmount = ((amount * bot['settings']['leverage']) / float(binance.fetch_ticker(bot['settings']['pair'])['close']))
 
 		try:
-			if side == "Buy":
-				order = binance.create_market_buy_order(bot['settings']['pair'], tradeAmount)
-				issues = "N/A"
-			elif side == "Sell":
-				order = binance.create_market_sell_order(bot['settings']['pair'], tradeAmount)
-				issues = "N/A"
+			if   side == "Buy":  order = binance.create_market_buy_order( bot['settings']['pair'], orderAmount)
+			elif side == "Sell": order = binance.create_market_sell_order(bot['settings']['pair'], orderAmount)
+			print(order)
 		except:
-			return errorDetails(side, bot, "Insuficiente balance para crear la orden")
+			return errorDetails(side, bot, "Insuficiente balance para crear la orden"), balance
    
-		return order
+		return order, balance
 
 	# Detalles de una orden
-	def details(order):
-		orderDetails = {
-			"ID"      : order['orderID'],
-			"modalID" : modalID(bot),
-			"side"    : side,
-			"qty"     : order['origQTY'],
-			"status"  : "Open",
-			"pnl"     : "",
-			"open": {
-				"date"    : dateTime.strftime("%d/%m/%y"),
-				"time"    : dateTime.strftime("%H:%M:%S"),
-				"price"   : order['price'],
-				"comments": issues
-				},
-			"close": {
-				"date"    : "",
-				"time"    : "",
-				"price"   : "",
-				"comments": ""
-				}
-		}
-		return orderDetails
-   
-	try:
-		connectExchange(bot, bot['settings']['exchange']['apiKey'], bot['settings']['exchange']['apiSecret'])
-		print("-- Conecta con API 1 --")
-		order = binanceOrder(side, bot)
-		if order['modalID'] != "":
-			return order
+	def details(order, balance):
+		if order['modalID'] != "": return order
 		else:
-			orderDetails = details(order)
-	except:
-		try:
-			connectExchange(bot, bot['settings']['exchange']['apiKey2'], bot['settings']['exchange']['apiSecret2'])
-			print("-- Conecta con API 2 --")
-			order = binanceOrder(side, bot)
-			if order['modalID'] != "":
-				return order
-			else:
-				orderDetails = details(order)
-		except:
-			print("-- Error API --")
-			orderDetails = errorDetails(side, bot, "No hay API valida para realizar la orden")
+			try: No = bot['log'][-1]['Nº'] + 1
+			except: No = 1
+			dateTime = datetime.now(timezone(timedelta(hours=-5)))
+			orderDetails = {
+				"Nº"      : No,
+				"ID"      : order['orderID'],
+				"modalID" : modalID(bot),
+				"side"    : side,
+				"qty"     : order['origQTY'],
+				"status"  : "Open",
+				"pnl"     : "",
+				"open": {
+					"date"    : dateTime.strftime("%d/%m/%y"),
+					"time"    : dateTime.strftime("%H:%M:%S"),
+					"price"   : order['price'],
+					"balance" : balance,
+					"comments": ""
+					},
+				"close": {
+					"date"    : "",
+					"time"    : "",
+					"price"   : "",
+					"balance" : "",
+					"comments": ""
+					}
+			}
+			return orderDetails
  
 	return orderDetails
 
 
 # Función para cerrar operaciones
-def closeOrder(bot):
-	dateTime = datetime.now(timezone(timedelta(hours=-5)))
+def closeOrder(bot, position):
 	
+	try:
+		binance = connectExchange(bot['settings']['exchange']['apiKey'], bot['settings']['exchange']['secretKey'])
+		order, balance = binanceOrder(binance)
+		orderDetails = details(order, balance)
+	except:
+		try:
+			binance = connectExchange(bot['settings']['exchange']['apiKey2'], bot['settings']['exchange']['secretKey2'])
+			order, balance = binanceOrder(binance)
+			orderDetails = details(order, balance)
+		except:
+			orderDetails = errorDetails(bot, "Close", "No hay Api key valida para realizar la orden")
+
 	# Conecta con el exchange
 	def connectExchange(apiKey, apiSecret):
-		global binance
 		binance = ccxt.binance({
 			'apiKey': (apiKey),
 			'secret': (apiSecret),
 			'options': {'defaultType': 'future',},})
 		
 		binance.enableRateLimit = True
+		return binance
 	
 	# Crea las operaciones
-	def binanceOrder(bot):
-		lastOrder = bot['log'][-1]
-		global issues
-
+	def binanceOrder(binance):
 		try:
-			if lastOrder['side'] == "Buy":
-				order = binance.create_market_sell_order(bot['settings']['pair'], lastOrder['qty'], params={'reduce_only': True})
-				issues = "N/A"
-			elif lastOrder['side'] == "Sell":
-				order = binance.create_market_buy_order(bot['settings']['pair'], lastOrder['qty'], params={'reduce_only': True})
-				issues = "N/A"
+			if   position['side'] == "Buy": order = binance.create_market_sell_order(bot['settings']['pair'], position['qty'], params={'reduce_only': True})
+			elif position['side'] == "Sell": order = binance.create_market_buy_order(bot['settings']['pair'], position['qty'], params={'reduce_only': True})
+			print(order)
+			balance = binance.fetch_balance()[bot['settings']['currency']]['total']
+			pnl = (balance * 100 / position['open']['balance']) - 100
 		except:
-			return errorDetails(lastOrder['side'], bot, "Insuficiente balance para crear la orden")
-   
-		return order
+			balance = binance.fetch_balance()[bot['settings']['currency']]['total']
+			return errorDetails(bot, position['side'], "Error al cerrar la posición"), balance, 0
+		return order, balance, pnl
 
 	# Detalles de una orden
-	def details(order):
+	def details(order, balance, pnl):
+		dateTime = datetime.now(timezone(timedelta(hours=-5)))
+		if order['modalID'] != "": return order
+		else:
+			orderDetails = {
+				"Nº"      : "",
+				"ID"      : "",
+				"modalID" : "",
+				"side"    : "",
+				"qty"     : "",
+				"status"  : "Closed",
+				"pnl"     : pnl,
+				"open": {
+					"date"    : "",
+					"time"    : "",
+					"price"   : "",
+     				"balance" : "",
+					"comments": ""
+					},
+				"close": {
+					"date"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%y"),
+					"time"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%H:%M:%S"),
+					"price"   : order['price'],
+					"balance" : balance,
+					"comments": ""
+					}
+			}
+			return orderDetails
+ 
+	return orderDetails
+
+
+# Función para crear operaciones simuladas
+def createOrderSimulated(bot, side):
+	
+	# Crea las operaciones
+	def binanceOrder():
+		
+		price = float(ccxt.binance().fetch_ohlcv('BTC/USDT', '1d', limit = 1)[0][4])
+
+		for log in reversed(bot['log']):
+			if log['status'] == "Closed":
+				balance = log['close']['balance']
+				break
+		else: balance = bot['settings']['balance']
+  
+		if bot['settings']['amountType'] == "USD": amount = bot['settings']['orderAmount']
+		elif bot['settings']['amountType'] == "%": amount = balance * (bot['settings']['orderAmount'] / 100)
+
+		return ((amount * bot['settings']['leverage']) / price), price, balance
+
+	# Detalles de una orden
+	def details(qty, price, balance):
+		try: No = bot['log'][-1]['Nº'] + 1
+		except: No = 1
+		for log in reversed(bot['log']):
+			if log['status'] == "Closed":
+				orderID = log['ID'] + 1
+				break
+		else: orderID = 1
 		orderDetails = {
-			"ID"      : order['orderID'],
+			"Nº"      : No,
+			"ID"      : orderID,
 			"modalID" : modalID(bot),
-			"side"    : "",
-			"qty"     : order['origQTY'],
+			"side"    : side,
+			"qty"     : qty,
 			"status"  : "Open",
 			"pnl"     : "",
 			"open": {
-				"date"    : dateTime.strftime("%d/%m/%y"),
-				"time"    : dateTime.strftime("%H:%M:%S"),
-				"price"   : order['price'],
-				"comments": issues
+				"date"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%y"),
+				"time"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%H:%M:%S"),
+				"price"   : price,
+				"balance" : balance,
+				"comments": ""
 				},
 			"close": {
-				"date"    : dateTime.strftime("%d/%m/%y"),
-				"time"    : dateTime.strftime("%H:%M:%S"),
-				"price"   : order['price'],
-				"comments": issues
+				"date"    : "",
+				"time"    : "",
+				"price"   : "",
+				"balance" : balance,
+				"comments": ""
 				}
 		}
 		return orderDetails
+
+	qty, price, balance = binanceOrder()
+	orderDetails = details(qty, price, balance)
+ 
+	return orderDetails
+
+
+# Función para cerrar operaciones simuladas
+def closeOrderSimulated(bot, position):
+
+	# Crea las operaciones
+	def binanceOrder():
+		price = float(ccxt.binance().fetch_ohlcv('BTC/USDT', '1d', limit = 1)[0][4])
+  
+		if position['side'] == "Buy":
+			pnl = bot['settings']['leverage'] * ((price * 100 / position['open']['price']) - 100)
+      
+		elif position['side'] == "Sell":
+			pnl = bot['settings']['leverage'] * ((position['open']['price'] * 100 / price) - 100)
    
-	try:
-		connectExchange(bot['settings']['exchange']['apiKey'], bot['settings']['exchange']['apiSecret'])
-		order = binanceOrder(bot)
-		if order['modalID'] != "":
-			return order
-		else:
-			orderDetails = details(order)
-	except:
-		try:
-			connectExchange(bot['settings']['exchange']['apiKey2'], bot['settings']['exchange']['apiSecret2'])
-			order = binanceOrder(bot)
-			if order['modalID'] != "":
-				return order
-			else:
-				orderDetails = details(order)
-		except:
-			orderDetails = errorDetails("Close", bot, "No hay API valida para realizar la orden")
+		balance = position['open']['balance'] + (position['open']['balance'] * pnl / 100) 
+		print(price)
+		print(balance)
+		print(pnl)
+		return price, balance, pnl
+
+	# Detalles de una orden
+	def details(price, balance, pnl):
+		orderDetails = {
+			"Nº"      : "",
+			"ID"      : "",
+			"modalID" : "",
+			"side"    : "",
+			"qty"     : "",
+			"status"  : "Closed",
+			"pnl"     : pnl,
+			"open": {
+				"date"    : "",
+				"time"    : "",
+				"price"   : "",
+				"balance" : "",
+				"comments": ""
+				},
+			"close": {
+				"date"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%y"),
+				"time"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%H:%M:%S"),
+				"price"   : price,
+				"balance" : balance,
+				"comments": ""
+				}
+		}
+
+		return orderDetails
+	
+	price, balance, pnl = binanceOrder()
+	orderDetails = details(price, balance, pnl)
  
 	return orderDetails
 
 
 # Función para informar de errores en el bot
-def errorDetails(side, bot, string):
-    dateTime = datetime.now(timezone(timedelta(hours=-5)))
-    orderDetails = {
-			"ID"      : "XXXXXX",
+def errorDetails(bot, side, string):
+	try: No = bot['log'][-1]['Nº'] + 1 
+	except: No = 1
+	try: balance = bot['log'][-1]['close']['balance']
+	except: balance = bot['settings']['balance']
+	orderDetails = {	
+			"Nº"      : No,
+			"ID"      : "xxxxxx",
 			"modalID" : modalID(bot),
 			"side"    : side,
 			"qty"     : "",
 			"status"  : "Error",
 			"pnl"     : "",
 			"open": {
-				"date"    : dateTime.strftime("%d/%m/%y"),
-				"time"    : dateTime.strftime("%H:%M:%S"),
+				"date"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%y"),
+				"time"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%H:%M:%S"),
 				"price"   : "",
+				"balance" : balance,
 				"comments": string
 				},
 			"close": {
-				"date"    : dateTime.strftime("%d/%m/%y"),
-				"time"    : dateTime.strftime("%H:%M:%S"),
+				"date"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%y"),
+				"time"    : datetime.now(timezone(timedelta(hours=-5))).strftime("%H:%M:%S"),
 				"price"   : "",
+				"balance" : balance,
 				"comments": string
 				}
 		}
-    return orderDetails
 
+	return orderDetails
+
+
+# Devuleve un ID unico para cada modal en HTML
 def modalID(bot):
 	id = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
 	for log in bot['log']: 

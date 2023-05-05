@@ -2,7 +2,7 @@
 
 {% block content%}
 
-    <!-- ======= Side-bar ======= -->
+	<!-- ======= Side-bar ======= -->
 	<aside id="sidebar" class="sidebar">
 
 		<ul class="sidebar-nav" id="sidebar-nav">
@@ -69,94 +69,95 @@
 			<h1>Ayuda</h1>
 			<nav>
 				<ol class="breadcrumb">
-						<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
-						<li class="breadcrumb-item active">Ayuda</li>
+					<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+					<li class="breadcrumb-item active">Ayuda</li>
 				</ol>
 			</nav>
-		</div><!-- End Page Title -->
+		</div>
 
 		<section class="section contact">
 			<div class="row">
-                
-                <h5 class="card-title bi bi-info-circle">   Preguntas Frecuentes</h5>
+				
+				<h5 class="card-title bi bi-info-circle">   Preguntas Frecuentes</h5>
 
 				<!-- Preguntas Frecuentes -->
-                <div class="card">
-                    <div class="card-body">
-                        
+				<div class="card">
+					<div class="card-body">
+						
 
-                        <div class="accordion accordion-flush" id="accordionFlushExample">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingOne">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                        Pregunta #1
-                                    </button>
-                                </h2>
-                                <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">Respuesta Generica #1</div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingTwo">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-                                        Pregunta #2
-                                    </button>
-                                </h2>
-                                <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">Respuesta Generica #1</div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingThree">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-                                        Pregunta #3
-                                    </button>
-                                </h2>
-                                <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">Respuesta Generica #1</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+						<div class="accordion accordion-flush" id="accordionFlushExample">
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="flush-headingOne">
+									<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+										¿Por qué todas mis ordenes tienen el error "No hay Api Key valida para realizar la orden"?
+									</button>
+								</h2>
+								<div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+									<div class="accordion-body">Esto se debe a que la Api key o Secret key que ingresaste para realizar las ordenes no es valida o ya está expirada, genera una nueva Api key en el sitio web o aplicación de tu exchange de preferencia para poder ejecutar las ordenes con tu bot, en los bots simulados no se requiere el uso de una Api key autentica</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="flush-headingTwo">
+									<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+										¿Qué son las Api key y Secret key?
+									</button>
+								</h2>
+								<div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+									<div class="accordion-body">Las API key y Secret key son utilizadas para la autenticación y autorización de acceso a la cuenta del usuario a través de la API. La API key y Secret key de los exchanges son códigos generados por el usuario a través del sitio web de se respectivo exchange, que luego se utilizan en esta aplicación para acceder a la cuenta del exchange del usuario y realizar operaciones automatizadas en su nombre. Las API key y Secret key de cada exchange son confidenciales y deben mantenerse en secreto para evitar el acceso no autorizado a la cuenta del usuario.</div>
+								</div>
+							</div>
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="flush-headingThree">
+									<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+										¿Qué son las Api key y Secret key secundarias?
+									</button>
+								</h2>
+								<div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+									<div class="accordion-body">La mayoria de Api keys de los exchanges actuales tienen un tiempo de expiración de variando el exchange de donde generes tu Api key (comunmente siendo de 90 dias), al momento de terminarse ese tiempo de expiración no es posible hacer mas ordenes con esa Api key, si una posición esta ejecutandose al momento de que termine el tiempo de vida de la Api key, esa orden se puede cerrar con una Api key secundaria que hayas generado al saber que tu Api key actual esté a punto de vencer, de lo contrario la posición no cerrará hasta que lo hagas manualmente, es importante saber cuando creaste tus Api keys y cuando van a expirar para asi evitar perdidas de dinero.</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                <h5 class="card-title bi bi-person-circle">   Contacto</h5>
+				<h5 class="card-title bi bi-person-circle">   Contacto</h5>
 
-                <div class="row">
+				<!-- Contacto -->
+				<div class="row">
 
-                    <div class="col-lg-3">
-                        <div class="info-box card">
-                            <i class="bi bi-envelope"></i>
-                            <h3>Correo</h3>
-                            <p>v3rtmt@gmail.com</p>
-                        </div>
-                    </div>
+					<div class="col-lg-3">
+						<div class="info-box card">
+							<i class="bi bi-envelope"></i>
+							<h3>Correo</h3>
+							<p>v3rtmt@gmail.com</p>
+						</div>
+					</div>
 
-                    <div class="col-lg-3">
-                        <div class="info-box card">
-                            <i class="bi bi-telegram"></i>
-                            <h3>Telegram</h3>
-                            <p>@Hvert_mt</p>
-                        </div>
-                    </div>
+					<div class="col-lg-3">
+						<div class="info-box card">
+							<i class="bi bi-telegram"></i>
+							<h3>Telegram</h3>
+							<p>@VertMTT</p>
+						</div>
+					</div>
 
-                    <div class="col-lg-3">
-                        <div class="info-box card">
-                            <i class="bi bi-twitter"></i>
-                            <h3>Twitter</h3>
-                            <p>@Hvert_mt</p>
-                        </div>
-                    </div>
+					<div class="col-lg-3">
+						<div class="info-box card">
+							<i class="bi bi-twitter"></i>
+							<h3>Twitter</h3>
+							<p>@VertMTT</p>
+						</div>
+					</div>
 
-                    <div class="col-lg-3">
-                        <div class="info-box card">
-                            <i class="bi bi-instagram"></i>
-                            <h3>Instagram</h3>
-                            <p>@hvert.mt</p>
-                        </div>
-                    </div>
+					<div class="col-lg-3">
+						<div class="info-box card">
+							<i class="bi bi-instagram"></i>
+							<h3>Instagram</h3>
+							<p>@hvert.mt</p>
+						</div>
+					</div>
 
-                  </div>
+				  </div>
 
 			</div>
 		</section>

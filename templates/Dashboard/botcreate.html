@@ -79,116 +79,135 @@
     
         <section class="section profile">
 			<div class="row">
-				<div>
-					<div class="card">
-						<div class="card-body pt-3">
-								<!-- Crear nuevo bot -->
-								<div>
-								<form action="/Bot/create" method="POST" class="needs-validation" novalidate>
-									<div class="row mb-3">
-										<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Bot</label>
-										<div class="col-md-8 col-lg-9">
-											<select name="type" id="exchange" class="form-select" aria-label="Default select example" disabled>
-												<option value="Crypto Futures"      > Crypto Futuros </option>
-												<option value="Crypto Spot" disabled> Crypto Spot    </option>
-												<option value="Forex" disabled      > Forex   		 </option>
-												<option value="Index" disabled      > Index 		 </option>
-											</select>
-										</div>
+				<div class="card">
+					<div class="card-body pt-3">
+						<!-- Crear nuevo bot -->
+						<div>
+							<form action="/Bot/create" method="POST" class="needs-validation" novalidate>
+								<div class="row mb-3">
+									<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Bot</label>
+									<div class="col-md-8 col-lg-9">
+										<select name="type" id="exchange" class="form-select" aria-label="Default select example" disabled>
+											<option value="Crypto Futures"      > Crypto Futures </option>
+											<option value="Crypto Spot" disabled> Crypto Spot    </option>
+											<option value="Forex" disabled      > Forex   		 </option>
+											<option value="Index" disabled      > Index 		 </option>
+										</select>
 									</div>
+								</div>
 
-									<div class="row mb-3">
-										<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Exchange</label>
-										<div class="col-md-8 col-lg-9">
-											<select name="exchange" id="exchange" class="form-select" aria-label="Default select example">
-												<option value="Binance">  Binance  </option>
-												<option value="Bybit" disabled >    Bybit    </option>
-												<option value="Bitget" disabled >   Bitget   </option>
-												<option value="Coinbase" disabled > Coinbase </option>
-											</select>
-										</div>
+								<div class="row mb-3">
+									<label for="exchange" class="col-md-4 col-lg-3 col-form-label">Exchange</label>
+									<div class="col-md-8 col-lg-9">
+										<select name="exchange" id="exchange" class="form-select" aria-label="Default select example">
+											<option value="Binance">  Binance  </option>
+											<option value="Bybit" disabled >    Bybit    </option>
+											<option value="Bitget" disabled >   Bitget   </option>
+											<option value="Coinbase" disabled > Coinbase </option>
+										</select>
 									</div>
+								</div>
 
-									<div class="row mb-3">
-										<label for="pair" class="col-md-4 col-lg-3 col-form-label">Par</label>
-										<div class="col-md-8 col-lg-9">
-											<select name="pair" id="pair" class="form-select" aria-label="Default select example">
-												<option value="BTC/USDT"> BTC/USDT </option>
-												<option value="BTC/BUSD"> BTC/BUSD </option>
-												<option value="ETH/USDT"> ETH/USDT </option>
-												<option value="ETH/BUSD"> ETH/BUSD </option>
-											</select>
-										</div>
+								<div class="row mb-3">
+									<label for="pair" class="col-md-4 col-lg-3 col-form-label">Par</label>
+									<div class="col-md-8 col-lg-9">
+										<select name="pair" id="pair" class="form-select" aria-label="Default select example">
+											<option value="BTC/USDT"> BTC/USDT </option>
+											<option value="BTC/BUSD"> BTC/BUSD </option>
+											<option value="ETH/USDT"> ETH/USDT </option>
+											<option value="ETH/BUSD"> ETH/BUSD </option>
+										</select>
 									</div>
+								</div>
 
-									<div class="row mb-3">
-										<label for="apikey" class="col-md-4 col-lg-3 col-form-label {% if apiKey is true %} is-invalid {% endif %}">Api Key</label>
-										<div class="col-md-8 col-lg-9">
-											<input name="apiKey" type="text" class="form-control {% if apiKey is true %} is-invalid {% endif %}" id="apikey">
-											<div class="invalid-feedback">{% if apiKey is true %} Necesitas una Api Key para crear un nuevo bot {% endif %}</div>
-										</div>
+								<div class="row mb-3">
+									<label for="apikey" class="col-md-4 col-lg-3 col-form-label {% if apiKey is true %} is-invalid {% endif %}">Api Key</label>
+									<div class="col-md-8 col-lg-9">
+										<input name="apiKey" type="text" class="form-control {% if apiKey is true %} is-invalid {% endif %}" id="apikey">
+										<div class="invalid-feedback">{% if apiKey is true %} Necesitas una Api Key para crear un nuevo bot {% endif %}</div>
 									</div>
-				
-									<div class="row mb-3">
-										<label for="secretKey" class="col-md-4 col-lg-3 col-form-label {% if apiSecret is true %} is-invalid {% endif %}">Secret Key</label>
-										<div class="col-md-8 col-lg-9">
-											<input name="secretKey" type="password" class="form-control {% if apiSecret is true %} is-invalid {% endif %}" id="secretKey">
-											<div class="invalid-feedback">{% if apiSecret is true %} Necesitas una Api Secret para crear un nuevo bot {% endif %}</div>
-										</div>
+								</div>
+			
+								<div class="row mb-3">
+									<label for="secretKey" class="col-md-4 col-lg-3 col-form-label {% if apiSecret is true %} is-invalid {% endif %}">Secret Key</label>
+									<div class="col-md-8 col-lg-9">
+										<input name="secretKey" type="password" class="form-control {% if apiSecret is true %} is-invalid {% endif %}" id="secretKey">
+										<div class="invalid-feedback">{% if apiSecret is true %} Necesitas una Secret Key para crear un nuevo bot {% endif %}</div>
+									</div>
+								</div>
+								
+								<div class="row mb-3">
+									<label for="apiKey2" class="col-md-4 col-lg-3 col-form-label">Api Key (Secundaria)</label>
+									<div class="col-md-8 col-lg-9">
+										<input name="apiKey2" type="text" class="form-control" id="apiKey2">
+									</div>
+								</div>
+			
+								<div class="row mb-3">
+									<label for="secretKey2" class="col-md-4 col-lg-3 col-form-label">Secret Key (Secundaria)</label>
+									<div class="col-md-8 col-lg-9">
+										<input name="secretKey2" type="password" class="form-control" id="secretKey2">
+									</div>
+								</div>
+								
+								<div class="row mb-3">
+									<label for="order" class="col-md-4 col-lg-3 col-form-label">Orden</label>
+									<div class="col-md-4 col-lg-5">
+										<input name="orderAmount" type="number" min="0" class="form-control" id="orderValue" value="100">
+									</div>
+									<div class="col-md-4 col-lg-4">
+										<select name="amountType" id="order" class="form-select" aria-label="Default select example">
+											<option value="%">   %   </option>
+											<option value="USD"> USD </option>
+										</select>
+									</div>
+								</div>
+
+								<div class="row mb-3">
+									<label for="leverage" class="col-md-4 col-lg-3 col-form-label">Leverage</label>
+									<div class="col-md-8 col-lg-9">
+										<input name="leverage" type="number" min="1" max="100" class="form-control" id="leverage" value="1">
+									</div>
+								</div>
+								
+								<div class="row mb-3">
+									<script type="text/javascript">
+										function toggleInput() {
+											var isSimulated = document.getElementById("isSimulated");
+											var simulatedInput = document.getElementById("simulatedInput");
+											if (isSimulated.checked == true) {
+												simulatedInput.disabled = false;
+											} else {
+												simulatedInput.disabled = true;
+											}
+										}
+									</script>
+									<label for="isSimulated" class="col-md-4 col-lg-3 col-form-label"></label>
+									<div class="form-check form-switch col-md-4 col-lg-3 p1">
+										<label class="form-check-label" for="isSimulated">Trading simulado</label>
+										<input name="isSimulated" class="form-check-input" type="checkbox" id="isSimulated" onclick="toggleInput()">
 									</div>
 									
-									<div class="row mb-3">
-										<label for="apiKey2" class="col-md-4 col-lg-3 col-form-label">Api Key (Secundaria)</label>
-										<div class="col-md-8 col-lg-9">
-											<input name="apiKey2" type="text" class="form-control" id="apiKey2">
-										</div>
-									</div>
-				
-									<div class="row mb-3">
-										<label for="secretKey2" class="col-md-4 col-lg-3 col-form-label">Secret Key (Secundaria)</label>
-										<div class="col-md-8 col-lg-9">
-											<input name="secretKey2" type="password" class="form-control" id="secretKey2">
-										</div>
-									</div>
-									
-									<div class="row mb-3">
-										<label for="order" class="col-md-4 col-lg-3 col-form-label">Orden</label>
-										<div class="col-md-4 col-lg-5">
-											<input name="orderAmount" type="number" min="0" class="form-control" id="orderValue" value="100">
-										</div>
-										<div class="col-md-4 col-lg-4">
-											<select name="amountType" id="order" class="form-select" aria-label="Default select example">
-												<option value="%">   %   </option>
-												<option value="USD"> USD </option>
-											</select>
-										</div>
-									</div>
-
-									<div class="row mb-3">
-										<label for="leverage" class="col-md-4 col-lg-3 col-form-label">Leverage</label>
-										<div class="col-md-8 col-lg-9">
-											<input name="leverage" type="number" min="1" max="100" class="form-control" id="leverage" value="1">
-										</div>
-									</div>
-									
-									<div class="row mb-3">
-										<label for="isSimulated" class="col-md-4 col-lg-3 col-form-label"></label>
-										<div class="form-check form-switch col-md-8 col-lg-9 csspad">
-											<input name="isSimulated" class="form-check-input" type="checkbox" id="isSimulated">
-											<label class="form-check-label" for="isSimulated">Trading simulado</label>
-										</div>
-									</div>
 									<style>
-										.csspad{
-											padding-left: 52px;
+										.p1{
+											padding-left: 53px;
+											padding-top: 7px;
 										}
 									</style>
-
-									<div class="text-center">
-										<button type="submit" class="btn btn-primary">Crear bot</button>
+								</div>
+								<div class="row mb-3">
+									<label for="leverage" class="col-md-4 col-lg-3 col-form-label">Balance inicial (Simulado)</label>
+									<div class="col-md-8 col-lg-9">
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<input name="simulatedBalance" type="number" id="simulatedInput" class="form-control" min="1" disabled>
+										</div>
 									</div>
-								</form>
-							</div>
+								</div>
+								<div class="text-center">
+									<button type="submit" class="btn btn-primary">Crear bot</button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>

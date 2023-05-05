@@ -167,36 +167,36 @@
 							
 								<div class="card-body">
 									<h5 class="card-title">Reporte</h5>
-									<div id="reportsChart"></div>
+									<div id="GraficaBot"></div>
 									<script>
 										document.addEventListener("DOMContentLoaded", () => {
-										new ApexCharts(document.querySelector("#reportsChart"), {
-											series:     [{name: 'Bot', data: [0, 40, 28, 51, 42, 82, 96]}],
-											chart:      {height: 350, type: 'area', toolbar: {show: true}},
-											markers:    {size: 4},
-											colors:     ['#4154f1'],
-											dataLabels: {enabled: false},
-											stroke:     {curve: 'smooth', width: 2},
-											tooltip:    {x: {format: 'dd/MM/yy HH:mm'},},
-											fill: {
-												type: "gradient",
-													gradient: {
-													shadeIntensity: 1,
-													opacityFrom: 0.3,
-													opacityTo: 0.4,
-													stops: [0, 90, 100]}},
-											xaxis: {
-												type: 'datetime',
-												categories: 
-													["2023-09-19T00:00:00.000Z", 
-													 "2023-09-19T01:30:00.000Z", 
-													 "2023-09-19T02:30:00.000Z", 
-													 "2023-09-19T03:30:00.000Z", 
-													 "2023-09-19T04:30:00.000Z", 
-													 "2023-09-19T05:30:00.000Z", 
-													 "2023-09-19T06:30:00.000Z"]}
-										}).render();
-										});
+											new ApexCharts(document.querySelector("#GraficaBot"), {
+												series:     [{name: 'Bot', data: [Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1, Math.floor(Math.random() * 100) + 1]}],
+												chart:      {height: 350, type: 'area', toolbar: {show: true}},
+												markers:    {size: 4},
+												colors:     ['#4154f1'],
+												dataLabels: {enabled: false},
+												stroke:     {curve: 'smooth', width: 2},
+												tooltip:    {x: {format: 'dd/MM/yy HH:mm'},},
+												fill: {
+													type: "gradient",
+														gradient: {
+														shadeIntensity: 1,
+														opacityFrom: 0.3,
+														opacityTo: 0.4,
+														stops: [0, 90, 100]}},
+												xaxis: {
+													type: 'datetime',
+													categories: 
+													["2023-09-19T00:30:00.000Z", 
+													"2023-09-19T01:30:00.000Z", 
+													"2023-09-19T02:30:00.000Z", 
+													"2023-09-19T03:30:00.000Z", 
+													"2023-09-19T04:30:00.000Z", 
+													"2023-09-19T05:30:00.000Z", 
+													"2023-09-19T06:30:00.000Z"]}
+											}).render();
+											});
 									</script>
 								</div>
 							</div>
@@ -208,23 +208,8 @@
 				<div class="col-lg-4">
 					<div class="card">
 						<div class="card-body pb-0">
-							<h5 class="card-title">Portafolio</h5>
-							<div id="trafficChart" style="min-height: 400px;" class="echart"></div>
-							<script>
-								document.addEventListener("DOMContentLoaded", () => {
-								echarts.init(document.querySelector("#trafficChart")).setOption({
-									avoidLabelOverlap: false,
-									tooltip:   {trigger: 'item'},
-									legend:    {top: '5%', left: 'center'},
-									series:    [{name: 'Access From', type: 'pie', radius: ['40%', '70%'],
-									label:     {show: false, position: 'center'},
-									emphasis:  {label: {show: true, fontSize: '18', fontWeight: 'bold'}},
-									labelLine: {show: false},
-									data: [
-										{value: 1048, name: 'Ethereum'},
-										{value: 735,  name: 'Tether'},
-										{value: 262,  name: 'Bitcoin'}]}]});});
-							</script>
+							<h5 class="card-title">Noticias</h5>
+							<div class="cryptohopper-web-widget" data-id="5" data-news_count="4" data-news_length="10" data-thumbnails="0"></div>
 						</div>
 					</div>
 				</div>

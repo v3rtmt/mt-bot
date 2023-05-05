@@ -9,32 +9,20 @@
 	<meta content="" name="description">
 	<meta content="" name="keywords">
 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- Icon -->
+	<link href="{{ url_for('static', filename='img/icono2.png') }}" rel="icon">
 
 	<!-- CSS Imports -->  
 	<div>
 
-		<!-- Vendor CSS Files -->
-		<link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
+		<!-- Bootstrap -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-		<!-- Template Main CSS File -->
-		<link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-
-		<!-- Favicons -->
-		<link href="{{ url_for('static', filename='icono2.png') }}" rel="icon">
-		<link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+		<!-- Main CSS File -->
+		<link href="{{ url_for('static', filename='assets/css/dashboardStyle.css') }}" rel="stylesheet">
 
 		<!-- Google Fonts -->
-		<link href="https://fonts.gstatic.com" rel="preconnect">
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-		<link rel="stylesheet" href="https://cdn.cryptofonts.com/1.4.0/cryptofont.css">
 
 	</div>
 
@@ -47,98 +35,91 @@
 		<div class="container">
 			<section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
 				<div class="container">
-				<div class="row justify-content-center">
-					<div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+					<div class="row justify-content-center">
+						<div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+						
+							<!-- Logo -->
+							<div class="d-flex justify-content-center py-4">
+								<a href="/" class="logo d-flex align-items-center w-auto">
+								<span class="d-none d-lg-block">MT Strategy</span>
+								</a>
+							</div>
+				
+							<div class="card mb-3">
+								<div class="card-body">
+				
+									<div class="pt-4 pb-2">
+										<h5 class="card-title text-center pb-0 fs-4">Crea una cuenta</h5>
+										<p class="text-center small">Ingresa tus datos para registrarte</p>
+									</div>
 					
-					<!-- Logo -->
-					<div class="d-flex justify-content-center py-4">
-						<a href="/" class="logo d-flex align-items-center w-auto">
-						<span class="d-none d-lg-block">MT Strategy</span>
-						</a>
-					</div>
-		
-					<div class="card mb-3">
-						<div class="card-body">
-		
-						<div class="pt-4 pb-2">
-							<h5 class="card-title text-center pb-0 fs-4">Crea una cuenta</h5>
-							<p class="text-center small">Ingresa tus datos para registrarte</p>
-						</div>
-		
-						<form action="/Register" method="POST" class="row g-3 needs-validation" novalidate>
-							<div class="col-12">
-							<label for="yourName" class="form-label">Nombre(s)</label>
-							<input type="text" name="name" class="form-control" id="yourName" value="{{ name }}" required>
-							<div class="invalid-feedback">Ingresa tu nombre</div>
-							</div>
-		
-							<div class="col-12">
-								<label for="yourUsername" class="form-label {% if usernameError is true %} is-invalid {% endif %}">Nombre Usuario</label>
-								<input type="text" name="username" class="form-control {% if usernameError is true %} is-invalid {% endif %}" id="yourUsername" value="{{ username }}" required>
-								<div class="invalid-feedback">{% if usernameError is true %} Este nombre de usuario ya está en uso {% else %} Escoge un nombre de Usuario {% endif %}</div>
-							</div>
-
-							<div class="col-12">
-								<label for="yourEmail" class="form-label {% if emailError is true %} is-invalid {% endif %}">Correo Electronico</label>
-								<input type="email" name="email" class="form-control {% if emailError is true %} is-invalid {% endif %}" id="yourEmail" value="{{ email }}" required>
-								<div class="invalid-feedback">{% if emailError is true %} Este correo ya está en uso {% else %} Ingresa un correo valido {% endif %}</div>
-							</div>
-		
-							<div class="col-12">
-								<label for="yourPassword" class="form-label">Contraseña</label>
-								<input type="password" name="password" class="form-control" id="yourPassword" required>
-								<div class="invalid-feedback">Ingresa una contraseña</div>
-							</div>
-
-							<div class="col-12">
-								<label for="usercode" class="form-label {% if usercode is true %} is-invalid {% endif %}">Codigo de acceso</label>
-								<input type="password" name="usercode" class="form-control" id="usercode" required>
-								<div class="invalid-feedback">{% if usercode is true %} Codigo de acceso incorrecto {% else %} Ingresa el codigo de acceso {% endif %}</div>
-							</div>
-		
-							<div class="col-12">
-							<div class="form-check">
-								<input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
-								<label class="form-check-label" for="acceptTerms">Estoy de acuerdo con los <a href="#">terminos y condiciones</a></label>
-								<div class="invalid-feedback">Debes aceptar los terminos y condiciones</div>
-							</div>
-							</div>
-							<div class="col-12">
-							<button class="btn btn-primary w-100" type="submit">Registrarme</button>
-							</div>
-							<div class="col-12">
-							<p class="small mb-0 text-center">Ya tienes una cuenta? <a href="/Login">Inicia sesión aqui</a></p>
-							</div>
-
-							<script>
-								// Example starter JavaScript for disabling form submissions if there are invalid fields
-								(function () {
-								'use strict'
+									<form action="/Register" method="POST" class="row g-3 needs-validation" novalidate>
+										<div class="col-12">
+											<label for="yourName" class="form-label">Nombre(s)</label>
+											<input type="text" name="name" class="form-control" id="yourName" value="{{ name }}" required>
+											<div class="invalid-feedback">Ingresa tu nombre</div>
+										</div>
 					
-								// Fetch all the forms we want to apply custom Bootstrap validation styles to
-								var forms = document.querySelectorAll('.needs-validation')
-					
-								// Loop over them and prevent submission
-								Array.prototype.slice.call(forms)
-									.forEach(function (form) {
-									form.addEventListener('submit', function (event) {
-										if (!form.checkValidity()) {
-										event.preventDefault()
-										event.stopPropagation()
-										}
-					
-										form.classList.add('was-validated')
-									}, false)
-									})
-								})()
-							</script>
+										<div class="col-12">
+											<label for="yourUsername" class="form-label {% if usernameError is true %} is-invalid {% endif %}">Nombre Usuario</label>
+											<input type="text" name="username" class="form-control {% if usernameError is true %} is-invalid {% endif %}" id="yourUsername" value="{{ username }}" required>
+											<div class="invalid-feedback">{% if usernameError is true %} Este nombre de usuario ya está en uso {% else %} Escoge un nombre de Usuario {% endif %}</div>
+										</div>
 
-						</form>
-		
+										<div class="col-12">
+											<label for="yourEmail" class="form-label {% if emailError is true %} is-invalid {% endif %}">Correo Electronico</label>
+											<input type="email" name="email" class="form-control {% if emailError is true %} is-invalid {% endif %}" id="yourEmail" value="{{ email }}" required>
+											<div class="invalid-feedback">{% if emailError is true %} Este correo ya está en uso {% else %} Ingresa un correo valido {% endif %}</div>
+										</div>
+					
+										<div class="col-12">
+											<label for="yourPassword" class="form-label">Contraseña</label>
+											<input type="password" name="password" class="form-control" id="yourPassword" required>
+											<div class="invalid-feedback">Ingresa una contraseña</div>
+										</div>
+
+										<div class="col-12">
+											<label for="usercode" class="form-label {% if usercode is true %} is-invalid {% endif %}">Codigo de acceso</label>
+											<input type="password" name="usercode" class="form-control" id="usercode" required>
+											<div class="invalid-feedback">{% if usercode is true %} Codigo de acceso incorrecto {% else %} Ingresa el codigo de acceso {% endif %}</div>
+										</div>
+					
+										<div class="col-12">
+											<div class="form-check">
+												<input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
+												<label class="form-check-label" for="acceptTerms">Estoy de acuerdo con los <a href="#">terminos y condiciones</a></label>
+												<div class="invalid-feedback">Debes aceptar los terminos y condiciones</div>
+											</div>
+										</div>
+										<div class="col-12">
+											<button class="btn btn-primary w-100" type="submit">Registrarme</button>
+										</div>
+										<div class="col-12">
+											<p class="small mb-0 text-center">Ya tienes una cuenta? <a href="/Login">Inicia sesión aqui</a></p>
+										</div>
+
+										<script>
+											(function () {
+											'use strict'
+											var forms = document.querySelectorAll('.needs-validation')
+											Array.prototype.slice.call(forms)
+												.forEach(function (form) {
+												form.addEventListener('submit', function (event) {
+													if (!form.checkValidity()) {
+													event.preventDefault()
+													event.stopPropagation()
+													}
+								
+													form.classList.add('was-validated')
+												}, false)
+												})
+											})()
+										</script>
+									</form>
+								</div>
+							</div>
 						</div>
 					</div>
-					</div>
-				</div>
 				</div>
 			</section>
 		</div>
@@ -148,20 +129,8 @@
 
 	<!-- JS Imports -->
 	<div>
-
-		<!-- Main JS File -->
-		<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-
-		<!-- JS Files -->
-		<script src="{{ url_for('static', filename='assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/chart.js/chart.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/echarts/echarts.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/quill/quill.min.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/simple-datatables/simple-datatables.js') }}"></script>
-		<script src="{{ url_for('static', filename='assets/vendor/tinymce/tinymce.min.js') }}"></script>
-		<script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
-
+		<script src="{{ url_for('static', filename='assets/js/dashboard.js') }}"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 	</div>
 
 </body>
